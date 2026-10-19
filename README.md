@@ -13,7 +13,7 @@
 - Redeveloped loan originations model which resulted in 50% improvement in model performance and saving 1 million dollars in potential losses
 
 ## Projects
-### - NYC Accidents 2020
+- ### NYC Accidents 2020
 abc
 
 [PowerBI](https://www.mdpi.com/1424-8220/22/8/3048)
