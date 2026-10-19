@@ -13,7 +13,7 @@
 - AWS Certified Cloud Practitioner (CCP) | AWS (_April 2025_)
 - Javascript Specialist: React & Redux | CodersLab (_December 2024_)
 - Scrum Developer Certified (SDC) | SCRUMstudy (_August 2024_)
-- Python Developer | CodersLab (_Julu 2024_)
+- Python Developer | CodersLab (_July 2024_)
 
 ## Work Experience
 **Process Engineer @ PRODMAX SP.Z O.O. (_November 2020 - Present_)**
@@ -21,7 +21,7 @@
 - Redeveloped loan originations model which resulted in 50% improvement in model performance and saving 1 million dollars in potential losses
 
 ## Talks & Lectures
-- Reducing Missing Data and Spatial SQL [Part 1 - PowerBI](https://pbugowski.github.io/pbugowski.github.io-portfolio/)) / [Part 2 - Sql](https://www.mdpi.com/1424-8220/22/8/3048)
+- Reducing Missing Data and Spatial SQL [Part 1 - PowerBI](https://pbugowski.github.io/pbugowski.github.io-portfolio/) / [Part 2 - Sql](https://www.mdpi.com/1424-8220/22/8/3048)
 
 ## Projects
 - ### NYC Accidents 2020
