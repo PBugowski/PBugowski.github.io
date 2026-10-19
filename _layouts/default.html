@@ -39,15 +39,33 @@
           <p>{{ site.description | default: site.github.project_tagline }}</p>
         {% endif %}
 
-        <!-- External website link -->
-        {% if site.external_url %}
+        <!-- Portfolio -->
+        {% if site.external_url_portfolio %}
           <p class="view">
-            <a href="{{ site.external_url }}" target="_blank" rel="noopener noreferrer">
-              {{ site.external_url_name | default: "Moja strona" }}
+            <a href="{{ site.external_url_portfolio }}" target="_blank" rel="noopener noreferrer">
+              {{ site.external_url_portfolio_name | default: "Portfolio" }}
             </a>
           </p>
         {% endif %}
-
+        
+        <!-- GitHub -->
+        {% if site.external_url_github %}
+          <p class="view">
+            <a href="{{ site.external_url_github }}" target="_blank" rel="noopener noreferrer">
+              {{ site.external_url_github_name | default: "GitHub" }}
+            </a>
+          </p>
+        {% endif %}
+        
+        <!-- LinkedIn -->
+        {% if site.external_url_linkedin %}
+          <p class="view">
+            <a href="{{ site.external_url_linkedin }}" target="_blank" rel="noopener noreferrer">
+              {{ site.external_url_linkedin_name | default: "LinkedIn" }}
+            </a>
+          </p>
+        {% endif %}
+        
         {% if site.github.is_project_page %}
           <p class="view">
             <a href="{{ site.github.repository_url }}">
