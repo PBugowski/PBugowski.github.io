@@ -15,6 +15,7 @@
 ## Projects
 ### - NYC Accidents 2020
 abc
+
 [PowerBI](https://www.mdpi.com/1424-8220/22/8/3048)
 
 ![EEG Band Discovery](/assets/img/eeg_band_discovery.jpeg)
