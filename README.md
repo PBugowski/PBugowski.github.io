@@ -21,7 +21,7 @@
 - Redeveloped loan originations model which resulted in 50% improvement in model performance and saving 1 million dollars in potential losses
 
 ## Talks & Lectures
-- Reducing Missing Data and Spatial SQL [Part 1 - PowerBI]((https://pbugowski.github.io/pbugowski.github.io-portfolio/)) / [Part 2 - Sql](https://www.mdpi.com/1424-8220/22/8/3048)
+- Reducing Missing Data and Spatial SQL [Part 1 - PowerBI](https://pbugowski.github.io/pbugowski.github.io-portfolio/)) / [Part 2 - Sql](https://www.mdpi.com/1424-8220/22/8/3048)
 
 ## Projects
 - ### NYC Accidents 2020
