@@ -158,9 +158,7 @@
 
       <!-- Profile title -->
       <h1>
-        <a href="{{ '/' | relative_url }}">
-          {{ site.title | default: site.github.repository_name }}
-        </a>
+        {{ site.title | default: site.github.repository_name }}
       </h1>
       
       <!-- Profile photo -->
@@ -177,6 +175,24 @@
       <!-- Profile menu -->
       <nav class="profile-menu" aria-label="Profile links">
 
+        <!-- Portfolio -->
+        {% if site.external_url_portfolio %}
+          <a class="profile-button"
+             href="{{ site.external_url_portfolio }}"
+             target="_blank"
+             rel="noopener noreferrer"
+             aria-label="Portfolio">
+
+            <svg class="profile-icon"
+                 viewBox="0 0 24 24"
+                 aria-hidden="true">
+              <path d="M3 3h2v16h16v2H3V3Zm5 10h3v4H8v-4Zm5-5h3v9h-3V8Zm5-4h3v13h-3V4Z"/>
+            </svg>
+
+            <span>Portfolio</span>
+          </a>
+        {% endif %}        
+        
         <!-- LinkedIn -->
         {% if site.external_url_linkedin %}
           <a class="profile-button"
@@ -228,25 +244,6 @@
             </svg>
 
             <span>Contact</span>
-          </a>
-        {% endif %}
-
-
-        <!-- Portfolio -->
-        {% if site.external_url_portfolio %}
-          <a class="profile-button"
-             href="{{ site.external_url_portfolio }}"
-             target="_blank"
-             rel="noopener noreferrer"
-             aria-label="Portfolio">
-
-            <svg class="profile-icon"
-                 viewBox="0 0 24 24"
-                 aria-hidden="true">
-              <path d="M3 3h2v16h16v2H3V3Zm5 10h3v4H8v-4Zm5-5h3v9h-3V8Zm5-4h3v13h-3V4Z"/>
-            </svg>
-
-            <span>Portfolio</span>
           </a>
         {% endif %}
 
