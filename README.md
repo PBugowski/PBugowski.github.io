@@ -3,9 +3,17 @@
 #### Technical Skills: Python, SQL, AWS, Snowflake, MATLAB
 
 ## Education						       		
-- P.G.D., OHS | Paweł Włodkowic University College in Płock (_November 2023)
+- P.G.D., OHS | Paweł Włodkowic University College in Płock (_November 2023_)
 - M.A., English	| Mazovian University in Płock (_June 2020_)	 			        		
 - B.A., English | State University of Applied Sciences in Płock (_June 2018_)
+
+## Certifications
+- Data Analytics, Data Science & Machine Learning | Udemy (_April 2026_)
+- Docker Mastery: Kubernetes & Swarm | Udemy (_July 2025_)
+- AWS Certified Cloud Practitioner (CCP) | AWS (_April 2025_)
+- Javascript Specialist: React & Redux | CodersLab (_December 2024_)
+- Scrum Developer Certified (SDC) | SCRUMstudy (_August 2024_)
+- Python Developer | CodersLab (_Julu 2024_)
 
 ## Work Experience
 **Process Engineer @ PRODMAX SP.Z O.O. (_November 2020 - Present_)**
