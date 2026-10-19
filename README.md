@@ -16,19 +16,17 @@
 - ### NYC Accidents 2020
 abc
 
-[PowerBI](https://www.mdpi.com/1424-8220/22/8/3048)
+[PowerBI](https://www.mdpi.com/1424-8220/22/8/3048) / [Sql](https://www.mdpi.com/1424-8220/22/8/3048)
 
-![EEG Band Discovery](/assets/img/eeg_band_discovery.jpeg)
-
-### 2
-[PowerBI](https://www.mdpi.com/1424-8220/22/11/4240)
-
+- ### KajoDataSpace Transactions Analysis for 2023 - 2026
 abc
 
-### 3
-[PowerBI](https://www.mdpi.com/1424-8220/22/11/4240)
+[PowerBI](https://www.mdpi.com/1424-8220/22/11/4240) / [Sql](https://www.mdpi.com/1424-8220/22/8/3048)
 
+- ### Toys Distribution in Mexico
 abc
+
+[PowerBI](https://www.mdpi.com/1424-8220/22/11/4240) / [Sql](https://www.mdpi.com/1424-8220/22/8/3048)
 
 ### 4
 [Sql](https://www.mdpi.com/1424-8220/22/11/4240)
@@ -84,3 +82,4 @@ abc
 9. Wijerante, L.O.H. et al. (2022). Advancement in Airborne Particulate Estimation Using Machine Learning. In: Faruque, F.S. (eds) Geospatial Technology for Human Well-Being and Health. Springer, Cham. https://doi.org/10.1007/978-3-030-71377-5_13
 
 - [Data Science Blog](https://medium.com/@shawhin)
+- ![EEG Band Discovery](/assets/img/eeg_band_discovery.jpeg)
