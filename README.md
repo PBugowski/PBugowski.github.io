@@ -2,10 +2,10 @@
 
 #### Technical Skills: Python, SQL, AWS, Snowflake, MATLAB
 
-## Education
-- Ph.D., Physics | The University of Texas at Dallas (_May 2022_)								       		
-- M.S., Physics	| The University of Texas at Dallas (_December 2019_)	 			        		
-- B.S., Physics | The University of Texas at Dallas (_May 2017_)
+## Education						       		
+- P.G.D., OHS | Paweł Włodkowic University College in Płock (_November 2023)
+- M.A., English	| Mazovian University in Płock (_June 2020_)	 			        		
+- B.A., English | State University of Applied Sciences in Płock (_June 2018_)
 
 ## Work Experience
 **Process Engineer @ PRODMAX SP.Z O.O. (_November 2020 - Present_)**
