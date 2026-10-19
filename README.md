@@ -17,8 +17,11 @@
 
 ## Work Experience
 **Process Engineer @ PRODMAX SP.Z O.O. (_November 2020 - Present_)**
-- Uncovered and corrected missing step in production data pipeline which impacted over 70% of active accounts
-- Redeveloped loan originations model which resulted in 50% improvement in model performance and saving 1 million dollars in potential losses
+- Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+- Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
+Nisi ut aliquip ex ea commodo consequat duis aute irure dolor.
+Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore.
 
 ## Talks & Lectures
 - Reducing Missing Data and Spatial SQL [Part 1 - PowerBI](https://pbugowski.github.io/pbugowski.github.io-portfolio/) / [Part 2 - Sql](https://www.mdpi.com/1424-8220/22/8/3048)
