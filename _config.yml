@@ -3,3 +3,6 @@ logo: /assets/img/headshot_square.png
 #description: text below image
 show_downloads: true
 theme: jekyll-theme-minimal
+
+external_url: "https://pbugowski.github.io/pbugowski.github.io-portfolio/"
+external_url_name: "Portfolio"
