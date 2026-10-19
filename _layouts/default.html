@@ -39,32 +39,18 @@
           <p>{{ site.description | default: site.github.project_tagline }}</p>
         {% endif %}
 
-        <!-- Portfolio -->
-        {% if site.external_url_portfolio %}
+        <!-- Menu -->
           <p class="view">
             <a href="{{ site.external_url_portfolio }}" target="_blank" rel="noopener noreferrer">
-              {{ site.external_url_portfolio_name | default: "Portfolio" }}
+              View my Portfolio
             </a>
-          </p>
-        {% endif %}
-        
-        <!-- GitHub -->
-        {% if site.external_url_github %}
-          <p class="view">
             <a href="{{ site.external_url_github }}" target="_blank" rel="noopener noreferrer">
-              {{ site.external_url_github_name | default: "GitHub" }}
+              View my GitHub
             </a>
-          </p>
-        {% endif %}
-        
-        <!-- LinkedIn -->
-        {% if site.external_url_linkedin %}
-          <p class="view">
             <a href="{{ site.external_url_linkedin }}" target="_blank" rel="noopener noreferrer">
-              {{ site.external_url_linkedin_name | default: "LinkedIn" }}
+              View my Linkedin
             </a>
           </p>
-        {% endif %}
 
       </header>
 
