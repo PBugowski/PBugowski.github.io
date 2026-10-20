@@ -44,9 +44,9 @@ window.PORTFOLIO = {
       tools: ["SQL", "Power BI"], url: "https://app.powerbi.com/view?r=eyJrIjoiNjZmM2I0Y2QtNmYzMC00ODE4LWJiOTQtZDQzODA5MmIzN2Q0IiwidCI6ImE0ZmE1ZWNhLTdhM2YtNDRhYS04ZTI4LTc2MjBhMzk0NjEwZiJ9", codeUrl: "",
       cover: "assets/projects/Maven/a1.png", coverAlt: "Przykładowy dashboard skuteczności kampanii",
       gallery: [
-        {src: "assets/projects/Maven/a2.png", thumb: "assets/projects/campaigns/gallery-01-thumb.webp", alt: "Przykładowe porównanie wyników kampanii"},
-        {src: "assets/projects/Maven/a3.png", thumb: "assets/projects/campaigns/gallery-02-thumb.webp", alt: "Przykładowa struktura kanałów marketingowych"},
-        {src: "assets/projects/Maven/a4.png", thumb: "assets/projects/campaigns/gallery-03-thumb.webp", alt: "Przykładowy lejek konwersji"}
+        {src: "assets/projects/Maven/a2.png", thumb: "assets/projects/Maven/a2.png", alt: "Przykładowe porównanie wyników kampanii"},
+        {src: "assets/projects/Maven/a3.png", thumb: "assets/projects/Maven/a3.png", alt: "Przykładowa struktura kanałów marketingowych"},
+        {src: "assets/projects/Maven/a4.png", thumb: "assets/projects/Maven/a4.png", alt: "Przykładowy lejek konwersji"}
       ]
     }
   ],
