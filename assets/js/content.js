@@ -2,8 +2,8 @@
    Puste linki pozostają nieaktywne. Nie wpisuj tu haseł ani kluczy API.
    Zrzuty i opisy projektów poniżej są demonstracyjne. */
 window.PORTFOLIO = {
-  name: "Imię Nazwisko",
-  role: "Analityk danych",
+  name: "Paweł Bugowski",
+  role: "Data Analyst",
   about: "Łączę analityczne myślenie ze zrozumieniem biznesu. Pomagam zamieniać złożone dane w czytelne wnioski, które wspierają podejmowanie lepszych decyzji. Tutaj dodaj kilka zdań o swoim doświadczeniu, zainteresowaniach i podejściu do pracy z danymi.",
   photo: "assets/images/avatar-placeholder.svg",
   photoAlt: "Miejsce na zdjęcie autora",
@@ -54,19 +54,19 @@ window.PORTFOLIO = {
     }
   ],
   experience: [
-    {title: "Twoje stanowisko", organization: "Nazwa firmy", period: "Okres zatrudnienia", description: "Opisz swój zakres obowiązków, używane narzędzia oraz konkretny rezultat pracy."},
-    {title: "Poprzednie stanowisko", organization: "Nazwa firmy", period: "Okres zatrudnienia", description: "Dodaj poprzednie doświadczenie. Możesz dowolnie dodawać lub usuwać wpisy."}
+    {title: "Process Engineer", organization: "PRODMAX SP. Z O.O.", period: "2020 - Present", description: "Opisz swój zakres obowiązków, używane narzędzia oraz konkretny rezultat pracy."},
   ],
   education: [
-    {title: "Kierunek studiów", organization: "Nazwa uczelni", period: "Lata nauki"},
-    {title: "Studia podyplomowe", organization: "Nazwa uczelni", period: "Lata nauki"},
-    {title: "Profil kształcenia", organization: "Nazwa szkoły", period: "Lata nauki"},
-    {title: "Kolejny kierunek / szkoła", organization: "Nazwa instytucji", period: "Lata nauki"}
+    {title: "P.G.D. in OHS", organization: "Pawel Wlodkowic University College in Płock", period: "2022 - 2023"},
+    {title: "M.A. in English", organization: "Mazovian University in Płock", period: "2018 - 2020"},
+    {title: "B.A. in English", organization: "State University of Applied Sciences in Płock", period: "2015 - 2018"}
   ],
   certificates: [
-    {title: "Nazwa certyfikatu", organization: "Organizacja wydająca", period: "Rok", url: ""},
-    {title: "Kolejny certyfikat", organization: "Organizacja wydająca", period: "Rok", url: ""},
-    {title: "Kolejny certyfikat", organization: "Organizacja wydająca", period: "Rok", url: ""},
-    {title: "Kolejny certyfikat", organization: "Organizacja wydająca", period: "Rok", url: ""}
+    {title: "Data Analytics, Data Science & Machine Learning", organization: "Udemy", period: "2026", url: ""},
+    {title: "Docker Mastery: Kubernetes & Swarm", organization: "Udemy", period: "2025", url: ""},
+    {title: "AWS Certified Cloud Practitioner (CCP)", organization: "AWS", period: "2025", url: ""},
+    {title: "JavaScript Specialist: React & Redux", organization: "CodersLab", period: "2024", url: ""}
+    {title: "Scrum Developer Certified (SDC)", organization: "SCRUMstudy", period: "2024", url: ""}
+    {title: "Python Developer", organization: "CodersLab", period: "2024", url: ""}
   ]
 };
