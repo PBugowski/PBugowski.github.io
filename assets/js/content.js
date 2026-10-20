@@ -3,7 +3,7 @@ window.PORTFOLIO = {
   role: "Data Analyst",
   about: "Łączę analityczne myślenie ze zrozumieniem biznesu. Pomagam zamieniać złożone dane w czytelne wnioski, które wspierają podejmowanie lepszych decyzji. Tutaj dodaj kilka zdań o swoim doświadczeniu, zainteresowaniach i podejściu do pracy z danymi.",
   photo: "assets/images/avatar-placeholder.svg",
-  photoAlt: "Miejsce na zdjęcie autora",
+  photoAlt: "assets/images/autor.png",
   email: "pbugowwski96@gmail.com",
   linkedin: "https://www.linkedin.com/in/pawelbugowski/",
   github: "https://github.com/PBugowski",
