@@ -1,15 +1,12 @@
-/* EDYTUJ TUTAJ SWOJE DANE. Zachowaj cudzysłowy, przecinki i nawiasy.
-   Puste linki pozostają nieaktywne. Nie wpisuj tu haseł ani kluczy API.
-   Zrzuty i opisy projektów poniżej są demonstracyjne. */
 window.PORTFOLIO = {
   name: "Paweł Bugowski",
   role: "Data Analyst",
   about: "Łączę analityczne myślenie ze zrozumieniem biznesu. Pomagam zamieniać złożone dane w czytelne wnioski, które wspierają podejmowanie lepszych decyzji. Tutaj dodaj kilka zdań o swoim doświadczeniu, zainteresowaniach i podejściu do pracy z danymi.",
   photo: "assets/images/avatar-placeholder.svg",
   photoAlt: "Miejsce na zdjęcie autora",
-  email: "", // np. kontakt@twojadomena.pl — bez mailto:
-  linkedin: "", // pełny adres https://www.linkedin.com/in/...
-  github: "", // pełny adres https://github.com/...
+  email: "pbugowwski96@gmail.com",
+  linkedin: "https://www.linkedin.com/in/pawelbugowski/",
+  github: "https://github.com/PBugowski",
   cv: "", // np. assets/documents/cv.pdf; dodaj również sam plik PDF
 
   skills: [
@@ -65,8 +62,8 @@ window.PORTFOLIO = {
     {title: "Data Analytics, Data Science & Machine Learning", organization: "Udemy", period: "2026", url: ""},
     {title: "Docker Mastery: Kubernetes & Swarm", organization: "Udemy", period: "2025", url: ""},
     {title: "AWS Certified Cloud Practitioner (CCP)", organization: "AWS", period: "2025", url: ""},
-    {title: "JavaScript Specialist: React & Redux", organization: "CodersLab", period: "2024", url: ""}
-    {title: "Scrum Developer Certified (SDC)", organization: "SCRUMstudy", period: "2024", url: ""}
+    {title: "JavaScript Specialist: React & Redux", organization: "CodersLab", period: "2024", url: ""},
+    {title: "Scrum Developer Certified (SDC)", organization: "SCRUMstudy", period: "2024", url: ""},
     {title: "Python Developer", organization: "CodersLab", period: "2024", url: ""}
   ]
 };
