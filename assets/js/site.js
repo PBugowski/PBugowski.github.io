@@ -1,3 +1,4 @@
+/* English interface behavior. Profile data is loaded from content.js. */
 (() => {
   'use strict';
   const data = window.PORTFOLIO;
@@ -17,6 +18,9 @@
   const external = ' target="_blank" rel="noopener noreferrer"';
   document.querySelectorAll('[data-name]').forEach(element => { element.textContent = data.name; });
   document.title = `${data.name} — ${data.role}`;
+  const socialTitle = $('meta[property="og:title"]');
+  if (socialTitle) socialTitle.setAttribute('content', document.title);
+  document.querySelectorAll('[data-role]').forEach(element => { element.textContent = data.role; });
   $('#about-text').textContent = data.about;
   const portrait = $('#portrait');
   portrait.src = fileLink(data.photo) || 'assets/images/avatar-placeholder.svg';
@@ -30,14 +34,14 @@
   }
 
   const social = [
-    {name:'E-mail', icon:'mail', url:email ? `mailto:${email}` : '', detail:email},
-    {name:'LinkedIn', icon:'linkedin', url:webLink(data.linkedin), detail:'Profil zawodowy'},
-    {name:'GitHub', icon:'github', url:webLink(data.github), detail:'Kod i projekty'}
+    {name:'Email', icon:'mail', url:email ? `mailto:${email}` : '', detail:email},
+    {name:'LinkedIn', icon:'linkedin', url:webLink(data.linkedin), detail:'Professional profile'},
+    {name:'GitHub', icon:'github', url:webLink(data.github), detail:'Code and projects'}
   ];
   document.querySelectorAll('[data-social-links]').forEach(container => {
     container.innerHTML = social.map(item => {
-      const body = `${icon(item.icon)}<span>${item.name}<small>${escape(item.url ? item.detail : 'Wkrótce')}</small></span>`;
-      return item.url ? `<a class="social-link" href="${escape(item.url)}"${item.icon === 'mail' ? '' : external}>${body}</a>` : `<span class="social-link social-link--inactive" aria-label="${item.name}: link jeszcze niedostępny">${body}</span>`;
+      const body = `${icon(item.icon)}<span>${item.name}<small>${escape(item.url ? item.detail : 'Coming soon')}</small></span>`;
+      return item.url ? `<a class="social-link" href="${escape(item.url)}"${item.icon === 'mail' ? '' : external}>${body}</a>` : `<span class="social-link social-link--inactive" aria-label="${item.name}: link not available yet">${body}</span>`;
     }).join('');
   });
 
@@ -48,16 +52,16 @@
     const url = webLink(project.url);
     const code = webLink(project.codeUrl);
     return `<article class="project-card ${index === 0 ? 'project-card--featured' : ''}">
-      <button type="button" class="project-image-button" data-project="${index}" data-image="0" aria-label="Otwórz okładkę projektu ${escape(project.title)}">
+      <button type="button" class="project-image-button" data-project="${index}" data-image="0" aria-label="Open project cover: ${escape(project.title)}">
         <img src="${escape(fileLink(project.cover))}" width="1600" height="1000" alt="${escape(project.coverAlt)}" loading="lazy"><span class="image-hint">${icon('zoom')}</span>
       </button>
-      ${gallery.length ? `<div class="gallery-block"><p class="gallery-label">Galeria projektu</p><div class="gallery-thumbnails">${gallery.map((image, imageIndex) => `<button type="button" data-project="${index}" data-image="${imageIndex + 1}" aria-label="Otwórz: ${escape(image.alt)}"><img src="${escape(fileLink(image.thumb || image.src))}" width="480" height="300" alt="${escape(image.alt)}" loading="lazy"></button>`).join('')}</div></div>` : ''}
-      <div class="project-content">${project.demo ? '<p class="demo-note">Projekt demonstracyjny</p>' : ''}<h3>${escape(project.title)}</h3><p>${escape(project.description)}</p><div class="tool-tags">${(project.tools || []).map(tool => `<span class="tool-tag">${escape(tool)}</span>`).join('')}</div>
-      <div class="project-actions">${url ? `<a class="button" href="${escape(url)}"${external}>Zobacz projekt ${icon('arrow-up-right')}</a>` : `<button type="button" class="button" data-project="${index}" data-image="0">Zobacz galerię ${icon('arrow-up-right')}</button>`}${code ? `<a class="text-link" href="${escape(code)}"${external}>Kod ${icon('github')}</a>` : ''}</div></div></article>`;
+      ${gallery.length ? `<div class="gallery-block"><p class="gallery-label">Project gallery</p><div class="gallery-thumbnails">${gallery.map((image, imageIndex) => `<button type="button" data-project="${index}" data-image="${imageIndex + 1}" aria-label="Open: ${escape(image.alt)}"><img src="${escape(fileLink(image.thumb || image.src))}" width="480" height="300" alt="${escape(image.alt)}" loading="lazy"></button>`).join('')}</div></div>` : ''}
+      <div class="project-content">${project.demo ? '<p class="demo-note">Demo project</p>' : ''}<h3>${escape(project.title)}</h3><p>${escape(project.description)}</p><div class="tool-tags">${(project.tools || []).map(tool => `<span class="tool-tag">${escape(tool)}</span>`).join('')}</div>
+      <div class="project-actions">${url ? `<a class="button" href="${escape(url)}"${external}>View project ${icon('arrow-up-right')}</a>` : `<button type="button" class="button" data-project="${index}" data-image="0">View gallery ${icon('arrow-up-right')}</button>`}${code ? `<a class="text-link" href="${escape(code)}"${external}>Code ${icon('github')}</a>` : ''}</div></div></article>`;
   }).join('');
 
   $('#skills-grid').innerHTML = (data.skills || []).map(skill => `<article class="skill-card">${icon(skill.icon)}<h3>${escape(skill.name)}</h3><p>${escape(skill.description)}</p></article>`).join('');
-  $('#experience-list').innerHTML = (data.experience || []).map(job => `<li><h4>${escape(job.title)}</h4><p class="career-meta">${escape(job.organization)}<br>${escape(job.period)}</p><p class="career-description">${escape(job.description)}</p></li>`).join('') || '<li><p class="career-description">Informacje wkrótce.</p></li>';
+  $('#experience-list').innerHTML = (data.experience || []).map(job => `<li><h4>${escape(job.title)}</h4><p class="career-meta">${escape(job.organization)}<br>${escape(job.period)}</p><p class="career-description">${escape(job.description)}</p></li>`).join('') || '<li><p class="career-description">Details coming soon.</p></li>';
   function qualifications(items, target, symbol) {
     const render = item => {
       const url = webLink(item.url);
@@ -66,9 +70,9 @@
     };
     const shown = items.slice(0, 3).map(render).join('');
     const more = items.slice(3);
-    target.innerHTML = shown + (more.length ? `<details class="more-items"><summary>Pokaż więcej (${more.length})</summary>${more.map(render).join('')}</details>` : '') || '<p class="career-description">Informacje wkrótce.</p>';
+    target.innerHTML = shown + (more.length ? `<details class="more-items"><summary>Show more (${more.length})</summary>${more.map(render).join('')}</details>` : '') || '<p class="career-description">Details coming soon.</p>';
     const details = target.querySelector('details');
-    details?.addEventListener('toggle', () => { details.querySelector('summary').textContent = details.open ? 'Pokaż mniej' : `Pokaż więcej (${more.length})`; });
+    details?.addEventListener('toggle', () => { details.querySelector('summary').textContent = details.open ? 'Show less' : `Show more (${more.length})`; });
   }
   qualifications(data.education || [], $('#education-list'), 'education');
   qualifications(data.certificates || [], $('#certificates-list'), 'certificate');
@@ -78,14 +82,14 @@
   function closeMenu(returnFocus = false) {
     nav.classList.remove('is-open');
     menuButton.setAttribute('aria-expanded', 'false');
-    menuButton.setAttribute('aria-label', 'Otwórz menu');
+    menuButton.setAttribute('aria-label', 'Open menu');
     if (returnFocus) menuButton.focus();
   }
   menuButton.addEventListener('click', () => {
     const opened = menuButton.getAttribute('aria-expanded') === 'true';
     nav.classList.toggle('is-open', !opened);
     menuButton.setAttribute('aria-expanded', String(!opened));
-    menuButton.setAttribute('aria-label', opened ? 'Otwórz menu' : 'Zamknij menu');
+    menuButton.setAttribute('aria-label', opened ? 'Open menu' : 'Close menu');
   });
   nav.querySelectorAll('a').forEach(link => link.addEventListener('click', () => closeMenu()));
   document.addEventListener('keydown', event => { if (event.key === 'Escape' && menuButton.getAttribute('aria-expanded') === 'true') closeMenu(true); });
@@ -130,7 +134,7 @@
   const form = $('#contact-form');
   if (email) {
     $('#contact-submit').disabled = false;
-    $('#contact-note').textContent = 'Otworzę Twój program pocztowy z gotową treścią. Wiadomość wyślesz w nim samodzielnie.';
+    $('#contact-note').textContent = 'Your email app will open with a prepared message. You will send it from there.';
   } else {
     form.querySelectorAll('input,textarea').forEach(field => { field.disabled = true; });
   }
@@ -140,10 +144,10 @@
     const name = $('#sender-name').value.trim();
     const senderEmail = $('#sender-email').value.trim();
     const message = $('#sender-message').value.trim();
-    if (!name || !message) { $('#contact-status').textContent = 'Wpisz imię i treść wiadomości.'; return; }
-    const body = `Imię: ${name}\nE-mail zwrotny: ${senderEmail}\n\n${message}`;
-    const subject = `Kontakt z portfolio — ${name.replace(/[\r\n]/g,' ')}`;
+    if (!name || !message) { $('#contact-status').textContent = 'Please enter your name and message.'; return; }
+    const body = `Name: ${name}\nReply-to email: ${senderEmail}\n\n${message}`;
+    const subject = `Portfolio inquiry — ${name.replace(/[\r\n]/g,' ')}`;
     window.location.href = `mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    $('#contact-status').textContent = 'Jeśli program pocztowy się nie otworzył, skorzystaj z linku E-mail obok. Formularz nie wysyła wiadomości automatycznie.';
+    $('#contact-status').textContent = 'If your email app did not open, use the Email link beside the form. This form does not send messages automatically.';
   });
 })();
