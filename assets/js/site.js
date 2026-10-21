@@ -70,15 +70,15 @@
     const gallery = Array.isArray(project.gallery) ? project.gallery : [];
     return `<article class="project-card ${index === 0 ? 'project-card--featured' : ''}">
       <button type="button" class="project-image-button" data-project="${index}" data-image="0" aria-label="Open project cover: ${escape(project.title)}">
-        <img src="${escape(fileLink(project.cover))}" width="1600" height="1000" alt="${escape(project.coverAlt)}" loading="lazy"><span class="image-hint">${icon('zoom')}</span>
+        <img src="${escape(fileLink(project.cover))}" width="${project.coverWidth || 1363}" height="${project.coverHeight || 767}" alt="${escape(project.coverAlt)}" loading="lazy"><span class="image-hint">${icon('zoom')}</span>
       </button>
-      ${gallery.length ? `<div class="gallery-block"><p class="gallery-label">Project gallery</p><div class="gallery-thumbnails">${gallery.map((image, imageIndex) => `<button type="button" data-project="${index}" data-image="${imageIndex + 1}" aria-label="Open: ${escape(image.alt)}"><img src="${escape(fileLink(image.thumb || image.src))}" width="480" height="300" alt="${escape(image.alt)}" loading="lazy"></button>`).join('')}</div></div>` : ''}
+      ${gallery.length ? `<div class="gallery-block"><p class="gallery-label">Explore the report · ${gallery.length} views</p><div class="gallery-thumbnails">${gallery.map((image, imageIndex) => `<button type="button" data-project="${index}" data-image="${imageIndex + 1}" aria-label="Open: ${escape(image.alt)}"><img src="${escape(fileLink(image.thumb || image.src))}" width="480" height="270" alt="${escape(image.alt)}" loading="lazy"><span class="gallery-thumb-caption">${escape(image.title || image.alt)}</span></button>`).join('')}</div></div>` : ''}
       <div class="project-content">${project.demo ? '<p class="demo-note">Demo project</p>' : ''}<h3>${escape(project.title)}</h3><p>${escape(project.description)}</p><div class="tool-tags">${(project.tools || []).map(tool => `<span class="tool-tag">${escape(tool)}</span>`).join('')}</div>
       <div class="project-actions">${projectActions(project, index)}</div></div></article>`;
   }).join('');
 
   $('#skills-grid').innerHTML = (data.skills || []).map(skill => `<article class="skill-card">${icon(skill.icon)}<h3>${escape(skill.name)}</h3><p>${escape(skill.description)}</p></article>`).join('');
-  $('#experience-list').innerHTML = (data.experience || []).map(job => `<li><h4>${escape(job.title)}</h4><p class="career-meta">${escape(job.organization)}<br>${escape(job.period)}</p><p class="career-description">${escape(job.description)}</p></li>`).join('') || '<li><p class="career-description">Details coming soon.</p></li>';
+  $('#experience-list').innerHTML = (data.experience || []).map(job => `<li><h4>${escape(job.title)}</h4><p class="career-meta">${escape(job.organization)}<br>${escape(job.period)}</p>${job.description ? `<p class="career-description">${escape(job.description)}</p>` : ""}</li>`).join('') || '<li><p class="career-description">Details coming soon.</p></li>';
   function qualifications(items, target, symbol) {
     const render = item => {
       const url = webLink(item.url);
@@ -135,13 +135,14 @@
     const image = currentImages[currentIndex];
     $('#gallery-image').src = fileLink(image.src);
     $('#gallery-image').alt = image.alt;
+    $('#gallery-caption').textContent = image.title || image.alt;
     $('#gallery-counter').textContent = `${currentIndex + 1} / ${currentImages.length}`;
     $('#gallery-original').href = fileLink(image.src);
   }
   function openGallery(projectIndex, imageIndex, button) {
     const project = projects[projectIndex];
     if (!project) return;
-    currentImages = [{src:project.cover, alt:project.coverAlt}, ...(project.gallery || [])];
+    currentImages = [{src:project.cover, alt:project.coverAlt, title:project.coverTitle}, ...(project.gallery || [])];
     opener = button;
     $('#gallery-title').textContent = project.title;
     showImage(imageIndex);

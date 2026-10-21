@@ -1,27 +1,16 @@
-/* PROFILE CONTENT
- * This is the single source of truth for profile data and project information.
- * Load this file before site.js. Keep the window.PORTFOLIO property name.
- * Use full https:// URLs for external links; leave optional links empty.
- * For a CV, add the PDF and set cv to its relative path, e.g. assets/documents/cv.pdf.
- * Keep the spelling and capitalization of existing asset paths.
- * Demo flags are preserved. Set demo to false when each project is ready for publication.
- * Add your actual responsibilities in the experience description below.
- * Names of people, institutions and places retain their original spelling.
- */
-/* PROJECT BUTTONS
- * url: live Power BI report URL (existing links are preserved).
- * codeUrl: SQL file or repository URL for each project.
- * reportVideoUrl: video discussing the featured Power BI report.
- * sqlVideoUrl: video discussing the featured SQL code.
- * Empty links display disabled buttons marked Coming soon.
- * The first project is the featured project and has all four buttons.
+/* Edit your profile, project links and qualifications here.
+ * Empty SQL/video links show disabled Coming soon buttons.
+ * Add your portrait under assets/images/ and update photo and photoAlt.
+ * Add your CV PDF and update cv to show the download link.
+ * Add a description of your responsibilities to experience[].description.
+ * Demo flags preserve the existing portfolio labels.
  */
 window.PORTFOLIO = {
   "name": "Paweł Bugowski",
   "role": "Data Analyst",
   "about": "I combine analytical thinking with business understanding. I turn complex data into clear insights that support better decisions.",
-  "photo": "assets/images/autor.png",
-  "photoAlt": "Paweł Bugowski — Data Analyst",
+  "photo": "assets/images/avatar-placeholder.svg",
+  "photoAlt": "Profile photo placeholder for Paweł Bugowski",
   "email": "pbugowski96@gmail.com",
   "linkedin": "https://www.linkedin.com/in/pawelbugowski/",
   "github": "https://github.com/PBugowski",
@@ -52,94 +41,112 @@ window.PORTFOLIO = {
     {
       "title": "NYC Accidents 2020",
       "demo": true,
-      "description": "An interactive Power BI report exploring New York City accidents in 2020.",
+      "description": "Exploring New York City traffic accidents in 2020: when and where collisions occur, who is affected, and which factors contribute to injuries.",
       "tools": [
         "SQL",
         "Power BI"
       ],
       "url": "https://app.powerbi.com/view?r=eyJrIjoiOWIzYWE4NGYtZmI1OS00MWU1LThmYzktZDI4M2UwYmE3YmI0IiwidCI6ImE0ZmE1ZWNhLTdhM2YtNDRhYS04ZTI4LTc2MjBhMzk0NjEwZiJ9",
       "codeUrl": "",
-      "cover": "assets/projects/sales/cover.webp",
-      "coverAlt": "NYC Accidents 2020 — cover image",
+      "cover": "assets/projects/nyc-accidents/cover.webp",
+      "coverAlt": "NYC Accidents: Executive Overview",
       "gallery": [
         {
-          "src": "assets/projects/sales/gallery-01.webp",
-          "thumb": "assets/projects/sales/gallery-01-thumb.webp",
-          "alt": "NYC Accidents 2020 — dashboard screenshot 1"
+          "src": "assets/projects/nyc-accidents/gallery-01.webp",
+          "thumb": "assets/projects/nyc-accidents/gallery-01-thumb.webp",
+          "alt": "NYC Accidents: Accidents over Time",
+          "title": "Accidents over Time"
         },
         {
-          "src": "assets/projects/sales/gallery-02.webp",
-          "thumb": "assets/projects/sales/gallery-02-thumb.webp",
-          "alt": "NYC Accidents 2020 — dashboard screenshot 2"
+          "src": "assets/projects/nyc-accidents/gallery-02.webp",
+          "thumb": "assets/projects/nyc-accidents/gallery-02-thumb.webp",
+          "alt": "NYC Accidents: Accident Locations",
+          "title": "Accident Locations"
         },
         {
-          "src": "assets/projects/sales/gallery-03.webp",
-          "thumb": "assets/projects/sales/gallery-03-thumb.webp",
-          "alt": "NYC Accidents 2020 — dashboard screenshot 3"
+          "src": "assets/projects/nyc-accidents/gallery-03.webp",
+          "thumb": "assets/projects/nyc-accidents/gallery-03-thumb.webp",
+          "alt": "NYC Accidents: Accidents with Injuries",
+          "title": "Accidents with Injuries"
         }
       ],
       "reportVideoUrl": "",
-      "sqlVideoUrl": ""
+      "sqlVideoUrl": "",
+      "coverTitle": "Executive Overview",
+      "coverWidth": 1363,
+      "coverHeight": 767
     },
     {
-      "title": "KajoDataSpace transactions for 2023 - 2026",
+      "title": "KajoDataSpace Transactions",
       "demo": true,
-      "description": "An interactive Power BI report on KajoDataSpace transactions from 2023 to 2026.",
+      "description": "Analyzing subscription transactions from 2023 to 2026, with a focus on revenue, pricing changes, customer growth and cohort retention.",
       "tools": [
         "SQL",
         "Power BI"
       ],
       "url": "https://app.powerbi.com/view?r=eyJrIjoiNGZjYmEwMDgtZGJhMS00ZGZjLWEyOWUtZDc3MmE0MmU0MzQ1IiwidCI6ImE0ZmE1ZWNhLTdhM2YtNDRhYS04ZTI4LTc2MjBhMzk0NjEwZiJ9",
       "codeUrl": "",
-      "cover": "assets/projects/customers/cover.webp",
-      "coverAlt": "KajoDataSpace transactions for 2023 - 2026 — cover image",
+      "cover": "assets/projects/kajodataspace-transactions/cover.webp",
+      "coverAlt": "KajoDataSpace Transactions: Executive Overview",
       "gallery": [
         {
-          "src": "assets/projects/customers/gallery-01.webp",
-          "thumb": "assets/projects/customers/gallery-01-thumb.webp",
-          "alt": "KajoDataSpace transactions for 2023 - 2026 — dashboard screenshot 1"
+          "src": "assets/projects/kajodataspace-transactions/gallery-01.webp",
+          "thumb": "assets/projects/kajodataspace-transactions/gallery-01-thumb.webp",
+          "alt": "KajoDataSpace Transactions: Revenue and Discounts",
+          "title": "Revenue and Discounts"
         },
         {
-          "src": "assets/projects/customers/gallery-02.webp",
-          "thumb": "assets/projects/customers/gallery-02-thumb.webp",
-          "alt": "KajoDataSpace transactions for 2023 - 2026 — dashboard screenshot 2"
+          "src": "assets/projects/kajodataspace-transactions/gallery-02.webp",
+          "thumb": "assets/projects/kajodataspace-transactions/gallery-02-thumb.webp",
+          "alt": "KajoDataSpace Transactions: Customer Growth",
+          "title": "Customer Growth"
         },
         {
-          "src": "assets/projects/customers/gallery-03.webp",
-          "thumb": "assets/projects/customers/gallery-03-thumb.webp",
-          "alt": "KajoDataSpace transactions for 2023 - 2026 — dashboard screenshot 3"
+          "src": "assets/projects/kajodataspace-transactions/gallery-03.webp",
+          "thumb": "assets/projects/kajodataspace-transactions/gallery-03-thumb.webp",
+          "alt": "KajoDataSpace Transactions: Customer Cohort Retention",
+          "title": "Customer Cohort Retention"
         }
-      ]
+      ],
+      "coverTitle": "Executive Overview",
+      "coverWidth": 1363,
+      "coverHeight": 767
     },
     {
-      "title": "Toys distribution in Mexico",
+      "title": "Maven Toys — Sales & Inventory",
       "demo": true,
-      "description": "An interactive Power BI report on toy distribution in Mexico.",
+      "description": "Exploring sales and inventory across a toy retail business in Mexico: revenue drivers, product profitability and stock levels by category and location.",
       "tools": [
         "SQL",
         "Power BI"
       ],
       "url": "https://app.powerbi.com/view?r=eyJrIjoiNjZmM2I0Y2QtNmYzMC00ODE4LWJiOTQtZDQzODA5MmIzN2Q0IiwidCI6ImE0ZmE1ZWNhLTdhM2YtNDRhYS04ZTI4LTc2MjBhMzk0NjEwZiJ9",
       "codeUrl": "",
-      "cover": "assets/projects/Maven/a1.png",
-      "coverAlt": "Toys distribution in Mexico — cover image",
+      "cover": "assets/projects/maven-toys/cover.webp",
+      "coverAlt": "Maven Toys: Sales and Inventory Overview",
       "gallery": [
         {
-          "src": "assets/projects/Maven/a2.png",
-          "thumb": "assets/projects/Maven/a2.png",
-          "alt": "Toys distribution in Mexico — dashboard screenshot 1"
+          "src": "assets/projects/maven-toys/gallery-01.webp",
+          "thumb": "assets/projects/maven-toys/gallery-01-thumb.webp",
+          "alt": "Maven Toys: Revenue Analysis",
+          "title": "Revenue Analysis"
         },
         {
-          "src": "assets/projects/Maven/a3.png",
-          "thumb": "assets/projects/Maven/a3.png",
-          "alt": "Toys distribution in Mexico — dashboard screenshot 2"
+          "src": "assets/projects/maven-toys/gallery-02.webp",
+          "thumb": "assets/projects/maven-toys/gallery-02-thumb.webp",
+          "alt": "Maven Toys: Profit Analysis",
+          "title": "Profit Analysis"
         },
         {
-          "src": "assets/projects/Maven/a4.png",
-          "thumb": "assets/projects/Maven/a4.png",
-          "alt": "Toys distribution in Mexico — dashboard screenshot 3"
+          "src": "assets/projects/maven-toys/gallery-03.webp",
+          "thumb": "assets/projects/maven-toys/gallery-03-thumb.webp",
+          "alt": "Maven Toys: Inventory Levels",
+          "title": "Inventory Levels"
         }
-      ]
+      ],
+      "coverTitle": "Sales and Inventory Overview",
+      "coverWidth": 1352,
+      "coverHeight": 767
     }
   ],
   "experience": [
@@ -147,7 +154,7 @@ window.PORTFOLIO = {
       "title": "Process Engineer",
       "organization": "PRODMAX SP. Z O.O.",
       "period": "2020 - Present",
-      "description": "Describe your responsibilities, the tools you used and a specific outcome of your work."
+      "description": ""
     }
   ],
   "education": [

@@ -80,3 +80,25 @@
   .project-actions .button { padding: 11px 9px; font-size: 11px; }
   .site-footer .footer-wrap { flex-wrap: wrap; }
 }
+
+/* Real report captures: preserve every chart and label. */
+.project-image-button img,.gallery-thumbnails img{aspect-ratio:16/9;object-fit:contain;background:#090a0a}
+.project-card--featured{grid-template-columns:minmax(0,1.65fr) minmax(0,1fr);align-items:start}
+.project-card--featured .gallery-block{grid-column:1;grid-row:2}
+.project-card--featured .project-content{grid-column:2;grid-row:1 / span 2;align-self:center}
+.gallery-label{font-size:12px;margin-bottom:10px}
+.gallery-thumb-caption{display:block;padding:9px 7px;color:#c3c8cb;font-size:11px;line-height:1.5;text-align:left}
+.gallery-thumbnails button{display:flex;flex-direction:column;justify-content:flex-start}
+.gallery-thumbnails button:hover .gallery-thumb-caption{color:#ffd600}
+.gallery-caption{text-align:center;color:#c3c8cb;font-size:13px;margin:14px 0 0}
+.gallery-dialog{width:min(1440px,calc(100% - 32px))}
+.dialog-image-wrap img{max-height:68dvh}
+.brand{font-size:14px}
+:is(#about-me,#portfolio,#skills,#experience) .eyebrow{font-size:13px}
+.site-footer .footer-wrap>span,.site-footer .footer-role{font-size:14px}
+.about-copy p,.project-content p{font-size:14px}
+.skill-card p,.career-description,.career-meta,.qualification p{font-size:12px}
+.qualification h4{font-size:14px}
+.demo-note{font-size:10px!important}
+@media(max-width:780px){.project-card--featured{display:block}.project-card--featured .project-content{padding:24px 5px 5px}.brand{font-size:12px}}
+@media(max-width:560px){.gallery-thumb-caption{font-size:10px;padding:7px 5px}.project-content p{font-size:13px}.project-actions .button{font-size:12px}.site-footer .footer-wrap>span,.site-footer .footer-role{font-size:13px}}
