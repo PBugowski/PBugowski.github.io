@@ -1,22 +1,23 @@
-`<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <!-- Uzupełnij tytuł i opis także tutaj: korzystają z nich wyszukiwarki. -->
+  <!-- Keep this title and description consistent with content.js; search engines use these fields. -->
   <title>Paweł Bugowski — Data Analyst</title>
   <meta name="description" content="Data analyst portfolio. Analyses, dashboards and insights that support better decisions.">
   <meta name="theme-color" content="#0b0b0b">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="en_US">
-  <meta property="og:title" content="Paweł Bugowski — Analityk danych">
+  <meta property="og:title" content="Paweł Bugowski — Data Analyst">
   <meta property="og:description" content="Analysis. Visualization. Insights that matter.">
-  <!-- Po publikacji dodaj og:url i og:image z pełnymi adresami https://. -->
+  <!-- After publishing, add og:url and og:image using absolute https:// URLs. -->
   <link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
   <link rel="icon" type="image/png" sizes="32x32" href="assets/brand/icon-32.png">
   <link rel="apple-touch-icon" href="assets/brand/icon-180.png">
   <link rel="stylesheet" href="assets/css/tokens.css">
   <link rel="stylesheet" href="assets/css/site.css">
+  <!-- Deferred scripts execute in order: profile content first, interface behavior second. -->
   <script src="assets/js/content.js" defer></script>
   <script src="assets/js/site.js" defer></script>
 </head>
@@ -32,7 +33,7 @@
       <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="navigation" aria-label="Open menu">
         <svg class="icon" aria-hidden="true"><use href="#menu"></use></svg>
       </button>
-      <nav id="navigation" class="navigation" aria-label="Nawigacja główna">
+      <nav id="navigation" class="navigation" aria-label="Main navigation">
         <a href="#about-me">About me</a><a href="#portfolio">Portfolio</a>
         <a href="#skills">Skills</a><a href="#experience">Experience</a>
         <a class="button button--small" href="#contact">Contact <svg class="icon" aria-hidden="true"><use href="#arrow-up-right"></use></svg></a>
@@ -42,12 +43,12 @@
   <main id="main">
     <section class="hero" aria-labelledby="hero-title">
       <div class="container">
-        <p class="eyebrow">Data Analyst / Portfolio</p>
+        <p class="eyebrow"><span data-role>Data Analyst</span> / Portfolio</p>
         <h1 id="hero-title">Turning data into<br><span class="accent">better decisions.</span></h1>
         <p class="hero-description">Analysis. Visualization. Insights that matter.</p>
         <div class="hero-actions">
           <a class="button" href="#portfolio">View projects <svg class="icon" aria-hidden="true"><use href="#arrow-up-right"></use></svg></a>
-          <a class="button button--outline" href="#kontakt">Let's talk</a>
+          <a class="button button--outline" href="#contact">Let's talk</a>
         </div>
         <p class="tool-line">SQL <span>/</span> Python <span>/</span> Power BI <span>/</span> Excel</p>
       </div>
@@ -58,7 +59,7 @@
       <div class="container">
         <p class="eyebrow">01 / About me</p>
         <div class="about-grid">
-          <div class="portrait-wrap"><img id="portrait" class="portrait" src="assets/images/avatar-placeholder.svg" width="600" height="600" alt="Profile photo placeholder" loading="lazy"></div>
+          <div class="portrait-wrap"><img id="portrait" class="portrait" src="assets/images/autor.png" width="600" height="600" alt="Paweł Bugowski — Data Analyst" loading="lazy"></div>
           <div class="about-copy"><h2 id="about-title">Behind every number,<br>there’s a story.</h2><p id="about-text"></p><a id="cv-link" class="text-link" hidden>Download CV <svg class="icon" aria-hidden="true"><use href="#download"></use></svg></a></div>
           <div class="social-stack" data-social-links aria-label="Contact links"></div>
         </div>
@@ -92,9 +93,9 @@
         <div><p class="eyebrow">05 / Contact</p><h2 id="contact-title">Let's talk<br>about your data.</h2><p>Have a project or collaboration in mind?<br>Get in touch.</p><div class="contact-socials" data-social-links aria-label="Contact and profiles"></div></div>
         <form id="contact-form" class="contact-form">
           <label for="sender-name">Name</label><input id="sender-name" name="name" autocomplete="name" placeholder="Your name" maxlength="100" required>
-          <label for="sender-email">E-mail</label><input id="sender-email" name="email" type="email" autocomplete="email" placeholder="your@email.com" maxlength="254" required>
+          <label for="sender-email">Email</label><input id="sender-email" name="email" type="email" autocomplete="email" placeholder="your@email.com" maxlength="254" required>
           <label for="sender-message">Message</label><textarea id="sender-message" name="message" rows="4" placeholder="Tell me a little about your project…" maxlength="2000" required></textarea>
-          <button class="button button--dark" id="contact-submit" type="submit" disabled>Open e-mail app <svg class="icon" aria-hidden="true"><use href="#arrow-up-right"></use></svg></button>
+          <button class="button button--dark" id="contact-submit" type="submit" disabled>Open email app <svg class="icon" aria-hidden="true"><use href="#arrow-up-right"></use></svg></button>
           <p id="contact-note" class="form-note">Contact details will be available soon.</p>
           <p id="contact-status" class="form-note" role="status" aria-live="polite"></p>
         </form>
@@ -102,7 +103,7 @@
     </section>
     <noscript><p class="container noscript-note">JavaScript is required to display projects and profile details. Please enable it in your browser settings.</p></noscript>
   </main>
-  <footer class="site-footer"><div class="container footer-wrap"><span><span data-name>Paweł Bugowski</span> <span class="footer-role">/ Data Analyst</span></span><a href="#top">Back to top <svg class="icon" aria-hidden="true"><use href="#arrow-up"></use></svg></a></div></footer>
+  <footer class="site-footer"><div class="container footer-wrap"><span><span data-name>Paweł Bugowski</span> <span class="footer-role">/ <span data-role>Data Analyst</span></span></span><a href="#top">Back to top <svg class="icon" aria-hidden="true"><use href="#arrow-up"></use></svg></a></div></footer>
 
   <dialog id="gallery-dialog" class="gallery-dialog" aria-labelledby="gallery-title">
     <div class="dialog-toolbar"><h2 id="gallery-title">Project gallery</h2><button class="icon-button" id="gallery-close" type="button" aria-label="Close gallery"><svg class="icon" aria-hidden="true"><use href="#close"></use></svg></button></div>
