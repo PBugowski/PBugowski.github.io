@@ -9,7 +9,7 @@ window.PORTFOLIO = {
   "name": "Paweł Bugowski",
   "role": "Data Analyst",
   "about": "I combine analytical thinking with business understanding. I turn complex data into clear insights that support better decisions.",
-  "photo": "assets/images/avatar-placeholder.svg",
+  "photo": "assets/images/autor.png",
   "photoAlt": "Profile photo placeholder for Paweł Bugowski",
   "email": "pbugowski96@gmail.com",
   "linkedin": "https://www.linkedin.com/in/pawelbugowski/",
