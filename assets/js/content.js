@@ -8,6 +8,14 @@
  * Add your actual responsibilities in the experience description below.
  * Names of people, institutions and places retain their original spelling.
  */
+/* PROJECT BUTTONS
+ * url: live Power BI report URL (existing links are preserved).
+ * codeUrl: SQL file or repository URL for each project.
+ * reportVideoUrl: video discussing the featured Power BI report.
+ * sqlVideoUrl: video discussing the featured SQL code.
+ * Empty links display disabled buttons marked Coming soon.
+ * The first project is the featured project and has all four buttons.
+ */
 window.PORTFOLIO = {
   "name": "Paweł Bugowski",
   "role": "Data Analyst",
@@ -69,7 +77,9 @@ window.PORTFOLIO = {
           "thumb": "assets/projects/sales/gallery-03-thumb.webp",
           "alt": "NYC Accidents 2020 — dashboard screenshot 3"
         }
-      ]
+      ],
+      "reportVideoUrl": "",
+      "sqlVideoUrl": ""
     },
     {
       "title": "KajoDataSpace transactions for 2023 - 2026",

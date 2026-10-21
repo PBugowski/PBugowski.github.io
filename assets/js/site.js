@@ -45,19 +45,36 @@
     }).join('');
   });
 
+  // Project action helpers: keep labels and missing-link behavior consistent.
+  function projectAction(label, value, secondary = false) {
+    const href = webLink(value);
+    const classes = `button${secondary ? ' button--outline' : ''}`;
+    if (href) {
+      return `<a class="${classes}" href="${escape(href)}"${external}><span class="project-action__label">${escape(label)}</span>${icon('arrow-up-right')}</a>`;
+    }
+    return `<button type="button" class="${classes} project-action--pending" disabled aria-label="${escape(label)} — coming soon"><span class="project-action__label">${escape(label)}<small>Coming soon</small></span></button>`;
+  }
+  function projectActions(project, index) {
+    return projectAction('View live report', project.url)
+      + projectAction('View SQL', project.codeUrl, true)
+      + (index === 0
+        ? projectAction('Watch me talk on the PBI report', project.reportVideoUrl, true)
+          + projectAction('Watch me talk on the SQL code', project.sqlVideoUrl, true)
+        : '');
+  }
+  // End project action helpers.
+
   const projects = Array.isArray(data.projects) ? data.projects : [];
   $('#demo-label').hidden = !projects.some(project => project.demo);
   $('#project-grid').innerHTML = projects.map((project, index) => {
     const gallery = Array.isArray(project.gallery) ? project.gallery : [];
-    const url = webLink(project.url);
-    const code = webLink(project.codeUrl);
     return `<article class="project-card ${index === 0 ? 'project-card--featured' : ''}">
       <button type="button" class="project-image-button" data-project="${index}" data-image="0" aria-label="Open project cover: ${escape(project.title)}">
         <img src="${escape(fileLink(project.cover))}" width="1600" height="1000" alt="${escape(project.coverAlt)}" loading="lazy"><span class="image-hint">${icon('zoom')}</span>
       </button>
       ${gallery.length ? `<div class="gallery-block"><p class="gallery-label">Project gallery</p><div class="gallery-thumbnails">${gallery.map((image, imageIndex) => `<button type="button" data-project="${index}" data-image="${imageIndex + 1}" aria-label="Open: ${escape(image.alt)}"><img src="${escape(fileLink(image.thumb || image.src))}" width="480" height="300" alt="${escape(image.alt)}" loading="lazy"></button>`).join('')}</div></div>` : ''}
       <div class="project-content">${project.demo ? '<p class="demo-note">Demo project</p>' : ''}<h3>${escape(project.title)}</h3><p>${escape(project.description)}</p><div class="tool-tags">${(project.tools || []).map(tool => `<span class="tool-tag">${escape(tool)}</span>`).join('')}</div>
-      <div class="project-actions">${url ? `<a class="button" href="${escape(url)}"${external}>View project ${icon('arrow-up-right')}</a>` : `<button type="button" class="button" data-project="${index}" data-image="0">View gallery ${icon('arrow-up-right')}</button>`}${code ? `<a class="text-link" href="${escape(code)}"${external}>Code ${icon('github')}</a>` : ''}</div></div></article>`;
+      <div class="project-actions">${projectActions(project, index)}</div></div></article>`;
   }).join('');
 
   $('#skills-grid').innerHTML = (data.skills || []).map(skill => `<article class="skill-card">${icon(skill.icon)}<h3>${escape(skill.name)}</h3><p>${escape(skill.description)}</p></article>`).join('');
@@ -94,6 +111,22 @@
   nav.querySelectorAll('a').forEach(link => link.addEventListener('click', () => closeMenu()));
   document.addEventListener('keydown', event => { if (event.key === 'Escape' && menuButton.getAttribute('aria-expanded') === 'true') closeMenu(true); });
   window.matchMedia('(min-width:781px)').addEventListener('change', event => { if(event.matches) closeMenu(); });
+
+  // The top anchor belongs to the document body, not the sticky header.
+  // Scroll explicitly so the action always reaches the real document origin.
+  const backToTop = $('#back-to-top');
+  if (backToTop) {
+    backToTop.addEventListener('click', event => {
+      event.preventDefault();
+      closeMenu();
+      $('#hero-title')?.focus({preventScroll: true});
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
+      });
+    });
+  }
 
   const dialog = $('#gallery-dialog');
   let currentImages = [], currentIndex = 0, opener = null;
