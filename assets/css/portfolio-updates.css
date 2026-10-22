@@ -127,7 +127,7 @@
 .qualification--certificate h4{margin-bottom:10px}
 .certificate-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center}
 .certificate-row .career-meta{margin:0;overflow-wrap:anywhere}
-.certificate-view-button{width:156px;min-height:48px;padding:11px 12px;font-size:12px;gap:8px;line-height:1.4}
+.certificate-view-button{width:156px;min-height:32.16px;padding:6px 12px;font-size:12px;gap:8px;line-height:1.4}
 .certificate-view-button .icon{width:16px;height:16px}
 @container (max-width:235px){.certificate-row{grid-template-columns:1fr}.certificate-view-button{width:100%}}
 .gallery-dialog--certificate{width:min(1100px,calc(100% - 32px))}
