@@ -85,15 +85,18 @@
   $('#demo-label').hidden = !projects.some(project => project.demo);
   $('#project-grid').innerHTML = projects.map((project, index) => {
     const gallery = Array.isArray(project.gallery) ? project.gallery : [];
+    const tags = `<div class="tool-tags" aria-label="Technologies used">${(project.tools || []).map(tool => `<span class="tool-tag">${escape(tool)}</span>`).join('')}</div>`;
+    const actions = `<div class="project-actions">${projectActions(project, index)}</div>`;
     return `<article class="project-card ${index === 0 ? 'project-card--featured' : ''}">
       <div class="project-media">
         <button type="button" class="project-image-button" data-project="${index}" data-image="0" aria-label="Open project cover: ${escape(project.title)}">
           <img src="${escape(fileLink(project.cover))}" width="${project.coverWidth || 1363}" height="${project.coverHeight || 767}" alt="${escape(project.coverAlt)}" loading="lazy"><span class="image-hint">${icon('zoom')}</span>
         </button>
         ${gallery.length ? `<div class="gallery-block"><div class="gallery-thumbnails">${gallery.map((image, imageIndex) => `<button type="button" data-project="${index}" data-image="${imageIndex + 1}" aria-label="Open: ${escape(image.alt)}"><img src="${escape(fileLink(image.thumb || image.src))}" width="480" height="270" alt="${escape(image.alt)}" loading="lazy"><span class="gallery-thumb-caption">${escape(image.title || image.alt)}</span></button>`).join('')}</div></div>` : ''}
+        ${index === 0 ? actions : ''}
       </div>
-      <div class="project-content">${project.demo ? '<p class="demo-note">Demo project</p>' : ''}<h3>${escape(project.title)}</h3>${projectDescription(project)}</div>
-      <div class="project-footer"><div class="tool-tags" aria-label="Technologies used">${(project.tools || []).map(tool => `<span class="tool-tag">${escape(tool)}</span>`).join('')}</div><div class="project-actions">${projectActions(project, index)}</div></div>
+      <div class="project-content">${project.demo ? '<p class="demo-note">Demo project</p>' : ''}<h3>${escape(project.title)}</h3>${projectDescription(project)}${index === 0 ? tags : ''}</div>
+      ${index === 0 ? '' : `<div class="project-footer">${tags}${actions}</div>`}
     </article>`;
   }).join('');
   document.querySelectorAll('.project-more').forEach(details => {
