@@ -23,9 +23,12 @@
   document.querySelectorAll('[data-role]').forEach(element => { element.textContent = data.role; });
   $('#about-text').textContent = data.about;
   const portrait = $('#portrait');
-  portrait.src = fileLink(data.photo) || 'assets/images/avatar-placeholder.svg';
+  portrait.addEventListener('error', () => {
+    portrait.src = 'assets/images/avatar-placeholder.svg';
+    portrait.alt = `Profile photo placeholder for ${data.name}`;
+  }, {once:true});
   portrait.alt = data.photoAlt || data.name;
-  portrait.addEventListener('error', () => { portrait.src = 'assets/images/avatar-placeholder.svg'; }, {once:true});
+  portrait.src = fileLink(data.photo) || 'assets/images/autor.png';
   if (fileLink(data.cv)) {
     $('#cv-link').href = fileLink(data.cv);
     $('#cv-link').target = '_blank';
@@ -87,10 +90,10 @@
         <button type="button" class="project-image-button" data-project="${index}" data-image="0" aria-label="Open project cover: ${escape(project.title)}">
           <img src="${escape(fileLink(project.cover))}" width="${project.coverWidth || 1363}" height="${project.coverHeight || 767}" alt="${escape(project.coverAlt)}" loading="lazy"><span class="image-hint">${icon('zoom')}</span>
         </button>
-        ${gallery.length ? `<div class="gallery-block"><p class="gallery-label">Explore the report · ${gallery.length} views</p><div class="gallery-thumbnails">${gallery.map((image, imageIndex) => `<button type="button" data-project="${index}" data-image="${imageIndex + 1}" aria-label="Open: ${escape(image.alt)}"><img src="${escape(fileLink(image.thumb || image.src))}" width="480" height="270" alt="${escape(image.alt)}" loading="lazy"><span class="gallery-thumb-caption">${escape(image.title || image.alt)}</span></button>`).join('')}</div></div>` : ''}
+        ${gallery.length ? `<div class="gallery-block"><div class="gallery-thumbnails">${gallery.map((image, imageIndex) => `<button type="button" data-project="${index}" data-image="${imageIndex + 1}" aria-label="Open: ${escape(image.alt)}"><img src="${escape(fileLink(image.thumb || image.src))}" width="480" height="270" alt="${escape(image.alt)}" loading="lazy"><span class="gallery-thumb-caption">${escape(image.title || image.alt)}</span></button>`).join('')}</div></div>` : ''}
       </div>
-      <div class="project-content">${project.demo ? '<p class="demo-note">Demo project</p>' : ''}<h3>${escape(project.title)}</h3>${projectDescription(project)}<div class="tool-tags">${(project.tools || []).map(tool => `<span class="tool-tag">${escape(tool)}</span>`).join('')}</div></div>
-      <div class="project-actions">${projectActions(project, index)}</div>
+      <div class="project-content">${project.demo ? '<p class="demo-note">Demo project</p>' : ''}<h3>${escape(project.title)}</h3>${projectDescription(project)}</div>
+      <div class="project-footer"><div class="tool-tags" aria-label="Technologies used">${(project.tools || []).map(tool => `<span class="tool-tag">${escape(tool)}</span>`).join('')}</div><div class="project-actions">${projectActions(project, index)}</div></div>
     </article>`;
   }).join('');
   document.querySelectorAll('.project-more').forEach(details => {
@@ -105,8 +108,9 @@
       const heading = url ? `<a href="${escape(url)}"${external}>${escape(item.title)} ${icon('arrow-up-right')}</a>` : escape(item.title);
       const images = symbol === 'certificate' && Array.isArray(item.gallery) ? item.gallery : [];
       const certificateIndex = items.indexOf(item);
-      const gallery = images.length ? `<div class="certificate-gallery">${images.map((image, index) => `<button type="button" class="certificate-thumbnail" data-certificate="${certificateIndex}" data-image="${index}" aria-label="View certificate: ${escape(item.title)}"><img src="${escape(fileLink(image.thumb || image.src))}" alt="${escape(image.alt)}" width="${image.width}" height="${image.height}" loading="lazy"><span>${icon('zoom')} View certificate</span></button>`).join('')}</div>` : '';
-      return `<article class="qualification${images.length ? ' qualification--certificate' : ''}">${icon(symbol)}<div class="qualification-content"><h4>${heading}</h4><p class="career-meta">${escape(item.organization)}<br>${escape(item.period)}</p>${gallery}</div></article>`;
+      const certificateButton = images.length ? `<button type="button" class="button certificate-view-button" data-certificate="${certificateIndex}" data-image="0" aria-label="View certificate: ${escape(item.title)}">View certificate ${icon('arrow-up-right')}</button>` : '';
+      const metadata = `<p class="career-meta">${escape(item.organization)}<br>${escape(item.period)}</p>`;
+      return `<article class="qualification${images.length ? ' qualification--certificate' : ''}">${icon(symbol)}<div class="qualification-content"><h4>${heading}</h4>${images.length ? `<div class="certificate-row">${metadata}${certificateButton}</div>` : metadata}</div></article>`;
     };
     const shown = items.slice(0, 3).map(render).join('');
     const more = items.slice(3);
