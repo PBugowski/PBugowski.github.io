@@ -64,18 +64,38 @@
   }
   // End project action helpers.
 
+  // Keep a short introduction visible; longer descriptions use native disclosure.
+  function projectDescription(project) {
+    const text = String(project.description || '').trim();
+    let intro = text, rest = '';
+    if (text.length > 220) {
+      const space = text.lastIndexOf(' ', 220);
+      const split = space > 100 ? space : 220;
+      intro = text.slice(0, split).trimEnd();
+      rest = text.slice(split).trimStart();
+    }
+    const paragraphs = [rest, project.descriptionDetails || ''].filter(Boolean).join('\n\n');
+    return `<div class="project-description"><p>${escape(intro)}${rest ? '…' : ''}</p>${paragraphs ? `<details class="project-more"><summary>Read more</summary><div class="project-long-description">${paragraphs.split(/\n\s*\n/).filter(Boolean).map(paragraph => `<p>${escape(paragraph)}</p>`).join('')}</div></details>` : ''}</div>`;
+  }
+
   const projects = Array.isArray(data.projects) ? data.projects : [];
   $('#demo-label').hidden = !projects.some(project => project.demo);
   $('#project-grid').innerHTML = projects.map((project, index) => {
     const gallery = Array.isArray(project.gallery) ? project.gallery : [];
     return `<article class="project-card ${index === 0 ? 'project-card--featured' : ''}">
-      <button type="button" class="project-image-button" data-project="${index}" data-image="0" aria-label="Open project cover: ${escape(project.title)}">
-        <img src="${escape(fileLink(project.cover))}" width="${project.coverWidth || 1363}" height="${project.coverHeight || 767}" alt="${escape(project.coverAlt)}" loading="lazy"><span class="image-hint">${icon('zoom')}</span>
-      </button>
-      ${gallery.length ? `<div class="gallery-block"><p class="gallery-label">Explore the report · ${gallery.length} views</p><div class="gallery-thumbnails">${gallery.map((image, imageIndex) => `<button type="button" data-project="${index}" data-image="${imageIndex + 1}" aria-label="Open: ${escape(image.alt)}"><img src="${escape(fileLink(image.thumb || image.src))}" width="480" height="270" alt="${escape(image.alt)}" loading="lazy"><span class="gallery-thumb-caption">${escape(image.title || image.alt)}</span></button>`).join('')}</div></div>` : ''}
-      <div class="project-content">${project.demo ? '<p class="demo-note">Demo project</p>' : ''}<h3>${escape(project.title)}</h3><p>${escape(project.description)}</p><div class="tool-tags">${(project.tools || []).map(tool => `<span class="tool-tag">${escape(tool)}</span>`).join('')}</div>
-      <div class="project-actions">${projectActions(project, index)}</div></div></article>`;
+      <div class="project-media">
+        <button type="button" class="project-image-button" data-project="${index}" data-image="0" aria-label="Open project cover: ${escape(project.title)}">
+          <img src="${escape(fileLink(project.cover))}" width="${project.coverWidth || 1363}" height="${project.coverHeight || 767}" alt="${escape(project.coverAlt)}" loading="lazy"><span class="image-hint">${icon('zoom')}</span>
+        </button>
+        ${gallery.length ? `<div class="gallery-block"><p class="gallery-label">Explore the report · ${gallery.length} views</p><div class="gallery-thumbnails">${gallery.map((image, imageIndex) => `<button type="button" data-project="${index}" data-image="${imageIndex + 1}" aria-label="Open: ${escape(image.alt)}"><img src="${escape(fileLink(image.thumb || image.src))}" width="480" height="270" alt="${escape(image.alt)}" loading="lazy"><span class="gallery-thumb-caption">${escape(image.title || image.alt)}</span></button>`).join('')}</div></div>` : ''}
+      </div>
+      <div class="project-content">${project.demo ? '<p class="demo-note">Demo project</p>' : ''}<h3>${escape(project.title)}</h3>${projectDescription(project)}<div class="tool-tags">${(project.tools || []).map(tool => `<span class="tool-tag">${escape(tool)}</span>`).join('')}</div></div>
+      <div class="project-actions">${projectActions(project, index)}</div>
+    </article>`;
   }).join('');
+  document.querySelectorAll('.project-more').forEach(details => {
+    details.addEventListener('toggle', () => { details.querySelector('summary').textContent = details.open ? 'Read less' : 'Read more'; });
+  });
 
   $('#skills-grid').innerHTML = (data.skills || []).map(skill => `<article class="skill-card">${icon(skill.icon)}<h3>${escape(skill.name)}</h3><p>${escape(skill.description)}</p></article>`).join('');
   $('#experience-list').innerHTML = (data.experience || []).map(job => `<li><h4>${escape(job.title)}</h4><p class="career-meta">${escape(job.organization)}<br>${escape(job.period)}</p>${job.description ? `<p class="career-description">${escape(job.description)}</p>` : ""}</li>`).join('') || '<li><p class="career-description">Details coming soon.</p></li>';
@@ -83,7 +103,10 @@
     const render = item => {
       const url = webLink(item.url);
       const heading = url ? `<a href="${escape(url)}"${external}>${escape(item.title)} ${icon('arrow-up-right')}</a>` : escape(item.title);
-      return `<article class="qualification">${icon(symbol)}<div><h4>${heading}</h4><p class="career-meta">${escape(item.organization)}<br>${escape(item.period)}</p></div></article>`;
+      const images = symbol === 'certificate' && Array.isArray(item.gallery) ? item.gallery : [];
+      const certificateIndex = items.indexOf(item);
+      const gallery = images.length ? `<div class="certificate-gallery">${images.map((image, index) => `<button type="button" class="certificate-thumbnail" data-certificate="${certificateIndex}" data-image="${index}" aria-label="View certificate: ${escape(item.title)}"><img src="${escape(fileLink(image.thumb || image.src))}" alt="${escape(image.alt)}" width="${image.width}" height="${image.height}" loading="lazy"><span>${icon('zoom')} View certificate</span></button>`).join('')}</div>` : '';
+      return `<article class="qualification${images.length ? ' qualification--certificate' : ''}">${icon(symbol)}<div class="qualification-content"><h4>${heading}</h4><p class="career-meta">${escape(item.organization)}<br>${escape(item.period)}</p>${gallery}</div></article>`;
     };
     const shown = items.slice(0, 3).map(render).join('');
     const more = items.slice(3);
@@ -137,21 +160,36 @@
     $('#gallery-image').alt = image.alt;
     $('#gallery-caption').textContent = image.title || image.alt;
     $('#gallery-counter').textContent = `${currentIndex + 1} / ${currentImages.length}`;
-    $('#gallery-original').href = fileLink(image.src);
+    $('#gallery-original').href = fileLink(image.pdf || image.src);
+    $('#gallery-original').textContent = image.pdf ? 'Open original certificate PDF ↗' : 'Open full-size image in a new tab ↗';
+    $('#gallery-image').width = image.width || 1363;
+    $('#gallery-image').height = image.height || 767;
+    $('#gallery-prev').hidden = currentImages.length < 2;
+    $('#gallery-next').hidden = currentImages.length < 2;
+    $('#gallery-counter').hidden = currentImages.length < 2;
   }
-  function openGallery(projectIndex, imageIndex, button) {
-    const project = projects[projectIndex];
-    if (!project) return;
-    currentImages = [{src:project.cover, alt:project.coverAlt, title:project.coverTitle}, ...(project.gallery || [])];
+  function openImageViewer(title, images, imageIndex, button, certificate = false) {
+    if (!images.length) return;
+    currentImages = images;
     opener = button;
-    $('#gallery-title').textContent = project.title;
+    $('#gallery-title').textContent = title;
+    dialog.classList.toggle('gallery-dialog--certificate', certificate);
     showImage(imageIndex);
-    if (typeof dialog.showModal !== 'function') { window.open(fileLink(currentImages[currentIndex].src), '_blank', 'noopener'); return; }
+    if (typeof dialog.showModal !== 'function') { window.open(fileLink(currentImages[currentIndex].pdf || currentImages[currentIndex].src), '_blank', 'noopener'); return; }
     dialog.showModal();
     document.body.style.overflow = 'hidden';
     $('#gallery-close').focus();
   }
+  function openGallery(projectIndex, imageIndex, button) {
+    const project = projects[projectIndex];
+    if (!project) return;
+    openImageViewer(project.title, [{src:project.cover, alt:project.coverAlt, title:project.coverTitle, width:project.coverWidth, height:project.coverHeight}, ...(project.gallery || [])], imageIndex, button);
+  }
   document.querySelectorAll('[data-project]').forEach(button => button.addEventListener('click', () => openGallery(Number(button.dataset.project), Number(button.dataset.image), button)));
+  document.querySelectorAll('[data-certificate]').forEach(button => button.addEventListener('click', () => {
+    const certificate = data.certificates?.[Number(button.dataset.certificate)];
+    if (certificate) openImageViewer(certificate.title, certificate.gallery || [], Number(button.dataset.image), button, true);
+  }));
   $('#gallery-close').addEventListener('click', () => dialog.close());
   $('#gallery-prev').addEventListener('click', () => showImage(currentIndex - 1));
   $('#gallery-next').addEventListener('click', () => showImage(currentIndex + 1));
