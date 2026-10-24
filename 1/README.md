@@ -6,7 +6,7 @@ Projekt analityczny łączący **MySQL, przetwarzanie danych przestrzennych i Po
 
 Analizę przygotowałem, aby wesprzeć rozmowę o bezpieczeństwie ulic: wskazać miejsca i sytuacje wymagające dalszego zbadania, z uwzględnieniem zarówno częstotliwości zdarzeń, jak i liczby osób rannych i zabitych.
 
-Projekt przygotowałem na potrzeby webinaru w ramach kursu analitycznego **KajoDataSpace**. Do przeprowadzenia webinaru zostałem zaproszony przez właściciela KajoDataSpace w roli specjalisty. Podczas wystąpienia omówiłem przygotowanie danych w SQL oraz budowę raportu w Power BI.
+Projekt przygotowałem na potrzeby webinaru w ramach kursu analitycznego **KajoDataSpace**. Do przeprowadzenia webinaru zostałem zaproszony przez właściciela platformy w roli gościa oraz prowadzącego webinar. Podczas wystąpienia omówiłem przygotowanie danych w SQL oraz budowę raportu w Power BI.
 
 Nagrania wystąpienia są dostępne **wyłącznie w języku polskim**:
 
