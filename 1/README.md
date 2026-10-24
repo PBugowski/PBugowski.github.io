@@ -278,11 +278,11 @@ Poniższy schemat przedstawia układ relacji modelu Power BI. Nazwy widoków odp
 
 ```mermaid
 flowchart TD
-    D["DIM_DATE_VW"] -->|"1:* — CRASH_DATE"| R["8 połączonych widoków raportowych"]
+    D["DIM_DATE_VW"] -->|"1:* — CRASH_DATE"| R["8 widoków raportowych"]
     B["DIM_BOROUGH_VW"] -->|"1:* — BOROUGH"| R
     V["DIM_VEHICLE_VW"] -->|"1:* — VEHICLE_TYPE"| K["8 mostków BRIDGE_VEHICLE_*_VW"]
     R <-->|"COLLISION_ID — 1:* lub *:*"| K
-    S["P4P5P6_RATE_VW — bez relacji"]
+    S["P4P5P6_RATE_VW"]
 ```
 
 ### Wymiary
