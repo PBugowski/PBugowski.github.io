@@ -1,0 +1,200 @@
+-- 4.3. Creation of Vehicle Bridge Views for Power BI Filtering
+-- -----------------------------------------------------------------------------------------------------------------
+-- Creates a set of bridge views that transform the five vehicle type columns
+-- from the accidents table into a common VEHICLE_TYPE column.
+--
+-- Each bridge view contains the COLLISION_ID and the corresponding vehicle
+-- type. UNION ALL combines the values from VEHICLE_TYPE_CODE_1 through
+-- VEHICLE_TYPE_CODE_5 into a single structure.
+--
+-- Records classified as 'NO TYPE' are excluded because they do not represent
+-- a specific vehicle type and are not required for vehicle type filtering.
+--
+-- Separate bridge views are created for P1, P2, P3, and the individual
+-- analytical components of the P4, P5 and P6 dashboards.
+--
+-- The bridge views allow the vehicle type to be used as a filter in Power BI
+-- while maintaining the relationship between a vehicle type and the original
+-- accident identified by COLLISION_ID.
+--
+-- The resulting bridge views provide a consistent vehicle type structure
+-- that can be connected to the corresponding Power BI reporting views.
+-- This enables a vehicle type selection to filter accident records across
+-- the relevant visualizations and dashboards.
+-- -----------------------------------------------------------------------------------------------------------------
+
+-- Creates a bridge view connecting DIM_VEHICLE_VW with the P1_VW.
+CREATE OR REPLACE VIEW BRIDGE_VEHICLE_P1_VW AS
+SELECT COLLISION_ID, VEHICLE_TYPE_CODE_1 AS VEHICLE_TYPE
+FROM accidents
+WHERE LOWER(VEHICLE_TYPE_CODE_1) <> 'no type'
+UNION ALL
+SELECT COLLISION_ID, VEHICLE_TYPE_CODE_2
+FROM accidents
+WHERE LOWER(VEHICLE_TYPE_CODE_2) <> 'no type'
+UNION ALL
+SELECT COLLISION_ID, VEHICLE_TYPE_CODE_3
+FROM accidents
+WHERE LOWER(VEHICLE_TYPE_CODE_3) <> 'no type'
+UNION ALL
+SELECT COLLISION_ID, VEHICLE_TYPE_CODE_4
+FROM accidents
+WHERE LOWER(VEHICLE_TYPE_CODE_4) <> 'no type'
+UNION ALL
+SELECT COLLISION_ID, VEHICLE_TYPE_CODE_5
+FROM accidents
+WHERE LOWER(VEHICLE_TYPE_CODE_5) <> 'no type';
+
+-- Creates a bridge view connecting DIM_VEHICLE_VW with the P2_VW.
+CREATE OR REPLACE VIEW BRIDGE_VEHICLE_P2_VW AS
+SELECT COLLISION_ID, VEHICLE_TYPE_CODE_1 AS VEHICLE_TYPE
+FROM accidents
+WHERE LOWER(VEHICLE_TYPE_CODE_1) <> 'no type'
+UNION ALL
+SELECT COLLISION_ID, VEHICLE_TYPE_CODE_2
+FROM accidents
+WHERE LOWER(VEHICLE_TYPE_CODE_2) <> 'no type'
+UNION ALL
+SELECT COLLISION_ID, VEHICLE_TYPE_CODE_3
+FROM accidents
+WHERE LOWER(VEHICLE_TYPE_CODE_3) <> 'no type'
+UNION ALL
+SELECT COLLISION_ID, VEHICLE_TYPE_CODE_4
+FROM accidents
+WHERE LOWER(VEHICLE_TYPE_CODE_4) <> 'no type'
+UNION ALL
+SELECT COLLISION_ID, VEHICLE_TYPE_CODE_5
+FROM accidents
+WHERE LOWER(VEHICLE_TYPE_CODE_5) <> 'no type';
+
+-- Creates a bridge view connecting DIM_VEHICLE_VW with the P3_VW.
+CREATE OR REPLACE VIEW BRIDGE_VEHICLE_P3_VW AS
+SELECT COLLISION_ID, VEHICLE_TYPE_CODE_1 AS VEHICLE_TYPE
+FROM accidents
+WHERE LOWER(VEHICLE_TYPE_CODE_1) <> 'no type'
+UNION ALL
+SELECT COLLISION_ID, VEHICLE_TYPE_CODE_2
+FROM accidents
+WHERE LOWER(VEHICLE_TYPE_CODE_2) <> 'no type'
+UNION ALL
+SELECT COLLISION_ID, VEHICLE_TYPE_CODE_3
+FROM accidents
+WHERE LOWER(VEHICLE_TYPE_CODE_3) <> 'no type'
+UNION ALL
+SELECT COLLISION_ID, VEHICLE_TYPE_CODE_4
+FROM accidents
+WHERE LOWER(VEHICLE_TYPE_CODE_4) <> 'no type'
+UNION ALL
+SELECT COLLISION_ID, VEHICLE_TYPE_CODE_5
+FROM accidents
+WHERE LOWER(VEHICLE_TYPE_CODE_5) <> 'no type';
+
+-- Creates a bridge view connecting DIM_VEHICLE_VW with the P4P5P6_FACTOR_VW.
+CREATE OR REPLACE VIEW BRIDGE_VEHICLE_P4P5P6_FACTOR_VW AS
+SELECT COLLISION_ID, VEHICLE_TYPE_CODE_1 AS VEHICLE_TYPE
+FROM accidents
+WHERE LOWER(VEHICLE_TYPE_CODE_1) <> 'no type'
+UNION ALL
+SELECT COLLISION_ID, VEHICLE_TYPE_CODE_2
+FROM accidents
+WHERE LOWER(VEHICLE_TYPE_CODE_2) <> 'no type'
+UNION ALL
+SELECT COLLISION_ID, VEHICLE_TYPE_CODE_3
+FROM accidents
+WHERE LOWER(VEHICLE_TYPE_CODE_3) <> 'no type'
+UNION ALL
+SELECT COLLISION_ID, VEHICLE_TYPE_CODE_4
+FROM accidents
+WHERE LOWER(VEHICLE_TYPE_CODE_4) <> 'no type'
+UNION ALL
+SELECT COLLISION_ID, VEHICLE_TYPE_CODE_5
+FROM accidents
+WHERE LOWER(VEHICLE_TYPE_CODE_5) <> 'no type';
+
+-- Creates a bridge view connecting DIM_VEHICLE_VW with the P4P5P6_HEAT_VW.
+CREATE OR REPLACE VIEW BRIDGE_VEHICLE_P4P5P6_HEAT_VW AS
+SELECT COLLISION_ID, VEHICLE_TYPE_CODE_1 AS VEHICLE_TYPE
+FROM accidents
+WHERE LOWER(VEHICLE_TYPE_CODE_1) <> 'no type'
+UNION ALL
+SELECT COLLISION_ID, VEHICLE_TYPE_CODE_2
+FROM accidents
+WHERE LOWER(VEHICLE_TYPE_CODE_2) <> 'no type'
+UNION ALL
+SELECT COLLISION_ID, VEHICLE_TYPE_CODE_3
+FROM accidents
+WHERE LOWER(VEHICLE_TYPE_CODE_3) <> 'no type'
+UNION ALL
+SELECT COLLISION_ID, VEHICLE_TYPE_CODE_4
+FROM accidents
+WHERE LOWER(VEHICLE_TYPE_CODE_4) <> 'no type'
+UNION ALL
+SELECT COLLISION_ID, VEHICLE_TYPE_CODE_5
+FROM accidents
+WHERE LOWER(VEHICLE_TYPE_CODE_5) <> 'no type';
+
+-- Creates a bridge view connecting DIM_VEHICLE_VW with the P4P5P6_MAP_VW.
+CREATE OR REPLACE VIEW BRIDGE_VEHICLE_P4P5P6_MAP_VW AS
+SELECT COLLISION_ID, VEHICLE_TYPE_CODE_1 AS VEHICLE_TYPE
+FROM accidents
+WHERE LOWER(VEHICLE_TYPE_CODE_1) <> 'no type'
+UNION ALL
+SELECT COLLISION_ID, VEHICLE_TYPE_CODE_2
+FROM accidents
+WHERE LOWER(VEHICLE_TYPE_CODE_2) <> 'no type'
+UNION ALL
+SELECT COLLISION_ID, VEHICLE_TYPE_CODE_3
+FROM accidents
+WHERE LOWER(VEHICLE_TYPE_CODE_3) <> 'no type'
+UNION ALL
+SELECT COLLISION_ID, VEHICLE_TYPE_CODE_4
+FROM accidents
+WHERE LOWER(VEHICLE_TYPE_CODE_4) <> 'no type'
+UNION ALL
+SELECT COLLISION_ID, VEHICLE_TYPE_CODE_5
+FROM accidents
+WHERE LOWER(VEHICLE_TYPE_CODE_5) <> 'no type';
+
+-- Creates a bridge view connecting DIM_VEHICLE_VW with the P4P5P6_STREET_VW.
+CREATE OR REPLACE VIEW BRIDGE_VEHICLE_P4P5P6_STREET_VW AS
+SELECT COLLISION_ID, VEHICLE_TYPE_CODE_1 AS VEHICLE_TYPE
+FROM accidents
+WHERE LOWER(VEHICLE_TYPE_CODE_1) <> 'no type'
+UNION ALL
+SELECT COLLISION_ID, VEHICLE_TYPE_CODE_2
+FROM accidents
+WHERE LOWER(VEHICLE_TYPE_CODE_2) <> 'no type'
+UNION ALL
+SELECT COLLISION_ID, VEHICLE_TYPE_CODE_3
+FROM accidents
+WHERE LOWER(VEHICLE_TYPE_CODE_3) <> 'no type'
+UNION ALL
+SELECT COLLISION_ID, VEHICLE_TYPE_CODE_4
+FROM accidents
+WHERE LOWER(VEHICLE_TYPE_CODE_4) <> 'no type'
+UNION ALL
+SELECT COLLISION_ID, VEHICLE_TYPE_CODE_5
+FROM accidents
+WHERE LOWER(VEHICLE_TYPE_CODE_5) <> 'no type';
+
+-- Creates a bridge view connecting DIM_VEHICLE_VW with the P4P5P6_VEHICLE_VW.
+CREATE OR REPLACE VIEW BRIDGE_VEHICLE_P4P5P6_VEHICLE_VW AS
+SELECT COLLISION_ID, VEHICLE_TYPE_CODE_1 AS VEHICLE_TYPE
+FROM accidents
+WHERE LOWER(VEHICLE_TYPE_CODE_1) <> 'no type'
+UNION ALL
+SELECT COLLISION_ID, VEHICLE_TYPE_CODE_2
+FROM accidents
+WHERE LOWER(VEHICLE_TYPE_CODE_2) <> 'no type'
+UNION ALL
+SELECT COLLISION_ID, VEHICLE_TYPE_CODE_3
+FROM accidents
+WHERE LOWER(VEHICLE_TYPE_CODE_3) <> 'no type'
+UNION ALL
+SELECT COLLISION_ID, VEHICLE_TYPE_CODE_4
+FROM accidents
+WHERE LOWER(VEHICLE_TYPE_CODE_4) <> 'no type'
+UNION ALL
+SELECT COLLISION_ID, VEHICLE_TYPE_CODE_5
+FROM accidents
+WHERE LOWER(VEHICLE_TYPE_CODE_5) <> 'no type';
