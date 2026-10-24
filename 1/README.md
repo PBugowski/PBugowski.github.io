@@ -1,434 +1,434 @@
-# Zdarzenia drogowe w Nowym Jorku w 2020 roku
+# New York City Traffic Collisions in 2020
 
-## Od surowych danych do raportu o bezpieczeństwie ulic
+## From Raw Data to a Report on Street Safety
 
-Projekt analityczny łączący **MySQL, przetwarzanie danych przestrzennych i Power BI**. Na podstawie danych o zgłoszonych zdarzeniach drogowych w Nowym Jorku przedstawia ich skalę, skutki dla uczestników ruchu, rozkład w czasie oraz zróżnicowanie geograficzne.
+An analytics project combining **MySQL, spatial data processing, and Power BI**. Using data on reported traffic collisions in New York City, it examines their scale, consequences for road users, distribution over time, and geographic patterns.
 
-Analizę przygotowałem, aby wesprzeć rozmowę o bezpieczeństwie ulic: wskazać miejsca i sytuacje wymagające dalszego zbadania, z uwzględnieniem zarówno częstotliwości zdarzeń, jak i liczby osób rannych i zabitych.
+I prepared this analysis to support discussions about street safety: to identify locations and situations that warrant further investigation, taking into account both collision frequency and the number of people injured or killed.
 
-Projekt przygotowałem na potrzeby webinaru w ramach kursu analitycznego **KajoDataSpace**. Do przeprowadzenia webinaru zostałem zaproszony przez właściciela platformy w roli gościa oraz prowadzącego webinar. Podczas wystąpienia omówiłem przygotowanie danych w SQL oraz budowę raportu w Power BI.
+I developed the project for a webinar delivered as part of the **KajoDataSpace** data analytics course. The platform's owner invited me to participate as a guest and lead the webinar. During the session, I covered data preparation in SQL and report development in Power BI.
 
-Nagrania wystąpienia są dostępne **wyłącznie w języku polskim**:
+Recordings of the presentation are available **in Polish only**:
 
-1. [Część dotycząca Power BI](https://vimeo.com/1237617344).
-2. [Część dotycząca SQL](https://vimeo.com/1237618906).
+1. [Power BI presentation](https://vimeo.com/1237617344).
+2. [SQL presentation](https://vimeo.com/1237618906).
 
-**[Otwórz interaktywny raport w Power BI](https://app.powerbi.com/view?r=eyJrIjoiOWIzYWE4NGYtZmI1OS00MWU1LThmYzktZDI4M2UwYmE3YmI0IiwidCI6ImE0ZmE1ZWNhLTdhM2YtNDRhYS04ZTI4LTc2MjBhMzk0NjEwZiJ9)**
+**[Open the interactive Power BI report](https://app.powerbi.com/view?r=eyJrIjoiOWIzYWE4NGYtZmI1OS00MWU1LThmYzktZDI4M2UwYmE3YmI0IiwidCI6ImE0ZmE1ZWNhLTdhM2YtNDRhYS04ZTI4LTc2MjBhMzk0NjEwZiJ9)**
 
-> **Zakres danych:** 1 stycznia–29 sierpnia 2020, 74 881 zdarzeń. Mimo rocznika w nazwie projektu załączony zbiór nie obejmuje pełnego 2020 roku. Sierpień jest miesiącem niepełnym.
+> **Data coverage:** January 1–August 29, 2020, comprising 74,881 collisions. Despite the year in the project title, the included dataset does not cover the whole of 2020. August is a partial month.
 
-| Element | Zakres |
+| Item | Scope |
 | --- | --- |
-| Autor analizy i raportu | Paweł Bugowski |
-| Obszar | Nowy Jork: Bronx, Brooklyn, Manhattan, Queens, Staten Island |
-| Dane wejściowe | `Raw Data/NYC.csv`, 74 881 rekordów i 29 kolumn |
-| Poziom szczegółowości danych | Jeden wiersz odpowiada jednemu zdarzeniu |
-| Identyfikator zdarzenia | `COLLISION_ID` |
-| Przygotowanie danych | 7 udokumentowanych skryptów MySQL |
-| Warstwa SQL | 2 tabele oraz 20 widoków |
-| Raport | 6 stron Power BI |
-| Hosting raportu | KajoDataSpace, zgodnie ze stopką raportu |
+| Analysis and report author | Paweł Bugowski |
+| Geographic coverage | New York City: Bronx, Brooklyn, Manhattan, Queens, Staten Island |
+| Input data | `Raw Data/NYC.csv`, 74,881 records and 29 columns |
+| Data grain | One row represents one collision |
+| Collision identifier | `COLLISION_ID` |
+| Data preparation | 7 documented MySQL scripts |
+| SQL layer | 2 tables and 20 views |
+| Report | 6 Power BI pages |
+| Report hosting | KajoDataSpace, as credited in the report footer |
 
-## Spis treści
+## Table of Contents
 
-- [Cel i pytania analityczne](#cel-i-pytania-analityczne)
-- [Dane i ich zakres](#dane-i-ich-zakres)
-- [Najważniejsze wyniki](#najważniejsze-wyniki)
-- [Zawartość repozytorium](#zawartość-repozytorium)
-- [Przygotowanie danych w SQL](#przygotowanie-danych-w-sql)
-- [Model danych i zasady agregacji](#model-danych-i-zasady-agregacji)
-- [Raport Power BI](#raport-power-bi)
-- [Jak odtworzyć projekt](#jak-odtworzyć-projekt)
-- [Kontrola jakości i zapytania kontrolne](#kontrola-jakości-i-zapytania-kontrolne)
-- [Źródła i autorstwo](#źródła-i-autorstwo)
+- [Objectives and Analytical Questions](#objectives-and-analytical-questions)
+- [Data and Coverage](#data-and-coverage)
+- [Key Findings](#key-findings)
+- [Repository Contents](#repository-contents)
+- [Data Preparation in SQL](#data-preparation-in-sql)
+- [Data Model and Aggregation Rules](#data-model-and-aggregation-rules)
+- [Power BI Report](#power-bi-report)
+- [How to Reproduce the Project](#how-to-reproduce-the-project)
+- [Data Quality Checks and Validation Queries](#data-quality-checks-and-validation-queries)
+- [Sources and Credits](#sources-and-credits)
 
-## Cel i pytania analityczne
+## Objectives and Analytical Questions
 
-Mapa zdarzeń jest punktem wyjścia do analizy. Aby przygotować użyteczne rekomendacje dotyczące dalszej obserwacji ulic, trzeba zestawić liczbę zdarzeń z ich skutkami oraz uwzględnić czas i kontekst lokalizacji.
+A collision map is the starting point for the analysis. To develop useful recommendations for further observation of streets, collision counts need to be considered alongside their consequences, timing, and location context.
 
-Projekt odpowiada na następujące pytania:
+The project addresses the following questions:
 
-1. Ile zdarzeń odnotowano i jak często wiązały się one z obrażeniami lub śmiercią?
-2. Jak rozkładają się liczby rannych i zabitych wśród pieszych, rowerzystów oraz osób podróżujących pojazdami?
-3. W których miesiącach, dniach tygodnia i porach dnia występuje najwięcej zdarzeń?
-4. Które dzielnice i nazwy ulic skupiają największą liczbę zgłoszeń?
-5. Jak różnią się pojazdy i zgłoszone czynniki w zdarzeniach bez poszkodowanych, z rannymi oraz ze skutkiem śmiertelnym?
-6. Jakie miejsca i sytuacje warto objąć dokładniejszą analizą przed planowaniem działań w terenie?
+1. How many collisions were recorded, and how often did they involve injuries or fatalities?
+2. How are injuries and fatalities distributed among pedestrians, cyclists, and people traveling in motor vehicles?
+3. Which months, days of the week, and times of day have the most collisions?
+4. Which boroughs and street names account for the largest number of reports?
+5. How do vehicle types and reported contributing factors differ between collisions without casualties, injury collisions, and fatal collisions?
+6. Which locations and situations warrant closer analysis before planning fieldwork?
 
-W dalszym opisie używam określenia **„zdarzenie”** dla wszystkich rekordów zbioru, także tych bez rannych i zabitych. Pozwala to zachować rozróżnienie między całym zbiorem kolizji a zdarzeniami powodującymi szkody osobowe.
+Throughout this document, **“collision”** refers to every record in the dataset, including those with no injuries or fatalities. This distinguishes the full set of collisions from those resulting in harm to people.
 
-## Dane i ich zakres
+## Data and Coverage
 
-### Pochodzenie i jednostka obserwacji
+### Origin and Unit of Observation
 
-Plik `Raw Data/NYC.csv` zawiera dane o zdarzeniach drogowych wykorzystane w projekcie. Stopka raportu wskazuje **Police Department (NYPD), via NYC Open Data**. Odpowiadający mu publiczny zbiór to [Motor Vehicle Collisions – Crashes](https://data.cityofnewyork.us/Public-Safety/Motor-Vehicle-Collisions-Crashes/h9gi-nx95).
+The `Raw Data/NYC.csv` file contains the traffic collision data used in this project. The report footer credits **Police Department (NYPD), via NYC Open Data**. The corresponding public dataset is [Motor Vehicle Collisions – Crashes](https://data.cityofnewyork.us/Public-Safety/Motor-Vehicle-Collisions-Crashes/h9gi-nx95).
 
-Jednostką obserwacji jest zdarzenie, a nie osoba ani pojedynczy pojazd. Do jednego rekordu przypisano datę, czas, lokalizację, liczby poszkodowanych oraz maksymalnie pięć pól opisujących typy pojazdów i pięć pól opisujących zgłoszone czynniki.
+The unit of observation is a collision, rather than a person or an individual vehicle. Each record includes a date, time, location, injury and fatality counts, and up to five fields describing vehicle types and five fields describing reported contributing factors.
 
-W załączonym pliku występuje **74 881 różnych identyfikatorów `COLLISION_ID`**, bez brakujących identyfikatorów i bez ich duplikatów. Daty obejmują wszystkie 242 dni od 1 stycznia do 29 sierpnia 2020. Nie oznacza to automatycznie kompletności rejestru wszystkich zdarzeń drogowych w mieście.
+The included file contains **74,881 distinct `COLLISION_ID` values**, with no missing or duplicate identifiers. The dates span all 242 days from January 1 to August 29, 2020. This does not automatically establish that the file is a complete record of every traffic collision in the city.
 
-Publiczny zbiór źródłowy jest aktualizowany. Wyniki tego projektu odnoszą się do konkretnego pliku `Raw Data/NYC.csv`, dlatego późniejszy eksport z NYC Open Data może zawierać inne liczby lub skorygowane rekordy.
+The public source dataset is updated over time. The results in this project refer to the specific `Raw Data/NYC.csv` file, so a later export from NYC Open Data may contain different counts or revised records.
 
-### Słownik najważniejszych pól
+### Key Field Definitions
 
-Nagłówki CSV zawierają spacje, natomiast nazwy odpowiadających im kolumn SQL wykorzystują podkreślenia, z zachowaniem `COLLISION_ID`.
+The CSV headers contain spaces, while the corresponding SQL column names use underscores. `COLLISION_ID` retains its original name.
 
-| Grupa | Pola w SQL | Znaczenie |
+| Group | SQL Fields | Meaning |
 | --- | --- | --- |
-| Identyfikacja | `COLLISION_ID` | Identyfikator zdarzenia |
-| Czas | `CRASH_DATE`, `CRASH_TIME` | Data i godzina zdarzenia |
-| Podział administracyjny | `BOROUGH`, `ZIP_CODE` | Dzielnica i kod pocztowy |
-| Współrzędne | `LATITUDE`, `LONGITUDE`, `LOCATION` | Położenie zdarzenia; `LOCATION` w CSV jest tekstem WKT, np. `POINT (...)` |
-| Ulice | `ON_STREET_NAME`, `CROSS_STREET_NAME`, `OFF_STREET_NAME` | Nazwa ulicy, ulicy przecinającej oraz opis lokalizacji poza ulicą |
-| Poszkodowani ogółem | `NUMBER_OF_PERSONS_INJURED`, `NUMBER_OF_PERSONS_KILLED` | Liczba osób rannych i zabitych |
-| Piesi | `NUMBER_OF_PEDESTRIANS_INJURED`, `NUMBER_OF_PEDESTRIANS_KILLED` | Ranni i zabici piesi |
-| Rowerzyści | `NUMBER_OF_CYCLIST_INJURED`, `NUMBER_OF_CYCLIST_KILLED` | Ranni i zabici rowerzyści |
-| Osoby podróżujące pojazdami | `NUMBER_OF_MOTORIST_INJURED`, `NUMBER_OF_MOTORIST_KILLED` | Ranni i zabici w kategorii `Motorists`, obejmującej więcej niż samych kierowców |
-| Zgłoszone czynniki | `CONTRIBUTING_FACTOR_VEHICLE_1`–`5` | Czynniki przypisane do kolejnych pozycji pojazdów |
-| Typy pojazdów | `VEHICLE_TYPE_CODE_1`–`5` | Typy pojazdów zapisane w kolejnych pozycjach |
+| Identification | `COLLISION_ID` | Collision identifier |
+| Time | `CRASH_DATE`, `CRASH_TIME` | Date and time of the collision |
+| Administrative area | `BOROUGH`, `ZIP_CODE` | Borough and ZIP code |
+| Coordinates | `LATITUDE`, `LONGITUDE`, `LOCATION` | Collision location; `LOCATION` is stored as WKT text in the CSV, such as `POINT (...)` |
+| Streets | `ON_STREET_NAME`, `CROSS_STREET_NAME`, `OFF_STREET_NAME` | Street name, intersecting street name, and off-street location description |
+| Total casualties | `NUMBER_OF_PERSONS_INJURED`, `NUMBER_OF_PERSONS_KILLED` | Number of people injured and killed |
+| Pedestrians | `NUMBER_OF_PEDESTRIANS_INJURED`, `NUMBER_OF_PEDESTRIANS_KILLED` | Pedestrians injured and killed |
+| Cyclists | `NUMBER_OF_CYCLIST_INJURED`, `NUMBER_OF_CYCLIST_KILLED` | Cyclists injured and killed |
+| People traveling in motor vehicles | `NUMBER_OF_MOTORIST_INJURED`, `NUMBER_OF_MOTORIST_KILLED` | Injuries and fatalities in the `Motorists` category, which includes more than drivers alone |
+| Reported contributing factors | `CONTRIBUTING_FACTOR_VEHICLE_1`–`5` | Factors assigned to the successive vehicle positions |
+| Vehicle types | `VEHICLE_TYPE_CODE_1`–`5` | Vehicle types recorded in the successive positions |
 
-Pięć pozycji pojazdów to struktura tego eksportu, a nie dowód, że w każdym zdarzeniu uczestniczyło pięć pojazdów. Puste pozycje mogą oznaczać brak kolejnego pojazdu lub brak informacji o jego typie.
+The five vehicle positions reflect the structure of this export; they do not mean that five vehicles were involved in every collision. Empty positions may indicate that there was no additional vehicle or that its type was not recorded.
 
-### Jakość danych wejściowych
+### Input Data Quality
 
-Poniższe wartości obliczono dla surowego CSV, **przed uzupełnieniem dzielnic za pomocą geometrii**.
+The following figures were calculated from the raw CSV, **before missing boroughs were filled using spatial geometries**.
 
-| Kontrola | Liczba rekordów | Udział zbioru |
+| Check | Number of Records | Share of Dataset |
 | --- | ---: | ---: |
-| Brak `BOROUGH` | 25 741 | 34,38% |
-| Brak pary współrzędnych | 5 946 | 7,94% |
-| Współrzędne obecne, ale co najmniej jedna równa zero | 63 | 0,08% |
-| Łącznie brak współrzędnych lub wartość zerowa | 6 009 | 8,02% |
-| Brak `ON_STREET_NAME` | 19 437 | 25,96% |
+| Missing `BOROUGH` | 25,741 | 34.38% |
+| Missing coordinate pair | 5,946 | 7.94% |
+| Coordinates present, but at least one is zero | 63 | 0.08% |
+| Missing or zero coordinates combined | 6,009 | 8.02% |
+| Missing `ON_STREET_NAME` | 19,437 | 25.96% |
 
-Data, godzina, identyfikator i osiem pól liczby poszkodowanych są w tym pliku kompletne. Dla każdego rekordu suma rannych pieszych, rowerzystów i osób w kategorii `Motorists` odpowiada liczbie rannych ogółem. Analogiczna zgodność występuje dla zabitych.
+The date, time, identifier, and eight injury and fatality count fields are complete in this file. For every record, the sum of injured pedestrians, cyclists, and people in the `Motorists` category matches the total number of people injured. The same reconciliation holds for fatalities.
 
-Braki lokalizacji mają znaczenie dla interpretacji: zbiór zdarzeń prezentowanych na mapie może być mniejszy niż zbiór używany do obliczenia głównych KPI. Samo posiadanie niezerowych współrzędnych nie jest jeszcze pełną kontrolą poprawności położenia.
+Missing location data affects interpretation: the set of collisions displayed on a map may be smaller than the set used to calculate the main KPIs. Nonzero coordinates alone do not establish that a location is correct.
 
-## Najważniejsze wyniki
+## Key Findings
 
-Wartości poniżej obliczono bezpośrednio z `Raw Data/NYC.csv`, według definicji flag z SQL. Sześć podstawowych KPI jest zgodnych ze stroną przeglądu ogólnego w publicznym raporcie przy filtrach ustawionych na wszystkie wartości.
+The figures below were calculated directly from `Raw Data/NYC.csv`, using the flag definitions in the SQL scripts. The six main KPIs match the overview page of the public report when all filter values are selected.
 
-### Skala zdarzeń i ich skutki
+### Collision Volume and Outcomes
 
-| Wskaźnik | Wartość | Interpretacja |
+| Metric | Value | Interpretation |
 | --- | ---: | --- |
-| Wszystkie zdarzenia | **74 881** | Unikalne zdarzenia w analizowanym okresie |
-| Bez zgłoszonych rannych i zabitych | **54 371** | 72,61% zdarzeń |
-| Z rannymi, bez zabitych | **20 375** | 27,21% zdarzeń |
-| Z co najmniej jedną osobą zabitą | **135** | 0,18% zdarzeń |
-| Osoby ranne | **27 448** | Liczba osób, także rannych w zdarzeniach śmiertelnych |
-| Osoby zabite | **144** | Liczba osób, a nie liczba zdarzeń śmiertelnych |
+| All collisions | **74,881** | Unique collisions during the analysis period |
+| No reported injuries or fatalities | **54,371** | 72.61% of collisions |
+| Injuries, with no fatalities | **20,375** | 27.21% of collisions |
+| At least one fatality | **135** | 0.18% of collisions |
+| People injured | **27,448** | Number of people, including those injured in fatal collisions |
+| People killed | **144** | Number of people, rather than the number of fatal collisions |
 
-**135 zdarzeń śmiertelnych i 144 osoby zabite opisują dwie różne miary.** Tak samo 20 375 zdarzeń z rannymi bez zabitych nie jest równoważne 27 448 osobom rannym.
+**135 fatal collisions and 144 people killed represent two different measures.** Similarly, 20,375 injury collisions without fatalities is not equivalent to 27,448 people injured.
 
-| Grupa uczestników | Ranni | Zabici |
+| Road User Group | Injured | Killed |
 | --- | ---: | ---: |
-| Piesi | 4 099 | 56 |
-| Rowerzyści | 3 273 | 9 |
-| Motorists | 20 076 | 79 |
-| **Łącznie** | **27 448** | **144** |
+| Pedestrians | 4,099 | 56 |
+| Cyclists | 3,273 | 9 |
+| Motorists | 20,076 | 79 |
+| **Total** | **27,448** | **144** |
 
-Piesi stanowią około **14,93% rannych**, ale **38,89% zabitych** w tym zbiorze. To uzasadnia osobne przyjrzenie się zdarzeniom z udziałem pieszych. Te udziały nie mierzą prawdopodobieństwa wypadku podczas podróży, ponieważ zbiór nie zawiera liczby pieszych, podróży ani pokonanych kilometrów.
+Pedestrians account for approximately **14.93% of injuries**, but **38.89% of fatalities** in this dataset. This supports examining pedestrian collisions separately. These shares do not measure the probability of a collision during a journey, because the dataset contains no counts of pedestrians, trips, or distances traveled.
 
-### Rozkład w czasie
+### Distribution Over Time
 
-| Miesiąc 2020 | Liczba zdarzeń |
+| Month in 2020 | Number of Collisions |
 | --- | ---: |
-| Styczeń | 14 287 |
-| Luty | 13 684 |
-| Marzec | 11 057 |
-| Kwiecień | 4 116 |
-| Maj | 6 149 |
-| Czerwiec | 7 616 |
-| Lipiec | 9 225 |
-| Sierpień, do 29.08 | 8 747 |
+| January | 14,287 |
+| February | 13,684 |
+| March | 11,057 |
+| April | 4,116 |
+| May | 6,149 |
+| June | 7,616 |
+| July | 9,225 |
+| August, through August 29 | 8,747 |
 
-Kwiecień ma najmniejszą liczbę zgłoszeń spośród miesięcy objętych analizą. W porównaniu ze styczniem liczba zdarzeń jest niższa o około **71,19%**. Raport przedstawia ten przebieg w kontekście wydarzeń związanych z COVID-19. Zbieżność w czasie nie wystarcza jednak do określenia wpływu poszczególnych ograniczeń na liczbę zdarzeń.
+April has the fewest reported collisions among the months included in the analysis. Its collision count is approximately **71.19%** lower than January's. The report presents this pattern in the context of COVID-19 events. Coinciding timing alone, however, is insufficient to determine how individual restrictions affected collision counts.
 
-Najwięcej zdarzeń przypada na **piątki: 12 271**. Największą liczbę zgłoszeń spośród dwugodzinnych przedziałów ma **16:00–18:00: 10 193**. Są to sumy dla całego badanego okresu; przy szczegółowym porównywaniu dni tygodnia warto uwzględnić liczbę ich wystąpień w kalendarzu.
+**Fridays have the most collisions: 12,271.** Among the two-hour intervals, **16:00–18:00 has the highest count: 10,193**. These are totals for the entire analysis period. A detailed comparison of weekdays should also account for how many times each weekday occurs in the calendar.
 
-### Przykłady miejsc do dalszego zbadania
+### Examples of Locations for Further Investigation
 
-Poniższe przykłady zestawiają częstotliwość zdarzeń z ich skutkami. Obliczenia grupują rekordy według `ON_STREET_NAME` po usunięciu spacji na początku i końcu. Nie łączą różnych wariantów nazw i nie identyfikują pojedynczych skrzyżowań.
+The following examples compare collision frequency with outcomes. The calculations group records by `ON_STREET_NAME` after trimming leading and trailing spaces. They do not merge different name variants or identify individual intersections.
 
-| Nazwa ulicy lub trasy | Zdarzenia | Ranni ogółem | Zabici ogółem | Ranni piesi | Pytanie do dalszej analizy |
+| Street or Route Name | Collisions | Total Injured | Total Killed | Pedestrians Injured | Question for Further Analysis |
 | --- | ---: | ---: | ---: | ---: | --- |
-| BELT PARKWAY | 1 241 | 689 | 1 | 3 | Na których odcinkach i w jakich godzinach skupiają się zdarzenia? |
-| BROADWAY | 575 | 248 | 1 | 53 | Które lokalizacje odpowiadają za zdarzenia z rannymi pieszymi? |
-| GRAND CENTRAL PKWY | 581 | 342 | 5 | 1 | Jakie okoliczności miały dwa zdarzenia, w których zginęło łącznie pięć osób? |
+| BELT PARKWAY | 1,241 | 689 | 1 | 3 | On which sections and at what times do collisions concentrate? |
+| BROADWAY | 575 | 248 | 1 | 53 | Which locations account for collisions involving injured pedestrians? |
+| GRAND CENTRAL PKWY | 581 | 342 | 5 | 1 | What were the circumstances of the two collisions in which five people were killed in total? |
 
-To przykłady do zawężenia analizy, nie ranking ryzyka. Ta sama nazwa może obejmować wiele odcinków, a czasem lokalizacje w różnych dzielnicach. Przed wizją lokalną należy przejść do współrzędnych, ulic przecinających i konkretnych `COLLISION_ID`.
+These examples help narrow the analysis; they are not a risk ranking. The same street name can cover multiple sections and sometimes locations in different boroughs. Before conducting a site visit, the analysis should move to coordinates, intersecting streets, and specific `COLLISION_ID` values.
 
-## Zawartość repozytorium
+## Repository Contents
 
-Repozytorium jest podzielone na trzy katalogi: `SQL/` ze skryptami, `Assets/` z grafikami WebP oraz `Raw Data/` z surowymi danymi CSV. Plik `README.md` znajduje się w katalogu głównym. Pliki źródłowe zachowują oryginalne nazwy.
+The repository is organized into three directories: `SQL/` for scripts, `Assets/` for WebP images, and `Raw Data/` for raw CSV data. The `README.md` file is located in the repository root. Source files retain their original names.
 
-| Plik | Zawartość |
+| File | Contents |
 | --- | --- |
-| `Raw Data/NYC.csv` | Dane wejściowe użyte w analizie |
-| `SQL/1. Database & Table.sql` | Baza `WEBINAR_NYC_ACCIDENTS` i tabela `accidents` |
-| `SQL/2. Import of data.sql` | Import CSV, obsługa pustych wartości i czasu |
-| `SQL/3.1. Normalization of data.sql` | Uzupełnienie braków technicznych oraz standaryzacja typów pojazdów i czynników |
-| `SQL/3.2. Multipolygons.sql` | Granice pięciu dzielnic i przestrzenne uzupełnienie `BOROUGH` |
-| `SQL/4.1. Creation of reporting views.sql` | Flagi skutków, przedziały godzinowe i 9 widoków raportowych |
-| `SQL/4.2. Creation of dimension views.sql` | 3 widoki wymiarów: data, dzielnica, typ pojazdu |
-| `SQL/4.3. Creation of bridges.sql` | 8 widoków mostkowych do filtrowania po typie pojazdu |
-| `README.md` | Opis projektu, wyników, modelu i odtworzenia analizy |
-| `Assets/cover.webp`, `Assets/cover-thumb.webp` | Okładka projektu i jej miniatura |
-| `Assets/gallery-01.webp`, `Assets/gallery-01-thumb.webp` | Analiza czasu zdarzeń i jej miniatura |
-| `Assets/gallery-02.webp`, `Assets/gallery-02-thumb.webp` | Analiza lokalizacji zdarzeń i jej miniatura |
-| `Assets/gallery-03.webp`, `Assets/gallery-03-thumb.webp` | Analiza zdarzeń z rannymi i jej miniatura |
+| `Raw Data/NYC.csv` | Input data used in the analysis |
+| `SQL/1. Database & Table.sql` | The `WEBINAR_NYC_ACCIDENTS` database and `accidents` table |
+| `SQL/2. Import of data.sql` | CSV import and handling of empty values and time fields |
+| `SQL/3.1. Normalization of data.sql` | Missing-value placeholders and standardization of vehicle types and contributing factors |
+| `SQL/3.2. Multipolygons.sql` | Boundaries of the five boroughs and spatial assignment of missing `BOROUGH` values |
+| `SQL/4.1. Creation of reporting views.sql` | Outcome flags, time buckets, and 9 reporting views |
+| `SQL/4.2. Creation of dimension views.sql` | 3 dimension views: date, borough, and vehicle type |
+| `SQL/4.3. Creation of bridges.sql` | 8 bridge views for filtering by vehicle type |
+| `README.md` | Project, findings, model, and reproduction documentation |
+| `Assets/cover.webp`, `Assets/cover-thumb.webp` | Project cover and thumbnail |
+| `Assets/gallery-01.webp`, `Assets/gallery-01-thumb.webp` | Collision timing analysis and thumbnail |
+| `Assets/gallery-02.webp`, `Assets/gallery-02-thumb.webp` | Collision location analysis and thumbnail |
+| `Assets/gallery-03.webp`, `Assets/gallery-03-thumb.webp` | Injury collision analysis and thumbnail |
 
-Publiczny link umożliwia obejrzenie interaktywnego raportu, a skrypty odtwarzają warstwę SQL. Schemat w sekcji modelu danych przedstawia układ relacji. Zestaw nie zawiera pliku `.pbix` ani `.pbit`; definicje miar DAX, konfiguracja interakcji i pełne formatowanie pozostają częścią pliku raportu.
+The public link provides access to the interactive report, and the scripts reproduce the SQL layer. The diagram in the data model section shows the relationship structure. The files do not include a `.pbix` or `.pbit`; DAX measure definitions, interaction settings, and full formatting remain part of the report file.
 
-## Przygotowanie danych w SQL
+## Data Preparation in SQL
 
-### 1. Utworzenie bazy i tabeli
+### 1. Creating the Database and Table
 
-Pierwszy skrypt tworzy bazę `WEBINAR_NYC_ACCIDENTS` z kodowaniem `utf8mb4` i porównywaniem tekstu `utf8mb4_unicode_ci`.
+The first script creates the `WEBINAR_NYC_ACCIDENTS` database with `utf8mb4` encoding and the `utf8mb4_unicode_ci` collation.
 
-Tabela `accidents` zachowuje szeroki układ źródłowego CSV. Datę i godzinę przechowuje jako `DATE` i `TIME`, współrzędne jako `DECIMAL(10, 7)`, liczby poszkodowanych jako `INT`, a identyfikator jako `BIGINT`. Kod pocztowy pozostaje tekstem.
+The `accidents` table retains the wide format of the source CSV. Dates and times are stored as `DATE` and `TIME`, coordinates as `DECIMAL(10, 7)`, casualty counts as `INT`, and the identifier as `BIGINT`. ZIP codes remain text.
 
-`COLLISION_ID` pełni rolę logicznego klucza zdarzenia. Oryginalny DDL nie deklaruje jednak dla niego `PRIMARY KEY` ani `UNIQUE`, dlatego unikalność należy kontrolować podczas importu.
+`COLLISION_ID` serves as the logical collision key. However, the original DDL does not declare a `PRIMARY KEY` or `UNIQUE` constraint on this column, so uniqueness needs to be checked during import.
 
-### 2. Import i wstępne przygotowanie
+### 2. Import and Initial Preparation
 
-Import wykorzystuje `LOAD DATA LOCAL INFILE`. Skrypt pomija nagłówek, odczytuje wartości rozdzielone przecinkami i obsługuje opcjonalne cudzysłowy. Dane trafiają najpierw do zmiennych użytkownika, a następnie do kolumn docelowych.
+The import uses `LOAD DATA LOCAL INFILE`. The script skips the header, reads comma-separated values, and handles optional double quotes. Values are first loaded into user-defined variables and then assigned to the destination columns.
 
-`NULLIF(..., '')` zamienia puste pola na `NULL`. Dla daty i czasu stosowany jest także `TRIM`. Czas konwertowany jest przez `STR_TO_DATE(..., '%H:%i:%s')`. Data w formacie `YYYY-MM-DD` jest przypisywana do kolumny `DATE` bez osobnego wywołania `STR_TO_DATE`.
+`NULLIF(..., '')` converts empty fields to `NULL`. `TRIM` is also applied to the date and time fields. Time is converted using `STR_TO_DATE(..., '%H:%i:%s')`. Dates in `YYYY-MM-DD` format are assigned to the `DATE` column without a separate `STR_TO_DATE` call.
 
-### 3. Ujednolicenie wartości
+### 3. Standardizing Values
 
-Skrypt `3.1` najpierw zastępuje braki ustalonymi wartościami technicznymi, np. `NO BOROUGH`, `NO ZIP CODE`, `NO STREET NAME`, a brakujące współrzędne zerem. Następnie wykonuje reguły `CASE` osobno dla wszystkich pięciu pozycji pojazdów i czynników.
+Script `3.1` first replaces missing values with defined placeholders, such as `NO BOROUGH`, `NO ZIP CODE`, and `NO STREET NAME`, and replaces missing coordinates with zero. It then applies `CASE` rules separately to all five vehicle and contributing-factor positions.
 
-Przykładowe grupowania:
+Examples of category mappings:
 
-| Obszar | Przykład wartości wejściowej | Kategoria po standaryzacji |
+| Area | Example Input Value | Standardized Category |
 | --- | --- | --- |
-| Pojazdy | `Sedan` | `SEDAN` |
-| Pojazdy | `Station Wagon/Sport Utility Vehicle` | `SUV` |
-| Pojazdy | `Pick-up Truck` | `TRUCK` |
-| Pojazdy | `Motorcycle` | `MOTORBIKE` |
-| Czynniki | `Driver Inattention/Distraction` | `DISTRACTION` |
-| Czynniki | `Unsafe Speed` | `DRIVING AT EXCESSIVE SPEED` |
-| Czynniki | `Following Too Closely` | `FAILURE TO MAINTAIN DISTANCE` |
-| Czynniki | `Unspecified` | `NO FACTOR` |
+| Vehicles | `Sedan` | `SEDAN` |
+| Vehicles | `Station Wagon/Sport Utility Vehicle` | `SUV` |
+| Vehicles | `Pick-up Truck` | `TRUCK` |
+| Vehicles | `Motorcycle` | `MOTORBIKE` |
+| Contributing factors | `Driver Inattention/Distraction` | `DISTRACTION` |
+| Contributing factors | `Unsafe Speed` | `DRIVING AT EXCESSIVE SPEED` |
+| Contributing factors | `Following Too Closely` | `FAILURE TO MAINTAIN DISTANCE` |
+| Contributing factors | `Unspecified` | `NO FACTOR` |
 
-Reguły wykorzystują `LOWER`, `LIKE` i kolejność warunków w `CASE`. Pozwala to połączyć warianty opisów w kategorie przydatne na wykresach. Wartości niedopasowane otrzymują **`OTHER`**. Brak typu pojazdu po przejściu reguł trafia do `NO TYPE`, a brak czynnika do `NO FACTOR`.
+The rules use `LOWER`, `LIKE`, and the order of conditions within `CASE`. This groups variations in descriptions into categories suitable for charts. Unmatched values are assigned **`OTHER`**. After the rules are applied, missing vehicle types become `NO TYPE`, and missing contributing factors become `NO FACTOR`.
 
-„Normalization” w nazwie skryptu oznacza tu przede wszystkim **standaryzację wartości kategorii**. Nie jest to pełna normalizacja relacyjna tabeli do oddzielnych tabel zdarzeń, pojazdów i czynników. Szeroka tabela pozostaje podstawą, a przekształcenia do układu długiego realizują widoki.
+“Normalization” in the script name primarily means **standardizing category values**. It is not full relational normalization into separate collision, vehicle, and factor tables. The wide table remains the foundation, while views transform selected fields into a long format.
 
-### 4. Uzupełnienie dzielnic przez analizę przestrzenną
+### 4. Assigning Missing Boroughs Through Spatial Analysis
 
-Skrypt `3.2` tworzy tabelę `borough_boundaries`. Granice dzielnic pochodzą ze zbioru [Borough Boundaries — NYC Open Data](https://data.cityofnewyork.us/City-Government/Borough-Boundaries/yqww-f9f3). Zawiera ona nazwę dzielnicy oraz geometrię `MULTIPOLYGON` w układzie **WGS 84, SRID 4326**. Wieloczęściowe geometrie umożliwiają zapis granic dzielnic obejmujących także oddzielone fragmenty lądu i wyspy.
+Script `3.2` creates the `borough_boundaries` table. Borough boundaries come from the [Borough Boundaries — NYC Open Data](https://data.cityofnewyork.us/City-Government/Borough-Boundaries/yqww-f9f3) dataset. The table stores the borough name and a `MULTIPOLYGON` geometry in **WGS 84, SRID 4326**. Multipart geometries represent boroughs that include separate land areas and islands.
 
-Przypisanie dzielnicy przebiega następująco:
+Borough assignment follows these steps:
 
-1. Z `LONGITUDE` i `LATITUDE` powstaje punkt przestrzenny.
-2. `ST_GeomFromText` interpretuje współrzędne w kolejności długość–szerokość dzięki `axis-order=long-lat`.
-3. `ST_Contains` sprawdza zawieranie punktu w geometrii dzielnicy.
-4. Aktualizacja obejmuje rekordy z `BOROUGH = 'NO BOROUGH'` i niezerowymi współrzędnymi.
+1. A spatial point is created from `LONGITUDE` and `LATITUDE`.
+2. `ST_GeomFromText` interprets the coordinates in longitude–latitude order through `axis-order=long-lat`.
+3. `ST_Contains` checks whether the point falls within a borough's geometry.
+4. The update applies to records with `BOROUGH = 'NO BOROUGH'` and nonzero coordinates.
 
-Istniejące nazwy dzielnic nie są nadpisywane. Rekordy bez użytecznych współrzędnych albo bez dopasowania pozostają nierozstrzygnięte. Wynik tej operacji należy kontrolować, porównując liczbę `NO BOROUGH` przed i po wykonaniu skryptu. Niniejsza dokumentacja nie podaje niezweryfikowanej liczby uzupełnionych rekordów.
+Existing borough names are not overwritten. Records without usable coordinates or a matching geometry remain unresolved. The result should be checked by comparing the number of `NO BOROUGH` records before and after running the script. This documentation does not provide an unverified count of records filled in this way.
 
-### 5. Flagi skutków i analiza czasu
+### 5. Outcome Flags and Time Analysis
 
-Skrypt `4.1` dodaje trzy flagi:
+Script `4.1` adds three flags:
 
-| Flaga | Definicja w kodzie | Zastosowanie |
+| Flag | Definition in the Code | Purpose |
 | --- | --- | --- |
-| `ACC_WO` | Żadne z pól rannych ani zabitych nie jest większe od zera | Zdarzenia bez zgłoszonych poszkodowanych |
-| `ACC_W_INJURED` | Co najmniej jedno pole rannych jest większe od zera i `NUMBER_OF_PERSONS_KILLED = 0` | Zdarzenia z rannymi bez zabitych według pola ogółem |
-| `ACC_W_KILLED` | Co najmniej jedno pole zabitych jest większe od zera | Zdarzenia śmiertelne |
+| `ACC_WO` | None of the injury or fatality fields is greater than zero | Collisions with no reported casualties |
+| `ACC_W_INJURED` | At least one injury field is greater than zero and `NUMBER_OF_PERSONS_KILLED = 0` | Injury collisions with no fatalities according to the total fatalities field |
+| `ACC_W_KILLED` | At least one fatality field is greater than zero | Fatal collisions |
 
-Warunki traktują `NULL` w polach liczbowych jak zero przez `COALESCE`. W załączonym CSV te pola nie mają braków i są wewnętrznie zgodne, więc flagi tworzą trzy rozłączne grupy obejmujące wszystkie zdarzenia. Dla innego wsadu tę własność trzeba ponownie sprawdzić: flaga rannych sprawdza zgony ogółem, a flaga śmiertelna także pola szczegółowe.
+The conditions treat `NULL` in numeric fields as zero through `COALESCE`. In the included CSV, these fields are complete and internally consistent, so the flags form three mutually exclusive groups covering all collisions. This property must be checked again for a different input dataset: the injury flag checks total fatalities, while the fatality flag also checks the detailed fields.
 
-Pola `TIME_BUCKET` i `TIME_BUCKET_NUMBER` dzielą dobę na 12 przedziałów po dwie godziny. Granica początkowa jest włączona, a końcowa wyłączona, np. 16:00 należy do przedziału 16:00–18:00. Numer 1–12 umożliwia poprawne sortowanie etykiet w Power BI.
+`TIME_BUCKET` and `TIME_BUCKET_NUMBER` divide the day into 12 two-hour intervals. The start boundary is inclusive and the end boundary is exclusive; for example, 16:00 belongs to the 16:00–18:00 interval. The number from 1 to 12 enables correct label sorting in Power BI.
 
-`DAYOFWEEK` i `DAYNAME` dostarczają numer i nazwę dnia tygodnia. W użytej numeracji MySQL niedziela ma numer 1. W `4.2` powstaje dodatkowo `CRASH_DATETIME`, łączące datę i czas.
+`DAYOFWEEK` and `DAYNAME` provide the weekday number and name. In the MySQL numbering used here, Sunday is 1. Script `4.2` also creates `CRASH_DATETIME`, combining the date and time.
 
-### 6. Warstwa widoków
+### 6. The View Layer
 
-| Widok | Zawartość | Szczegółowość |
+| View | Contents | Grain |
 | --- | --- | --- |
-| `P1_VW` | Flagi skutków i liczby rannych oraz zabitych | Jeden wiersz na zdarzenie |
-| `P2_VW` | Data, czas, dzień tygodnia i przedział godzinowy | Jeden wiersz na zdarzenie |
-| `P3_VW` | Współrzędne, nazwa ulicy, dzielnica i data | Jeden wiersz na zdarzenie |
-| `P4P5P6_FACTOR_VW` | Pięć pól czynników połączonych w `FACTOR` | Pięć wierszy na zdarzenie |
-| `P4P5P6_VEHICLE_VW` | Pięć pól pojazdów połączonych w `VEHICLE` | Pięć wierszy na zdarzenie |
-| `P4P5P6_RATE_VW` | Miesięczne udziały trzech kategorii skutków | Jeden wiersz na zdarzenie z niepustą datą, z powtórzonym udziałem miesięcznym |
-| `P4P5P6_MAP_VW` | Identyfikator, data, dzielnica i flagi skutków | Jeden wiersz na zdarzenie; bez współrzędnych |
-| `P4P5P6_HEAT_VW` | Flagi skutków, dzień tygodnia i przedział godzinowy | Jeden wiersz na zdarzenie |
-| `P4P5P6_STREET_VW` | Flagi skutków i nazwa ulicy | Jeden wiersz na zdarzenie |
+| `P1_VW` | Outcome flags and injury and fatality counts | One row per collision |
+| `P2_VW` | Date, time, weekday, and time bucket | One row per collision |
+| `P3_VW` | Coordinates, street name, borough, and date | One row per collision |
+| `P4P5P6_FACTOR_VW` | Five contributing-factor fields combined into `FACTOR` | Five rows per collision |
+| `P4P5P6_VEHICLE_VW` | Five vehicle fields combined into `VEHICLE` | Five rows per collision |
+| `P4P5P6_RATE_VW` | Monthly proportions of the three outcome categories | One row per collision with a non-null date, repeating the monthly proportion |
+| `P4P5P6_MAP_VW` | Identifier, date, borough, and outcome flags | One row per collision; no coordinates |
+| `P4P5P6_HEAT_VW` | Outcome flags, weekday, and time bucket | One row per collision |
+| `P4P5P6_STREET_VW` | Outcome flags and street name | One row per collision |
 
-Widoki czynników i pojazdów wykorzystują `UNION ALL`, więc zachowują powtórzenia i pozycje z kategorią braku danych. Dla tego zbioru każdy z nich powinien mieć **374 405 wierszy**, czyli pięć razy więcej niż tabela zdarzeń.
+The factor and vehicle views use `UNION ALL`, preserving duplicates and positions assigned a missing-data category. For this dataset, each should contain **374,405 rows**, five times as many as the collision table.
 
-Widok udziałów wykorzystuje funkcje okienkowe z podziałem według roku i miesiąca. Przykładowo `INJURED_RATE` to miesięczna suma `ACC_W_INJURED` podzielona przez liczbę wszystkich zdarzeń w tym miesiącu.
+The proportions view uses window functions partitioned by year and month. For example, `INJURED_RATE` is the monthly sum of `ACC_W_INJURED` divided by the number of all collisions in that month.
 
-## Model danych i zasady agregacji
+## Data Model and Aggregation Rules
 
-### Warstwy modelu
+### Model Layers
 
-Model Power BI składa się z **20 tabel opartych na widokach SQL**: trzech wymiarów, ośmiu widoków raportowych połączonych z wymiarami i mostkami, ośmiu mostków pojazdów oraz jednego odłączonego widoku udziałów miesięcznych. Jest to układ wielofaktowy ze wspólnymi wymiarami daty, dzielnicy i typu pojazdu.
+The Power BI model consists of **20 tables based on SQL views**: three dimensions, eight reporting views connected to dimensions and bridges, eight vehicle bridges, and one disconnected view of monthly proportions. It is a multi-fact model with shared date, borough, and vehicle-type dimensions.
 
-Tabela `accidents` i tabela granic `borough_boundaries` należą do warstwy przygotowania danych w MySQL. Nie są pokazane jako osobne tabele w przedstawionym modelu Power BI.
+The `accidents` table and the `borough_boundaries` table belong to the data preparation layer in MySQL. They are not shown as separate tables in the Power BI model presented here.
 
-Poniższy schemat przedstawia układ relacji modelu Power BI. Nazwy widoków odpowiadają obiektom tworzonym przez skrypty SQL. Strzałki oznaczają kierunki filtrowania. Relacje między widokami raportowymi a odpowiadającymi im mostkami są dwukierunkowe.
+The diagram below shows the relationships in the Power BI model. The view names correspond to the objects created by the SQL scripts. Arrows indicate filter direction. Relationships between reporting views and their corresponding bridges are bidirectional.
 
 ```mermaid
 flowchart TD
-    D["DIM_DATE_VW"] -->|"1:* — CRASH_DATE"| R["8 widoków raportowych"]
+    D["DIM_DATE_VW"] -->|"1:* — CRASH_DATE"| R["8 reporting views"]
     B["DIM_BOROUGH_VW"] -->|"1:* — BOROUGH"| R
-    V["DIM_VEHICLE_VW"] -->|"1:* — VEHICLE_TYPE"| K["8 mostków BRIDGE_VEHICLE_*_VW"]
-    R <-->|"COLLISION_ID — 1:* lub *:*"| K
+    V["DIM_VEHICLE_VW"] -->|"1:* — VEHICLE_TYPE"| K["8 BRIDGE_VEHICLE_*_VW bridges"]
+    R <-->|"COLLISION_ID — 1:* or *:*"| K
     S["P4P5P6_RATE_VW"]
 ```
 
-### Wymiary
+### Dimensions
 
-| Wymiar | Klucz logiczny | Rola |
+| Dimension | Logical Key | Role |
 | --- | --- | --- |
-| `DIM_DATE_VW` | `DATE` | Ciągły kalendarz od najmniejszej do największej daty `CRASH_DATETIME`; rok, kwartał, miesiąc, dzień i `YEAR_MONTH` |
-| `DIM_BOROUGH_VW` | `BOROUGH` | Unikalne niepuste nazwy dzielnic |
-| `DIM_VEHICLE_VW` | `VEHICLE_TYPE` | Unikalne typy z pięciu pozycji pojazdów, z wyłączeniem `NO TYPE` |
+| `DIM_DATE_VW` | `DATE` | Continuous calendar from the earliest to the latest `CRASH_DATETIME` date; year, quarter, month, day, and `YEAR_MONTH` |
+| `DIM_BOROUGH_VW` | `BOROUGH` | Unique non-null borough names |
+| `DIM_VEHICLE_VW` | `VEHICLE_TYPE` | Unique types from the five vehicle positions, excluding `NO TYPE` |
 
-Kalendarz powstaje przez rekurencyjne CTE `WITH RECURSIVE`. Dla dołączonych danych obejmuje 242 dni. Wymiar dzielnic odrzuca `NULL`, ale może nadal zawierać `NO BOROUGH`, jeśli po uzupełnieniu przestrzennym pozostały nierozpoznane lokalizacje.
+The calendar is generated using a recursive CTE with `WITH RECURSIVE`. It covers 242 days for the included data. The borough dimension excludes `NULL`, but may still contain `NO BOROUGH` if some locations remain unresolved after spatial assignment.
 
-### Mostki pojazdów
+### Vehicle Bridges
 
-Zdarzenie może zawierać kilka typów pojazdów, a jeden typ występuje w wielu zdarzeniach. Widoki mostkowe zamieniają pięć kolumn pojazdów na pary **`COLLISION_ID`–`VEHICLE_TYPE`** i wykluczają `NO TYPE`.
+A collision can involve several vehicle types, and one type can appear in many collisions. The bridge views transform the five vehicle columns into **`COLLISION_ID`–`VEHICLE_TYPE`** pairs and exclude `NO TYPE`.
 
-Powstają osobne mostki dla `P1`, `P2`, `P3` oraz komponentów `FACTOR`, `HEAT`, `MAP`, `STREET` i `VEHICLE` stron P4–P6. Wszystkie odczytują te same pięć kolumn źródłowych. Rozdzielenie nazw porządkuje ich zastosowanie w poszczególnych częściach modelu.
+Separate bridges are created for `P1`, `P2`, `P3`, and the `FACTOR`, `HEAT`, `MAP`, `STREET`, and `VEHICLE` components of pages P4–P6. All read the same five source columns. Separate names organize their use across the different parts of the model.
 
-Ponieważ użyto `UNION ALL`, para zdarzenie–typ może się powtarzać. Jeśli w jednym zdarzeniu uczestniczyły dwa sedany, mostek zawiera dwie takie pozycje. Mostek nie przechowuje numeru pozycji pojazdu ani odrębnego identyfikatora pojazdu.
+Because `UNION ALL` is used, a collision–type pair can occur more than once. If a collision involved two sedans, the bridge contains two corresponding entries. The bridge does not retain the vehicle position number or a separate vehicle identifier.
 
-### Klucze, relacje i filtrowanie
+### Keys, Relationships, and Filtering
 
-Wymiary daty i dzielnicy są połączone relacjami **jeden-do-wielu (`1:*`)** z ośmioma widokami: `P1_VW`, `P2_VW`, `P3_VW`, `P4P5P6_FACTOR_VW`, `P4P5P6_HEAT_VW`, `P4P5P6_MAP_VW`, `P4P5P6_STREET_VW` oraz `P4P5P6_VEHICLE_VW`. Filtry przechodzą jednokierunkowo z wymiarów do tych widoków.
+The date and borough dimensions have **one-to-many (`1:*`)** relationships with eight views: `P1_VW`, `P2_VW`, `P3_VW`, `P4P5P6_FACTOR_VW`, `P4P5P6_HEAT_VW`, `P4P5P6_MAP_VW`, `P4P5P6_STREET_VW`, and `P4P5P6_VEHICLE_VW`. Filters propagate in one direction, from the dimensions to these views.
 
-Wymiar `DIM_VEHICLE_VW` filtruje jednokierunkowo osiem mostków przez `VEHICLE_TYPE`, również w relacjach `1:*`. Każdy mostek łączy się następnie ze swoim widokiem raportowym przez `COLLISION_ID`, z filtrowaniem w obu kierunkach. Dzięki temu wybór typu pojazdu dociera przez mostek do rekordów zdarzeń używanych w danej części raportu.
+The `DIM_VEHICLE_VW` dimension filters the eight bridges in one direction through `VEHICLE_TYPE`, also using `1:*` relationships. Each bridge then connects to its reporting view through `COLLISION_ID`, with filtering in both directions. This allows a vehicle-type selection to reach the collision records used in the corresponding part of the report through the bridge.
 
-| Widok raportowy | Odpowiadający mostek | Krotność: widok–mostek | Kierunek filtrowania |
+| Reporting View | Corresponding Bridge | Cardinality: View–Bridge | Filter Direction |
 | --- | --- | --- | --- |
-| `P1_VW` | `BRIDGE_VEHICLE_P1_VW` | `1:*` | W obu kierunkach |
-| `P2_VW` | `BRIDGE_VEHICLE_P2_VW` | `1:*` | W obu kierunkach |
-| `P3_VW` | `BRIDGE_VEHICLE_P3_VW` | `1:*` | W obu kierunkach |
-| `P4P5P6_FACTOR_VW` | `BRIDGE_VEHICLE_P4P5P6_FACTOR_VW` | `*:*` | W obu kierunkach |
-| `P4P5P6_HEAT_VW` | `BRIDGE_VEHICLE_P4P5P6_HEAT_VW` | `1:*` | W obu kierunkach |
-| `P4P5P6_MAP_VW` | `BRIDGE_VEHICLE_P4P5P6_MAP_VW` | `1:*` | W obu kierunkach |
-| `P4P5P6_STREET_VW` | `BRIDGE_VEHICLE_P4P5P6_STREET_VW` | `1:*` | W obu kierunkach |
-| `P4P5P6_VEHICLE_VW` | `BRIDGE_VEHICLE_P4P5P6_VEHICLE_VW` | `*:*` | W obu kierunkach |
+| `P1_VW` | `BRIDGE_VEHICLE_P1_VW` | `1:*` | Both directions |
+| `P2_VW` | `BRIDGE_VEHICLE_P2_VW` | `1:*` | Both directions |
+| `P3_VW` | `BRIDGE_VEHICLE_P3_VW` | `1:*` | Both directions |
+| `P4P5P6_FACTOR_VW` | `BRIDGE_VEHICLE_P4P5P6_FACTOR_VW` | `*:*` | Both directions |
+| `P4P5P6_HEAT_VW` | `BRIDGE_VEHICLE_P4P5P6_HEAT_VW` | `1:*` | Both directions |
+| `P4P5P6_MAP_VW` | `BRIDGE_VEHICLE_P4P5P6_MAP_VW` | `1:*` | Both directions |
+| `P4P5P6_STREET_VW` | `BRIDGE_VEHICLE_P4P5P6_STREET_VW` | `1:*` | Both directions |
+| `P4P5P6_VEHICLE_VW` | `BRIDGE_VEHICLE_P4P5P6_VEHICLE_VW` | `*:*` | Both directions |
 
-Relacje wiele-do-wielu dla czynników i pojazdów wynikają z powtarzania `COLLISION_ID` po obu stronach: widoki rozwijają pięć pozycji źródłowych, a mostki przechowują typy pojazdów przypisane do zdarzeń. Pozostałe sześć widoków zachowuje jeden wiersz na zdarzenie i znajduje się po stronie `1` relacji z mostkiem.
+The many-to-many relationships for factors and vehicles arise because `COLLISION_ID` repeats on both sides: the views expand the five source positions, while the bridges store the vehicle types associated with each collision. The other six views retain one row per collision and sit on the `1` side of their relationships with the bridges.
 
-### Odłączony widok udziałów miesięcznych
+### Disconnected Monthly Proportions View
 
-`P4P5P6_RATE_VW` pozostaje **bez połączeń z innymi tabelami**. Zawiera `COLLISION_ID`, `CRASH_DATE`, `INJURED_RATE`, `KILLED_RATE` i `NOT_INJURED_RATE`. Nie jest połączony z wymiarami daty, dzielnicy ani pojazdu i nie ma własnego mostka.
+`P4P5P6_RATE_VW` remains **disconnected from the other tables**. It contains `COLLISION_ID`, `CRASH_DATE`, `INJURED_RATE`, `KILLED_RATE`, and `NOT_INJURED_RATE`. It is not connected to the date, borough, or vehicle dimensions and has no bridge of its own.
 
-Selekcja w tych wymiarach nie dociera więc do niego przez relacje modelu. Udziały zostały wcześniej obliczone w SQL dla całych miesięcy, co odpowiada oznaczeniu wykresów procentowych jako **Static Visualization**. Do osi czasu takiego wykresu dostępna jest data z samego widoku. Schemat opisuje relacje między tabelami; definicje miar DAX i ustawienia interakcji wizualizacji należą do konfiguracji raportu.
+Selections in those dimensions therefore do not reach it through model relationships. The proportions were calculated in SQL for entire months, which corresponds to the **Static Visualization** label on the percentage charts. The view's own date field is available for the time axis of such a chart. The diagram describes relationships between tables; DAX measure definitions and visual interaction settings belong to the report configuration.
 
-### Cztery zasady poprawnego liczenia
+### Four Rules for Correct Aggregation
 
-1. **Zdarzenia:** licz `DISTINCT COLLISION_ID`, jeżeli źródłem jest widok po rozwinięciu pozycji lub mostek. `COUNT(*)` oznacza tam liczbę pozycji, nie zdarzeń.
-2. **Osoby:** sumuj pola liczby rannych i zabitych na poziomie jednego wiersza na zdarzenie. Nie sumuj ich po połączeniu, które zwielokrotniło rekordy.
-3. **Pojazdy i czynniki:** rozróżniaj liczbę wystąpień kategorii od liczby zdarzeń zawierających kategorię. Suma po kategoriach może przekraczać liczbę zdarzeń, ponieważ jedno zdarzenie może należeć do kilku kategorii.
-4. **Udziały miesięczne:** wartości z `P4P5P6_RATE_VW` są powtórzone w obrębie miesiąca. Dla jednego miesiąca można odczytać je przez `MAX`, `MIN` lub `AVG`, ale nie przez `SUM`. Udział dla szerszego okresu powinien wynikać z odpowiednich liczników i mianowników.
+1. **Collisions:** count `DISTINCT COLLISION_ID` when the source is a view with expanded positions or a bridge. In these structures, `COUNT(*)` counts positions rather than collisions.
+2. **People:** sum injury and fatality fields at the grain of one row per collision. Do not sum them after a join that has multiplied the records.
+3. **Vehicles and factors:** distinguish the number of category occurrences from the number of collisions containing a category. Totals across categories can exceed the number of collisions because one collision may belong to several categories.
+4. **Monthly proportions:** values in `P4P5P6_RATE_VW` repeat within each month. For a single month, they can be retrieved using `MAX`, `MIN`, or `AVG`, but not `SUM`. A proportion for a broader period should be calculated from the relevant numerators and denominators.
 
-Wskaźniki w `P4P5P6_RATE_VW` zachowują mianownik obliczony w SQL dla całego miesiąca. Ich statyczny charakter wynika zarówno z tego sposobu obliczenia, jak i z odłączenia widoku od wymiarów modelu.
+The metrics in `P4P5P6_RATE_VW` retain the denominator calculated in SQL for the entire month. Their static behavior results both from this calculation method and from the view being disconnected from the model's dimensions.
 
-## Raport Power BI
+## Power BI Report
 
-Raport prowadzi od przeglądu skutków do analizy czasu i lokalizacji, a następnie do porównania trzech kategorii zdarzeń. Sześć stron obejmuje przegląd ogólny, czas, lokalizację oraz zdarzenia bez poszkodowanych, z rannymi i ze skutkiem śmiertelnym.
+The report moves from an overview of outcomes to time and location analysis, followed by a comparison of three collision categories. Its six pages cover the overview, timing, location, collisions without casualties, injury collisions, and fatal collisions.
 
-### Przegląd ogólny
+### Overview
 
-Strona otwierająca pokazuje sześć KPI: wszystkie zdarzenia, zdarzenia bez poszkodowanych, zdarzenia z rannymi bez zabitych, liczbę rannych, zdarzenia śmiertelne i liczbę zabitych. Uzupełniają je wykresy rozkładu rannych i zabitych według grup uczestników oraz trend liczby zdarzeń z rannymi i ze skutkiem śmiertelnym.
+The opening page shows six KPIs: all collisions, collisions without casualties, injury collisions without fatalities, people injured, fatal collisions, and people killed. These are complemented by charts showing the distribution of injuries and fatalities by road user group and trends in injury and fatal collision counts.
 
-Ta strona odpowiada na pytanie o skalę problemu i pozwala od razu oddzielić miary zdarzeń od miar osób. Głównym widokiem źródłowym jest `P1_VW`.
+This page establishes the scale of the issue and immediately distinguishes collision measures from person measures. Its main source view is `P1_VW`.
 
-### Kiedy dochodzi do zdarzeń?
+### When Do Collisions Occur?
 
-Strona przedstawia liczbę zdarzeń w czasie, według dni tygodnia i przedziałów godzinowych oraz heatmapę łączącą dzień tygodnia z porą dnia. Podstawą jest `P2_VW`.
+This page shows collision counts over time, by day of the week, and by time bucket, along with a heatmap combining weekday and time of day. It is based on `P2_VW`.
 
-Wykres czasowy uzupełniono oznaczeniami wydarzeń pandemicznych i legendą obejmującą m.in. pierwsze przypadki COVID-19, zamknięcie szkół, zalecenia pozostania w domu, New York State on PAUSE i plan ponownego otwierania gospodarki. Są one kontekstem narracji raportu. Ich daty i sposób przypisania nie są udokumentowane w dostarczonych skryptach SQL.
+The time-series chart includes pandemic event markers and a legend covering, among other events, the first COVID-19 cases, school closures, stay-at-home directives, New York State on PAUSE, and the economic reopening plan. These provide context for the report's narrative. Their dates and how they were assigned are not documented in the provided SQL scripts.
 
-### Gdzie dochodzi do zdarzeń?
+### Where Do Collisions Occur?
 
-Strona zawiera ranking dziesięciu nazw ulic lub tras, wykres liczby zdarzeń według dzielnic oraz mapę. W podglądzie bez filtrów mapa prezentuje bąble dla dzielnic. Chociaż `P3_VW` udostępnia współrzędne pojedynczych zdarzeń, domyślnego widoku mapy nie należy interpretować jako osobnego punktu dla każdego zdarzenia.
+This page contains a ranking of ten street or route names, a chart of collision counts by borough, and a map. In the unfiltered preview, the map displays bubbles for boroughs. Although `P3_VW` provides individual collision coordinates, the default map should not be interpreted as showing a separate point for every collision.
 
-Zestawienie wspiera wybór obszaru do dalszej analizy. Ranking po samej nazwie ulicy nie wskazuje jeszcze konkretnego skrzyżowania ani odcinka.
+The comparison helps identify areas for further analysis. A ranking based on street name alone does not identify a specific intersection or road section.
 
-### Zdarzenia bez rannych i zabitych
+### Collisions Without Injuries or Fatalities
 
-Strona pokazuje miesięczny udział tej kategorii, pięć najczęstszych typów pojazdów, pięć zgłoszonych czynników, heatmapę i mapę dzielnic. Pozwala przyjrzeć się zdarzeniom, które stanowią największą część zbioru, ale nie mają zgłoszonych szkód osobowych.
+This page shows the category's monthly share, the five most frequent vehicle types, five reported contributing factors, a heatmap, and a borough map. It focuses on collisions that make up the largest share of the dataset but have no reported injuries or fatalities.
 
-### Zdarzenia z rannymi
+### Injury Collisions
 
-Zachowuje ten sam układ co poprzednia strona, ułatwiając porównanie profilu zdarzeń. Zgodnie z flagą `ACC_W_INJURED` obejmuje zdarzenia z rannymi **bez zabitych**, a nie wszystkie zdarzenia, w których ktokolwiek odniósł obrażenia.
+This page uses the same layout as the preceding page, making it easier to compare collision profiles. In line with the `ACC_W_INJURED` flag, it covers injury collisions **without fatalities**, rather than every collision in which someone was injured.
 
-### Zdarzenia śmiertelne
+### Fatal Collisions
 
-Ostatnia strona koncentruje się na zdarzeniach z co najmniej jedną osobą zabitą. Pokazuje udział miesięczny, typy pojazdów, zgłoszone czynniki, heatmapę oraz mapę. W publicznym widoku bez filtrów najwyższą pozycję rankingu czynników zajmuje `DRIVING AT EXCESSIVE SPEED`. Jest to obserwacja o zgłoszonych czynnikach w tej kategorii, a nie samodzielny dowód przyczynowy.
+The final page focuses on collisions involving at least one person killed. It shows the monthly share, vehicle types, reported contributing factors, a heatmap, and a map. In the unfiltered public view, `DRIVING AT EXCESSIVE SPEED` ranks first among contributing factors. This is an observation about reported factors within this category, rather than independent evidence of causation.
 
-### Filtry i warstwa wizualna
+### Filters and Visual Design
 
-Na stronach raportu widoczne są selektory **Date (`YEAR_MONTH`), Borough (`BOROUGH`) i Vehicle Type (`VEHICLE_TYPE`)**. Umożliwiają wybór kontekstu analizy dla powiązanych wizualizacji. Wykresy udziałów na stronach P4–P6 są osobno oznaczone jako statyczne.
+The report pages include selectors for **Date (`YEAR_MONTH`), Borough (`BOROUGH`), and Vehicle Type (`VEHICLE_TYPE`)**. They allow users to select the analytical context for connected visuals. The proportion charts on pages P4–P6 are separately labeled as static.
 
-Raport wykorzystuje ciemne tło, jasne wykresy i wspólny układ nawigacji. Strona dotycząca skutków śmiertelnych wyróżnia dane czerwienią. Powtarzalny układ ostatnich trzech stron ułatwia porównanie czasu, geografii, pojazdów i czynników przy zmianie kategorii skutków.
+The report uses a dark background, light-colored charts, and a consistent navigation layout. The fatal collisions page highlights data in red. The repeated layout of the final three pages makes it easier to compare timing, geography, vehicles, and contributing factors across outcome categories.
 
-Praktyczna ścieżka pracy z raportem to: sprawdzenie KPI, wybór miesiąca i dzielnicy, porównanie analizy czasu i lokalizacji, a następnie zestawienie kategorii skutków. Przed sformułowaniem rekomendacji terenowej warto wrócić do rekordów konkretnych zdarzeń.
+A practical workflow is to review the KPIs, select a month and borough, compare timing and location patterns, and then compare outcome categories. Before making a recommendation for fieldwork, it is useful to return to the records of specific collisions.
 
-## Jak odtworzyć projekt
+## How to Reproduce the Project
 
-### Wymagania
+### Requirements
 
-- MySQL 8.0 z obsługą użytych funkcji przestrzennych, funkcji okienkowych i rekurencyjnych CTE.
-- Klient SQL umożliwiający wykonanie skryptów i import `LOAD DATA LOCAL INFILE`.
-- Dostęp do `Raw Data/NYC.csv` oraz uprawnienia do utworzenia bazy, tabel, widoków i aktualizacji danych.
-- Power BI Desktop i działające połączenie z MySQL, jeżeli celem jest zbudowanie własnego modelu raportowego.
+- MySQL 8.0 with support for the spatial functions, window functions, and recursive CTEs used in the scripts.
+- An SQL client that can execute the scripts and import data using `LOAD DATA LOCAL INFILE`.
+- Access to `Raw Data/NYC.csv` and permissions to create a database, tables, and views, and to update data.
+- Power BI Desktop and a working MySQL connection if the goal is to build a reporting model.
 
-### Przygotowanie środowiska
+### Environment Setup
 
-1. Pobierz pliki repozytorium i zachowaj niezmieniony CSV jako źródło.
-2. W `SQL/2. Import of data.sql` zamień lokalną ścieżkę autora `C:/Users/pbugo/Desktop/Webinar/NYC.csv` na własną pełną ścieżkę do pliku `Raw Data/NYC.csv`.
-3. Sprawdź obsługę lokalnego importu po stronie serwera i klienta. Skrypt zawiera `SET GLOBAL local_infile = 1`, które wymaga odpowiednich uprawnień. Jeśli parametr jest już włączony, administrator może dostosować ten krok do środowiska.
-4. W środowisku rozróżniającym wielkość liter w nazwach tabel ujednolić należy odwołania `ACCIDENTS` w dwóch widokach `UNION ALL` do nazwy tabeli `accidents`.
-5. Wykonuj skrypty w nowej, przeznaczonej do tego projektu bazie i w podanej niżej kolejności.
+1. Download the repository files and retain the unchanged CSV as the source.
+2. In `SQL/2. Import of data.sql`, replace the author's local path, `C:/Users/pbugo/Desktop/Webinar/NYC.csv`, with your own full path to `Raw Data/NYC.csv`.
+3. Check that local file loading is supported by both the server and the client. The script contains `SET GLOBAL local_infile = 1`, which requires appropriate permissions. If the setting is already enabled, the administrator can adjust this step to the environment.
+4. In environments where table names are case-sensitive, change the `ACCIDENTS` references in the two `UNION ALL` views to match the table name `accidents`.
+5. Run the scripts in a new database dedicated to this project, in the order shown below.
 
-### Kolejność wykonania
+### Execution Order
 
-| Kolejność | Skrypt | Oczekiwany rezultat |
+| Order | Script | Expected Result |
 | --- | --- | --- |
-| 1 | `SQL/1. Database & Table.sql` | Baza i pusta tabela `accidents` |
-| 2 | `SQL/2. Import of data.sql` | 74 881 wierszy po jednorazowym imporcie |
-| 3 | `SQL/3.1. Normalization of data.sql` | Ujednolicone kategorie i oznaczenia braków |
-| 4 | `SQL/3.2. Multipolygons.sql` | Pięć geometrii dzielnic i próba uzupełnienia brakującego `BOROUGH` |
-| 5 | `SQL/4.1. Creation of reporting views.sql` | Flagi skutków, przedziały czasu i widoki raportowe |
-| 6 | `SQL/4.2. Creation of dimension views.sql` | `CRASH_DATETIME` oraz wymiary daty, dzielnicy i pojazdu |
-| 7 | `SQL/4.3. Creation of bridges.sql` | Mostki pojazdów |
+| 1 | `SQL/1. Database & Table.sql` | Database and empty `accidents` table |
+| 2 | `SQL/2. Import of data.sql` | 74,881 rows after a single import |
+| 3 | `SQL/3.1. Normalization of data.sql` | Standardized categories and missing-value labels |
+| 4 | `SQL/3.2. Multipolygons.sql` | Five borough geometries and an attempt to assign missing `BOROUGH` values |
+| 5 | `SQL/4.1. Creation of reporting views.sql` | Outcome flags, time buckets, and reporting views |
+| 6 | `SQL/4.2. Creation of dimension views.sql` | `CRASH_DATETIME` and the date, borough, and vehicle dimensions |
+| 7 | `SQL/4.3. Creation of bridges.sql` | Vehicle bridges |
 
-Jeżeli klient otwiera każdy plik w osobnej sesji, przed kolejnymi etapami wybierz bazę:
+If the client opens each file in a separate session, select the database before running subsequent stages:
 
 ```sql
 USE WEBINAR_NYC_ACCIDENTS;
 ```
 
-**Skrypty są sekwencją przygotowania danych, a nie idempotentnymi migracjami.** Ponowne wykonanie importu dopisze rekordy, `ALTER TABLE ... ADD COLUMN` może zakończyć się błędem, a skrypt granic ponownie doda geometrie. Ponowne zastosowanie reguł normalizacji do już znormalizowanych kategorii może również zmienić wyniki. Pełne odtworzenie powinno zaczynać się od świeżego środowiska i oryginalnego CSV.
+**The scripts form a data preparation sequence, rather than idempotent migrations.** Rerunning the import appends records, `ALTER TABLE ... ADD COLUMN` may fail, and the boundaries script inserts the geometries again. Reapplying normalization rules to categories that have already been normalized may also change the results. A full rebuild should start with a fresh environment and the original CSV.
 
-### Odtworzenie warstwy Power BI
+### Rebuilding the Power BI Layer
 
-Po wykonaniu SQL można połączyć Power BI z bazą i zaimportować 20 widoków. Należy sprawdzić typy kolumn, oznaczyć tabelę dat oraz ustawić sortowanie dni tygodnia i przedziałów godzinowych. Relacje należy odtworzyć według schematu i tabeli w sekcji modelu danych: wymiary daty i dzielnicy filtrują osiem widoków raportowych, wymiar pojazdu filtruje osiem mostków, a mostki łączą się dwukierunkowo z odpowiadającymi widokami. `P4P5P6_RATE_VW` pozostaje bez relacji.
+After running the SQL scripts, connect Power BI to the database and import the 20 views. Check the column types, mark the date table, and configure sorting for weekdays and time buckets. Recreate the relationships according to the diagram and table in the data model section: the date and borough dimensions filter eight reporting views, the vehicle dimension filters eight bridges, and the bridges have bidirectional relationships with their corresponding views. `P4P5P6_RATE_VW` remains disconnected.
 
-Dla map trzeba wykluczyć brakujące i zerowe współrzędne, a dla analiz kategorii określić sposób obsługi `NO TYPE`, `NO FACTOR`, `OTHER` i `NO BOROUGH`. Widok `P4P5P6_MAP_VW` sam nie zawiera współrzędnych, więc mapa punktów wymaga ich pozyskania z innego widoku lub tabeli. Do mapowania dzielnic dostępne jest pole `BOROUGH`.
+For maps, exclude missing and zero coordinates. For category analyses, define how to handle `NO TYPE`, `NO FACTOR`, `OTHER`, and `NO BOROUGH`. The `P4P5P6_MAP_VW` view does not contain coordinates, so a point map requires them from another view or table. The `BOROUGH` field is available for borough mapping.
 
-Te kroki umożliwiają zbudowanie raportu na tej samej warstwie danych. Nie stanowią automatycznego odtworzenia opublikowanego pliku Power BI, którego nie ma w zestawie.
+These steps allow a report to be built on the same data layer. They do not automatically recreate the published Power BI file, which is not included.
 
-## Kontrola jakości i zapytania kontrolne
+## Data Quality Checks and Validation Queries
 
-Poniższe zapytania służą do weryfikacji po wykonaniu odpowiednich etapów. Wartości referencyjne pochodzą z profilowania załączonego CSV i odtworzenia definicji flag. W ramach przygotowania dokumentacji nie wykonano całego pipeline’u na serwerze MySQL.
+The following queries provide checks after the relevant stages have been completed. Reference values come from profiling the included CSV and reproducing the flag definitions. The complete pipeline was not executed on a MySQL server as part of preparing this documentation.
 
-### Liczba rekordów, unikalność i zakres dat
+### Record Count, Uniqueness, and Date Range
 
 ```sql
 SELECT
@@ -440,9 +440,9 @@ SELECT
 FROM accidents;
 ```
 
-Oczekiwane wartości: `74 881`, `74 881`, `2020-01-01`, `2020-08-29`, `0`.
+Expected values: `74,881`, `74,881`, `2020-01-01`, `2020-08-29`, `0`.
 
-### Kontrola podstawowych KPI
+### Main KPI Validation
 
 ```sql
 SELECT
@@ -460,9 +460,9 @@ SELECT
 FROM accidents;
 ```
 
-Oczekiwane wartości: `54 371`, `20 375`, `135`, `27 448`, `144`, `0`.
+Expected values: `54,371`, `20,375`, `135`, `27,448`, `144`, `0`.
 
-### Kontrola widoków rozwiniętych i kalendarza
+### Expanded View and Calendar Validation
 
 ```sql
 SELECT
@@ -479,9 +479,9 @@ SELECT COUNT(*) AS CALENDAR_DAYS
 FROM DIM_DATE_VW;
 ```
 
-Oczekiwane wartości dla obu widoków rozwiniętych: `374 405` pozycji i `74 881` zdarzeń. Kalendarz: `242` dni.
+Expected values for both expanded views: `374,405` positions and `74,881` collisions. Calendar: `242` days.
 
-### Kontrola uzupełnienia dzielnic
+### Borough Assignment Validation
 
 ```sql
 SELECT
@@ -498,15 +498,15 @@ FROM borough_boundaries
 GROUP BY BoroName;
 ```
 
-Pierwsze zapytanie warto wykonać po `3.1` i ponownie po `3.2`. Przed dopasowaniem przestrzennym `NO BOROUGH` powinno liczyć 25 741 rekordów. Drugie zapytanie powinno zwrócić pięć dzielnic, po jednej geometrii każdej z nich.
+Run the first query after `3.1` and again after `3.2`. Before spatial matching, `NO BOROUGH` should contain 25,741 records. The second query should return five boroughs, with one geometry for each.
 
-## Źródła i autorstwo
+## Sources and Credits
 
-- **Dane użyte do obliczeń:** plik `Raw Data/NYC.csv` znajdujący się w repozytorium.
-- **Publiczny zbiór odpowiadający danym:** [NYPD / NYC Open Data — Motor Vehicle Collisions – Crashes](https://data.cityofnewyork.us/Public-Safety/Motor-Vehicle-Collisions-Crashes/h9gi-nx95).
-- **Opis zbioru i aktualizacji:** [katalog Data.gov](https://catalog.data.gov/dataset/motor-vehicle-collisions-crashes).
-- **Granice dzielnic użyte w projekcie:** [Borough Boundaries — NYC Open Data](https://data.cityofnewyork.us/City-Government/Borough-Boundaries/yqww-f9f3), zapisane jako geometrie WKT w `SQL/3.2. Multipolygons.sql`.
-- **Dokumentacja funkcji przestrzennych:** [MySQL 8.0 — Spatial Relation Functions That Use Object Shapes](https://dev.mysql.com/doc/refman/8.0/en/spatial-relation-functions-object-shapes.html).
-- **Grafiki raportu:** okładka, trzy obrazy galerii i cztery miniatury w katalogu `Assets/`.
-- **Autor projektu i raportu:** Paweł Bugowski.
-- **Udostępnienie raportu:** KajoDataSpace, zgodnie z oznaczeniem w raporcie.
+- **Data used in the calculations:** the `Raw Data/NYC.csv` file included in the repository.
+- **Corresponding public dataset:** [NYPD / NYC Open Data — Motor Vehicle Collisions – Crashes](https://data.cityofnewyork.us/Public-Safety/Motor-Vehicle-Collisions-Crashes/h9gi-nx95).
+- **Dataset description and updates:** [Data.gov catalog](https://catalog.data.gov/dataset/motor-vehicle-collisions-crashes).
+- **Borough boundaries used in the project:** [Borough Boundaries — NYC Open Data](https://data.cityofnewyork.us/City-Government/Borough-Boundaries/yqww-f9f3), stored as WKT geometries in `SQL/3.2. Multipolygons.sql`.
+- **Spatial function documentation:** [MySQL 8.0 — Spatial Relation Functions That Use Object Shapes](https://dev.mysql.com/doc/refman/8.0/en/spatial-relation-functions-object-shapes.html).
+- **Report images:** a cover image, three gallery images, and four thumbnails in the `Assets/` directory.
+- **Project and report author:** Paweł Bugowski.
+- **Report hosting:** KajoDataSpace, as credited in the report.
