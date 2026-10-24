@@ -4,7 +4,7 @@
 
 Projekt analityczny łączący **MySQL, przetwarzanie danych przestrzennych i Power BI**. Na podstawie danych o zgłoszonych zdarzeniach drogowych w Nowym Jorku przedstawia ich skalę, skutki dla uczestników ruchu, rozkład w czasie oraz zróżnicowanie geograficzne.
 
-Analizę przygotowałem jako odpowiedź na zadanie „Wypadki w Nowym Jorku z 2020”. Jej celem jest wsparcie rozmowy o bezpieczeństwie ulic: wskazanie miejsc i sytuacji wymagających dalszego zbadania, z uwzględnieniem zarówno częstotliwości zdarzeń, jak i liczby osób rannych i zabitych.
+Analizę przygotowałem, aby wesprzeć rozmowę o bezpieczeństwie ulic: wskazać miejsca i sytuacje wymagające dalszego zbadania, z uwzględnieniem zarówno częstotliwości zdarzeń, jak i liczby osób rannych i zabitych.
 
 **[Otwórz interaktywny raport w Power BI](https://app.powerbi.com/view?r=eyJrIjoiOWIzYWE4NGYtZmI1OS00MWU1LThmYzktZDI4M2UwYmE3YmI0IiwidCI6ImE0ZmE1ZWNhLTdhM2YtNDRhYS04ZTI4LTc2MjBhMzk0NjEwZiJ9)**
 
@@ -33,7 +33,6 @@ Analizę przygotowałem jako odpowiedź na zadanie „Wypadki w Nowym Jorku z 20
 - [Raport Power BI](#raport-power-bi)
 - [Jak odtworzyć projekt](#jak-odtworzyć-projekt)
 - [Kontrola jakości i zapytania kontrolne](#kontrola-jakości-i-zapytania-kontrolne)
-- [Ograniczenia i kierunki rozwoju](#ograniczenia-i-kierunki-rozwoju)
 - [Źródła i autorstwo](#źródła-i-autorstwo)
 
 ## Cel i pytania analityczne
@@ -55,7 +54,7 @@ W dalszym opisie używam określenia **„zdarzenie”** dla wszystkich rekordó
 
 ### Pochodzenie i jednostka obserwacji
 
-Źródłem pliku `NYC.csv` jest zestaw udostępniony w materiałach zadania. Stopka raportu wskazuje **Police Department (NYPD), via NYC Open Data**. Odpowiadający mu publiczny zbiór to [Motor Vehicle Collisions – Crashes](https://data.cityofnewyork.us/Public-Safety/Motor-Vehicle-Collisions-Crashes/h9gi-nx95).
+Plik `NYC.csv` zawiera dane o zdarzeniach drogowych wykorzystane w projekcie. Stopka raportu wskazuje **Police Department (NYPD), via NYC Open Data**. Odpowiadający mu publiczny zbiór to [Motor Vehicle Collisions – Crashes](https://data.cityofnewyork.us/Public-Safety/Motor-Vehicle-Collisions-Crashes/h9gi-nx95).
 
 Jednostką obserwacji jest zdarzenie, a nie osoba ani pojedynczy pojazd. Do jednego rekordu przypisano datę, czas, lokalizację, liczby poszkodowanych oraz maksymalnie pięć pól opisujących typy pojazdów i pięć pól opisujących zgłoszone czynniki.
 
@@ -101,7 +100,7 @@ Braki lokalizacji mają znaczenie dla interpretacji: zbiór zdarzeń prezentowan
 
 ## Najważniejsze wyniki
 
-Wartości poniżej obliczono bezpośrednio z `NYC.csv`, według definicji flag z SQL. Sześć podstawowych KPI jest zgodnych z publiczną stroną `EXEC` raportu przy filtrach ustawionych na wszystkie wartości.
+Wartości poniżej obliczono bezpośrednio z `NYC.csv`, według definicji flag z SQL. Sześć podstawowych KPI jest zgodnych ze stroną przeglądu ogólnego w publicznym raporcie przy filtrach ustawionych na wszystkie wartości.
 
 ### Skala zdarzeń i ich skutki
 
@@ -156,7 +155,7 @@ To przykłady do zawężenia analizy, nie ranking ryzyka. Ta sama nazwa może ob
 
 ## Zawartość repozytorium
 
-Pliki źródłowe zachowują oryginalne nazwy i kolejność etapów. Dokumentacja zakłada umieszczenie ich w katalogu głównym repozytorium.
+Pliki SQL i CSV zachowują oryginalne nazwy i znajdują się w katalogu głównym repozytorium. Katalog `assets/` zawiera grafiki prezentujące raport na prywatnej stronie internetowej oraz zrzut modelu danych wykorzystany w dokumentacji.
 
 | Plik | Zawartość |
 | --- | --- |
@@ -170,8 +169,21 @@ Pliki źródłowe zachowują oryginalne nazwy i kolejność etapów. Dokumentacj
 | `4.3. Creation of bridges.sql` | 8 widoków mostkowych do filtrowania po typie pojazdu |
 | `README.md` | Opis projektu, wyników, modelu i odtworzenia analizy |
 | `SQL_STANDARD.md` | Zapis konwencji dokumentowania i refaktoryzacji na podstawie tego projektu |
+| `assets/cover.webp`, `assets/cover-thumb.webp` | Okładka projektu i jej miniatura |
+| `assets/gallery-01.webp`, `assets/gallery-01-thumb.webp` | Analiza czasu zdarzeń i jej miniatura |
+| `assets/gallery-02.webp`, `assets/gallery-02-thumb.webp` | Analiza lokalizacji zdarzeń i jej miniatura |
+| `assets/gallery-03.webp`, `assets/gallery-03-thumb.webp` | Analiza zdarzeń z rannymi i jej miniatura |
+| `assets/data-model.png` | Zrzut relacji w modelu Power BI |
 
-W tym zestawie nie ma pliku `.pbix` ani `.pbit`. Publiczny link umożliwia obejrzenie raportu. Skrypty odtwarzają warstwę SQL, natomiast dokładne odtworzenie modelu semantycznego, miar DAX, interakcji i formatowania Power BI wymaga pliku raportu lub ich osobnej dokumentacji.
+### Materiały graficzne na stronę internetową
+
+Pełnowymiarowe pliki WebP mają rozdzielczość **1363 × 767 px**, a odpowiadające im miniatury **480 × 270 px**. Okładka przedstawia przegląd ogólny z głównymi KPI. Trzy kolejne grafiki pokazują analizę czasu, lokalizacji oraz zdarzeń z rannymi. Wersje `*-thumb.webp` służą do kart projektu i podglądów galerii, a pełne obrazy do prezentacji szczegółów raportu.
+
+| Okładka | Czas zdarzeń | Lokalizacja zdarzeń | Zdarzenia z rannymi |
+| --- | --- | --- | --- |
+| [![Przegląd ogólny](assets/cover-thumb.webp)](assets/cover.webp) | [![Analiza czasu](assets/gallery-01-thumb.webp)](assets/gallery-01.webp) | [![Analiza lokalizacji](assets/gallery-02-thumb.webp)](assets/gallery-02.webp) | [![Analiza zdarzeń z rannymi](assets/gallery-03-thumb.webp)](assets/gallery-03.webp) |
+
+Publiczny link umożliwia obejrzenie interaktywnego raportu, skrypty odtwarzają warstwę SQL, a `assets/data-model.png` dokumentuje układ relacji. Zestaw nie zawiera pliku `.pbix` ani `.pbit`; definicje miar DAX, konfiguracja interakcji i pełne formatowanie pozostają częścią pliku raportu.
 
 ## Przygotowanie danych w SQL
 
@@ -261,18 +273,21 @@ Widok udziałów wykorzystuje funkcje okienkowe z podziałem według roku i mies
 
 ### Warstwy modelu
 
-Model jest zorganizowany wokół wspólnego identyfikatora zdarzenia, zestawu widoków raportowych, wymiarów oraz mostków pojazdów. Przypomina układ wielofaktowy oparty na widokach przygotowanych dla poszczególnych części raportu. Nie jest pojedynczą fizyczną tabelą faktów z zadeklarowanymi w SQL kluczami obcymi.
+Model Power BI składa się z **20 tabel opartych na widokach SQL**: trzech wymiarów, ośmiu widoków raportowych połączonych z wymiarami i mostkami, ośmiu mostków pojazdów oraz jednego odłączonego widoku udziałów miesięcznych. Jest to układ wielofaktowy ze wspólnymi wymiarami daty, dzielnicy i typu pojazdu.
 
-Poniższy schemat pokazuje **zależności logiczne wynikające ze skryptów**, a nie eksport relacji z pliku Power BI. Linie wskazują wspólne klucze lub dopasowanie przestrzenne, nie kierunki propagacji filtrów.
+Tabela `accidents` i tabela granic `borough_boundaries` należą do warstwy przygotowania danych w MySQL. Nie są pokazane jako osobne tabele w przedstawionym modelu Power BI.
+
+![Model danych Power BI: wymiary, widoki raportowe, mostki pojazdów i odłączony widok udziałów](assets/data-model.png)
+
+Poniższy schemat podsumowuje układ widoczny na zrzucie. Nazwy widoków podano zgodnie ze skryptami SQL, dopasowując je do zestawów pól widocznych na diagramie. Strzałki oznaczają kierunki filtrowania. Relacje między widokami raportowymi a odpowiadającymi im mostkami są dwukierunkowe.
 
 ```mermaid
 flowchart TD
-    A["accidents"] ---|"COLLISION_ID"| R["Widoki raportowe P1–P6"]
-    G["borough_boundaries"] ---|"Dopasowanie przestrzenne"| A
-    D["DIM_DATE_VW"] ---|"DATE / CRASH_DATE"| R
-    B["DIM_BOROUGH_VW"] ---|"BOROUGH"| R
-    V["DIM_VEHICLE_VW"] ---|"VEHICLE_TYPE"| K["BRIDGE_VEHICLE_*_VW"]
-    K ---|"COLLISION_ID"| R
+    D["DIM_DATE_VW"] -->|"1:* — CRASH_DATE"| R["8 połączonych widoków raportowych"]
+    B["DIM_BOROUGH_VW"] -->|"1:* — BOROUGH"| R
+    V["DIM_VEHICLE_VW"] -->|"1:* — VEHICLE_TYPE"| K["8 mostków BRIDGE_VEHICLE_*_VW"]
+    R <-->|"COLLISION_ID — 1:* lub *:*"| K
+    S["P4P5P6_RATE_VW — bez relacji"]
 ```
 
 ### Wymiary
@@ -295,11 +310,28 @@ Ponieważ użyto `UNION ALL`, para zdarzenie–typ może się powtarzać. Jeśli
 
 ### Klucze, relacje i filtrowanie
 
-Przy odtwarzaniu modelu wymiar daty należy wiązać z `CRASH_DATE`, wymiar dzielnic z `BOROUGH`, a wymiar pojazdów z `VEHICLE_TYPE` w mostkach. Widoki na poziomie zdarzenia mają unikalny `COLLISION_ID`, ale widoki czynników, pojazdów i mostki mają go wielokrotnie.
+Wymiary daty i dzielnicy są połączone relacjami **jeden-do-wielu (`1:*`)** z ośmioma widokami: `P1_VW`, `P2_VW`, `P3_VW`, `P4P5P6_FACTOR_VW`, `P4P5P6_HEAT_VW`, `P4P5P6_MAP_VW`, `P4P5P6_STREET_VW` oraz `P4P5P6_VEHICLE_VW`. Filtry przechodzą jednokierunkowo z wymiarów do tych widoków.
 
-Samo połączenie wymiaru pojazdu z mostkiem nie gwarantuje, że wybór pojazdu przefiltruje wszystkie widoki zdarzeń. Kierunki filtracji i ewentualne miary przenoszące filtr trzeba skonfigurować w Power BI. Nie należy automatycznie łączyć wszystkich widoków relacjami dwukierunkowymi, ponieważ może to tworzyć niejednoznaczne ścieżki.
+Wymiar `DIM_VEHICLE_VW` filtruje jednokierunkowo osiem mostków przez `VEHICLE_TYPE`, również w relacjach `1:*`. Każdy mostek łączy się następnie ze swoim widokiem raportowym przez `COLLISION_ID`, z filtrowaniem w obu kierunkach. Dzięki temu wybór typu pojazdu dociera przez mostek do rekordów zdarzeń używanych w danej części raportu.
 
-Dokładnych aktywnych relacji, kierunków filtrowania i definicji DAX użytych w opublikowanym raporcie nie da się potwierdzić na podstawie samych skryptów i publicznego podglądu.
+| Widok raportowy | Odpowiadający mostek | Krotność: widok–mostek | Kierunek filtrowania |
+| --- | --- | --- | --- |
+| `P1_VW` | `BRIDGE_VEHICLE_P1_VW` | `1:*` | W obu kierunkach |
+| `P2_VW` | `BRIDGE_VEHICLE_P2_VW` | `1:*` | W obu kierunkach |
+| `P3_VW` | `BRIDGE_VEHICLE_P3_VW` | `1:*` | W obu kierunkach |
+| `P4P5P6_FACTOR_VW` | `BRIDGE_VEHICLE_P4P5P6_FACTOR_VW` | `*:*` | W obu kierunkach |
+| `P4P5P6_HEAT_VW` | `BRIDGE_VEHICLE_P4P5P6_HEAT_VW` | `1:*` | W obu kierunkach |
+| `P4P5P6_MAP_VW` | `BRIDGE_VEHICLE_P4P5P6_MAP_VW` | `1:*` | W obu kierunkach |
+| `P4P5P6_STREET_VW` | `BRIDGE_VEHICLE_P4P5P6_STREET_VW` | `1:*` | W obu kierunkach |
+| `P4P5P6_VEHICLE_VW` | `BRIDGE_VEHICLE_P4P5P6_VEHICLE_VW` | `*:*` | W obu kierunkach |
+
+Relacje wiele-do-wielu dla czynników i pojazdów wynikają z powtarzania `COLLISION_ID` po obu stronach: widoki rozwijają pięć pozycji źródłowych, a mostki przechowują typy pojazdów przypisane do zdarzeń. Pozostałe sześć widoków zachowuje jeden wiersz na zdarzenie i znajduje się po stronie `1` relacji z mostkiem.
+
+### Odłączony widok udziałów miesięcznych
+
+`P4P5P6_RATE_VW` jest widoczny po prawej stronie zrzutu **bez połączeń z innymi tabelami**. Zawiera `COLLISION_ID`, `CRASH_DATE`, `INJURED_RATE`, `KILLED_RATE` i `NOT_INJURED_RATE`. Nie jest połączony z wymiarami daty, dzielnicy ani pojazdu i nie ma własnego mostka.
+
+Selekcja w tych wymiarach nie dociera więc do niego przez relacje modelu. Udziały zostały wcześniej obliczone w SQL dla całych miesięcy, co odpowiada oznaczeniu wykresów procentowych jako **Static Visualization**. Do osi czasu takiego wykresu dostępna jest data z samego widoku. Zrzut dokumentuje relacje, ale nie zawiera definicji miar DAX ani ustawień interakcji wizualizacji.
 
 ### Cztery zasady poprawnego liczenia
 
@@ -308,39 +340,39 @@ Dokładnych aktywnych relacji, kierunków filtrowania i definicji DAX użytych w
 3. **Pojazdy i czynniki:** rozróżniaj liczbę wystąpień kategorii od liczby zdarzeń zawierających kategorię. Suma po kategoriach może przekraczać liczbę zdarzeń, ponieważ jedno zdarzenie może należeć do kilku kategorii.
 4. **Udziały miesięczne:** wartości z `P4P5P6_RATE_VW` są powtórzone w obrębie miesiąca. Dla jednego miesiąca można odczytać je przez `MAX`, `MIN` lub `AVG`, ale nie przez `SUM`. Udział dla szerszego okresu powinien wynikać z odpowiednich liczników i mianowników.
 
-Wskaźniki w `P4P5P6_RATE_VW` obliczane są w SQL dla całego miesiąca. Filtr dzielnicy lub pojazdu nałożony później nie przelicza ich mianownika w bazie. To istotne dla interpretacji wykresów opisanych w raporcie jako **Static Visualization**. Dla udziałów zależnych od filtrów potrzebne są obliczenia wykonywane w odpowiednim kontekście modelu Power BI.
+Wskaźniki w `P4P5P6_RATE_VW` zachowują mianownik obliczony w SQL dla całego miesiąca. Ich statyczny charakter wynika zarówno z tego sposobu obliczenia, jak i z odłączenia widoku od wymiarów modelu.
 
 ## Raport Power BI
 
-Raport prowadzi od przeglądu skutków do analizy czasu i lokalizacji, a następnie do porównania trzech kategorii zdarzeń. W podglądzie dostępnych jest sześć stron: `EXEC`, `WHEN`, `WHERE`, `NOT INJURED`, `INJURED` i `KILLED`.
+Raport prowadzi od przeglądu skutków do analizy czasu i lokalizacji, a następnie do porównania trzech kategorii zdarzeń. Sześć stron obejmuje przegląd ogólny, czas, lokalizację oraz zdarzenia bez poszkodowanych, z rannymi i ze skutkiem śmiertelnym.
 
-### EXEC — Executive Overview
+### Przegląd ogólny
 
 Strona otwierająca pokazuje sześć KPI: wszystkie zdarzenia, zdarzenia bez poszkodowanych, zdarzenia z rannymi bez zabitych, liczbę rannych, zdarzenia śmiertelne i liczbę zabitych. Uzupełniają je wykresy rozkładu rannych i zabitych według grup uczestników oraz trend liczby zdarzeń z rannymi i ze skutkiem śmiertelnym.
 
 Ta strona odpowiada na pytanie o skalę problemu i pozwala od razu oddzielić miary zdarzeń od miar osób. Głównym widokiem źródłowym jest `P1_VW`.
 
-### WHEN — When do traffic accidents occur?
+### Kiedy dochodzi do zdarzeń?
 
 Strona przedstawia liczbę zdarzeń w czasie, według dni tygodnia i przedziałów godzinowych oraz heatmapę łączącą dzień tygodnia z porą dnia. Podstawą jest `P2_VW`.
 
 Wykres czasowy uzupełniono oznaczeniami wydarzeń pandemicznych i legendą obejmującą m.in. pierwsze przypadki COVID-19, zamknięcie szkół, zalecenia pozostania w domu, New York State on PAUSE i plan ponownego otwierania gospodarki. Są one kontekstem narracji raportu. Ich daty i sposób przypisania nie są udokumentowane w dostarczonych skryptach SQL.
 
-### WHERE — Where do traffic accidents occur?
+### Gdzie dochodzi do zdarzeń?
 
 Strona zawiera ranking dziesięciu nazw ulic lub tras, wykres liczby zdarzeń według dzielnic oraz mapę. W podglądzie bez filtrów mapa prezentuje bąble dla dzielnic. Chociaż `P3_VW` udostępnia współrzędne pojedynczych zdarzeń, domyślnego widoku mapy nie należy interpretować jako osobnego punktu dla każdego zdarzenia.
 
 Zestawienie wspiera wybór obszaru do dalszej analizy. Ranking po samej nazwie ulicy nie wskazuje jeszcze konkretnego skrzyżowania ani odcinka.
 
-### NOT INJURED — Zdarzenia bez rannych i zabitych
+### Zdarzenia bez rannych i zabitych
 
 Strona pokazuje miesięczny udział tej kategorii, pięć najczęstszych typów pojazdów, pięć zgłoszonych czynników, heatmapę i mapę dzielnic. Pozwala przyjrzeć się zdarzeniom, które stanowią największą część zbioru, ale nie mają zgłoszonych szkód osobowych.
 
-### INJURED — Zdarzenia z rannymi
+### Zdarzenia z rannymi
 
 Zachowuje ten sam układ co poprzednia strona, ułatwiając porównanie profilu zdarzeń. Zgodnie z flagą `ACC_W_INJURED` obejmuje zdarzenia z rannymi **bez zabitych**, a nie wszystkie zdarzenia, w których ktokolwiek odniósł obrażenia.
 
-### KILLED — Zdarzenia śmiertelne
+### Zdarzenia śmiertelne
 
 Ostatnia strona koncentruje się na zdarzeniach z co najmniej jedną osobą zabitą. Pokazuje udział miesięczny, typy pojazdów, zgłoszone czynniki, heatmapę oraz mapę. W publicznym widoku bez filtrów najwyższą pozycję rankingu czynników zajmuje `DRIVING AT EXCESSIVE SPEED`. Jest to obserwacja o zgłoszonych czynnikach w tej kategorii, a nie samodzielny dowód przyczynowy.
 
@@ -350,7 +382,7 @@ Na stronach raportu widoczne są selektory **Date (`YEAR_MONTH`), Borough (`BORO
 
 Raport wykorzystuje ciemne tło, jasne wykresy i wspólny układ nawigacji. Strona dotycząca skutków śmiertelnych wyróżnia dane czerwienią. Powtarzalny układ ostatnich trzech stron ułatwia porównanie czasu, geografii, pojazdów i czynników przy zmianie kategorii skutków.
 
-Praktyczna ścieżka pracy z raportem to: sprawdzenie KPI, wybór miesiąca i dzielnicy, porównanie stron `WHEN` i `WHERE`, a następnie zestawienie kategorii skutków. Przed sformułowaniem rekomendacji terenowej warto wrócić do rekordów konkretnych zdarzeń.
+Praktyczna ścieżka pracy z raportem to: sprawdzenie KPI, wybór miesiąca i dzielnicy, porównanie analizy czasu i lokalizacji, a następnie zestawienie kategorii skutków. Przed sformułowaniem rekomendacji terenowej warto wrócić do rekordów konkretnych zdarzeń.
 
 ## Jak odtworzyć projekt
 
@@ -360,8 +392,6 @@ Praktyczna ścieżka pracy z raportem to: sprawdzenie KPI, wybór miesiąca i dz
 - Klient SQL umożliwiający wykonanie skryptów i import `LOAD DATA LOCAL INFILE`.
 - Dostęp do `NYC.csv` oraz uprawnienia do utworzenia bazy, tabel, widoków i aktualizacji danych.
 - Power BI Desktop i działające połączenie z MySQL, jeżeli celem jest zbudowanie własnego modelu raportowego.
-
-Dostarczone skrypty są napisane w dialekcie **MySQL**. Mimo wzmianki o PostgreSQL w treści zadania, w tym repozytorium nie ma gotowej wersji PostgreSQL.
 
 ### Przygotowanie środowiska
 
@@ -393,7 +423,7 @@ USE WEBINAR_NYC_ACCIDENTS;
 
 ### Odtworzenie warstwy Power BI
 
-Po wykonaniu SQL można połączyć Power BI z bazą i zaimportować potrzebne widoki. Należy sprawdzić typy kolumn, oznaczyć tabelę dat, ustawić sortowanie dni tygodnia i przedziałów godzinowych oraz skonfigurować relacje i miary zgodnie ze szczegółowością widoków.
+Po wykonaniu SQL można połączyć Power BI z bazą i zaimportować 20 widoków. Należy sprawdzić typy kolumn, oznaczyć tabelę dat oraz ustawić sortowanie dni tygodnia i przedziałów godzinowych. Relacje należy odtworzyć według zrzutu i tabeli w sekcji modelu danych: wymiary daty i dzielnicy filtrują osiem widoków raportowych, wymiar pojazdu filtruje osiem mostków, a mostki łączą się dwukierunkowo z odpowiadającymi widokami. `P4P5P6_RATE_VW` pozostaje bez relacji.
 
 Dla map trzeba wykluczyć brakujące i zerowe współrzędne, a dla analiz kategorii określić sposób obsługi `NO TYPE`, `NO FACTOR`, `OTHER` i `NO BOROUGH`. Widok `P4P5P6_MAP_VW` sam nie zawiera współrzędnych, więc mapa punktów wymaga ich pozyskania z innego widoku lub tabeli. Do mapowania dzielnic dostępne jest pole `BOROUGH`.
 
@@ -475,45 +505,14 @@ GROUP BY BoroName;
 
 Pierwsze zapytanie warto wykonać po `3.1` i ponownie po `3.2`. Przed dopasowaniem przestrzennym `NO BOROUGH` powinno liczyć 25 741 rekordów. Drugie zapytanie powinno zwrócić pięć dzielnic, po jednej geometrii każdej z nich.
 
-## Ograniczenia i kierunki rozwoju
-
-### Interpretacja wyników
-
-- **Niepełny rok.** Wyniki obejmują okres do 29 sierpnia. Nie należy przedstawiać ich jako rocznych sum ani porównywać sierpnia z pełnymi miesiącami bez uwzględnienia zakresu.
-- **Specyfika 2020 roku.** Zmiany mobilności w okresie pandemii utrudniają traktowanie tego okresu jako typowego. Sam trend zgłoszeń nie wyjaśnia mechanizmu zmian.
-- **Brak miary ekspozycji.** Zbiór nie zawiera natężenia ruchu, liczby podróży, długości przejazdów ani liczby pieszych i rowerzystów. Częstotliwość zdarzeń nie jest bezpośrednią miarą ryzyka na ulicy.
-- **Niepełna lokalizacja.** Rekordy bez nazwy ulicy lub użytecznych współrzędnych ograniczają analizę przestrzenną. Braki nie muszą być rozłożone równomiernie między obszarami.
-- **Zgłoszone czynniki.** Są opisami zapisanymi w danych. Ich współwystępowanie ze zdarzeniem nie zastępuje badania przyczyn ani nie rozstrzyga odpowiedzialności.
-- **Brak skali ciężkości obrażeń.** Dane pozwalają rozróżniać rannych i zabitych, ale nie określają stopnia obrażeń każdej osoby. Nie należy utożsamiać każdego zdarzenia z rannymi z ciężkimi obrażeniami.
-- **Dane o zdarzeniach zgłoszonych.** Nie należy zakładać, że obejmują wszystkie sytuacje niebezpieczne, zdarzenia niezgłoszone i zdarzenia potencjalnie wypadkowe.
-
-### Uwagi techniczne do obecnej implementacji
-
-Reguły oparte na fragmentach tekstu są czytelne, ale mogą grupować opisy zbyt szeroko. Ich kolejność ma znaczenie. Przykładowo źródłowe `Following Too Closely` pasuje do reguły `%FOLL%`, natomiast `Driver Inattention/Distraction` do `%DIST%`. Dla nowych danych należy przejrzeć nie tylko kategorię `OTHER`, lecz także poprawność już dopasowanych wartości.
-
-Oryginalny nagłówek skryptu normalizacji sugeruje zachowanie wartości w `ELSE`, podczas gdy wykonywany kod przypisuje `OTHER`. Opis w README odzwierciedla kod. W skrypcie importu komentarz przy dacie wspomina o `STR_TO_DATE`, chociaż funkcja jest użyta dla czasu. Takie rozbieżności komentarzy warto poprawić przy kolejnej refaktoryzacji.
-
-Normalizacja aktualizuje tabelę bez zachowania osobnych kolumn wartości oryginalnych. Surowy CSV stanowi więc ważny punkt odniesienia. Dodatkowo kod nie deklaruje indeksów ani ograniczenia unikalności na identyfikatorze zdarzenia.
-
-### Możliwe rozszerzenia
-
-1. Oddzielenie warstwy surowej, oczyszczonej i raportowej oraz zapis pochodzenia uzupełnionej dzielnicy.
-2. Przeniesienie reguł kategorii do wersjonowanych tabel mapowań i dodanie kontroli wartości niedopasowanych.
-3. Dodanie klucza unikalnego dla `COLLISION_ID` po weryfikacji danych oraz indeksów dobranych do zapytań.
-4. Zbudowanie widoku pozycji pojazdów z numerem pozycji i odpowiadającym jej czynnikiem. Obecne niezależne widoki nie zachowują tej informacji do bezpiecznego parowania.
-5. Udostępnienie `.pbix` lub projektu `.pbip`, definicji miar DAX i diagramu faktycznych relacji.
-6. Uzupełnienie projektu o pełny rok i porównanie z innymi latami przy zachowaniu porównywalnego zakresu.
-7. Dołączenie natężenia ruchu, infrastruktury, przejść dla pieszych i danych o skrzyżowaniach.
-8. Analiza lokalnych skupisk zdarzeń i skutków, z kontrolą poprawności geokodowania i liczebności prób.
-
 ## Źródła i autorstwo
 
-- **Dane użyte do obliczeń:** plik `NYC.csv` dołączony do zadania.
+- **Dane użyte do obliczeń:** plik `NYC.csv` znajdujący się w repozytorium.
 - **Publiczny zbiór odpowiadający danym:** [NYPD / NYC Open Data — Motor Vehicle Collisions – Crashes](https://data.cityofnewyork.us/Public-Safety/Motor-Vehicle-Collisions-Crashes/h9gi-nx95).
 - **Opis zbioru i aktualizacji:** [katalog Data.gov](https://catalog.data.gov/dataset/motor-vehicle-collisions-crashes).
 - **Granice dzielnic użyte w projekcie:** geometrie WKT zapisane w `3.2. Multipolygons.sql`. Skrypt nie podaje ich źródłowego adresu ani daty wersji.
 - **Dokumentacja funkcji przestrzennych:** [MySQL 8.0 — Spatial Relation Functions That Use Object Shapes](https://dev.mysql.com/doc/refman/8.0/en/spatial-relation-functions-object-shapes.html).
+- **Model danych:** zrzut relacji Power BI zapisany w `assets/data-model.png`.
+- **Grafiki raportu:** okładka, trzy obrazy galerii i cztery miniatury w katalogu `assets/`.
 - **Autor projektu i raportu:** Paweł Bugowski.
 - **Udostępnienie raportu:** KajoDataSpace, zgodnie z oznaczeniem w raporcie.
-
-Stopka raportu opisuje dane NYPD jako „Public Domain License”. Ta informacja dotyczy oznaczenia danych w raporcie i nie nadaje automatycznie licencji autorskim skryptom ani plikowi Power BI. W dołączonym zestawie nie ma osobnego pliku `LICENSE` dla kodu projektu.
