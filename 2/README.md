@@ -1,465 +1,378 @@
-# KajoDataSpace — analiza transakcji, klientów i retencji
+# KajoDataSpace — analiza transakcji i aktywności klientów
 
-Projekt analityczny przedstawiający aktywność kupujących na podstawie historii transakcji z lat 2023–2026. Łączy przygotowanie danych w **MySQL**, analizę powracających klientów i kohort zakupowych oraz interaktywny raport w **Power BI**.
+Projekt analityczny łączący **MySQL** i **Power BI**, poświęcony zakupom subskrypcji w latach 2023–2026. Punktem wyjścia jest zbiór zawierający trzy kolumny: datę transakcji, identyfikator klienta i kwotę. Na tej podstawie powstają historia zakupów, klasyfikacja subskrypcji, statystyki przychodów oraz analiza aktywności kolejnych kohort klientów.
 
-Punktem wyjścia są trzy informacje: moment transakcji, identyfikator klienta i kwota. SQL przekształca je w historię zakupów, przypisuje reguły cenowe i typy subskrypcji oraz przygotowuje dane do analizy przychodów i powrotów klientów. Raport pokazuje te wyniki w kontekście zmian cen we wrześniu 2024 i 2025 roku.
+Analiza odpowiada na pytania o to, jak zmieniają się liczba i wartość zakupów, kiedy pojawiają się nowi klienci oraz jaką część wpłat stanowią kolejne zakupy tych samych osób. Osobny obszar stanowi porównanie zachowań zakupowych w okresach zmian cen.
 
-**Autor raportu:** Paweł Bugowski. **Źródło danych:** KajoData, za pośrednictwem KajoDataSpace.
+**[Otwórz interaktywny raport w Power BI](https://app.powerbi.com/view?r=eyJrIjoiNGZjYmEwMDgtZGJhMS00ZGZjLWEyOWUtZDc3MmE0MmU0MzQ1IiwidCI6ImE0ZmE1ZWNhLTdhM2YtNDRhYS04ZTI4LTc2MjBhMzk0NjEwZiJ9)**
 
-**[Otwórz interaktywny raport Power BI](https://app.powerbi.com/view?r=eyJrIjoiNGZjYmEwMDgtZGJhMS00ZGZjLWEyOWUtZDc3MmE0MmU0MzQ1IiwidCI6ImE0ZmE1ZWNhLTdhM2YtNDRhYS04ZTI4LTc2MjBhMzk0NjEwZiJ9)**
-
-![Podgląd raportu — przychody, klienci i zmiany cen](Assets/cover.webp)
-
-## Cel analizy
-
-Analiza odpowiada na pytania o skalę zakupów, strukturę wpłat i częstotliwość powrotów:
-
-- Jak zmieniają się liczba transakcji, liczba kupujących i suma wpłat?
-- W jakim stopniu wzrost wpłat wynika ze zmiany liczby zakupów, a w jakim ze zmiany ich średniej wartości?
-- Jaką część wpłat stanowią kolejne zakupy tych samych klientów?
-- Jak różnią się zakupy miesięczne, półroczne i roczne?
-- Jak często występują kwoty zgodne z historycznym cennikiem?
-- Jaka część klientów z poszczególnych kohort kupuje ponownie w kolejnych miesiącach?
-
-W projekcie słowo „przychód” oznacza **sumę zarejestrowanych kwot transakcji**. Dane nie zawierają informacji o VAT, kosztach, zwrotach ani zasadach rozliczania przychodów w czasie. Wskaźnik nie jest więc miarą zysku ani przychodem księgowym rozłożonym na okres subskrypcji.
+![Przegląd transakcji, klientów i przychodów](Assets/cover.webp)
 
 ## Najważniejsze wyniki
 
-Zakres obserwacji obejmuje **5 listopada 2023 – 31 marca 2026**, czyli 29 miesięcy kalendarzowych. Wyniki poniżej dotyczą całego zbioru po zastosowaniu korekty zachowanej w oryginalnym SQL.
+Zbiór obejmuje **4 227 transakcji**, **1 057 klientów** i **29 miesięcy z zarejestrowanymi wpłatami**. Po zastosowaniu korekty opisanej w skryptach SQL suma wpłat wynosi **1 042 416,27 zł**.
 
-| Wskaźnik | Wartość |
-| --- | ---: |
-| Transakcje | 4227 |
-| Unikalni klienci | 1057 |
-| Suma wpłat | 1 042 416,27 zł |
+| Wskaźnik | Wartość dla całego zbioru |
+|---|---:|
+| Pierwsza zarejestrowana transakcja | 5 listopada 2023 |
+| Ostatnia zarejestrowana transakcja | 31 marca 2026 |
+| Liczba transakcji | 4 227 |
+| Liczba unikalnych klientów | 1 057 |
+| Klienci aktywni według przewidywanej daty odnowienia | 393 |
+| Łączna wartość transakcji | 1 042 416,27 zł |
 | Średnia wartość transakcji | 246,61 zł |
 | Mediana wartości transakcji | 169,00 zł |
-| Najniższa wartość transakcji | 35,60 zł |
-| Najwyższa wartość transakcji | 2089,05 zł |
-| Transakcje miesięczne | 3833 |
-| Transakcje półroczne | 49 |
-| Transakcje roczne | 345 |
-| Transakcje zgodne z historycznym cennikiem | 1215 |
-| Pozostałe transakcje, oznaczone w raporcie jako promocyjne | 3012 |
-| Klienci aktywni według przewidywanego terminu odnowienia na końcu obserwacji | 393 |
+| Minimalna wartość transakcji | 35,60 zł |
+| Maksymalna wartość transakcji | 2 089,05 zł |
 
-Raport live potwierdza liczności i statystyki cenowe; sumę wpłat przedstawia w zaokrągleniu jako około 1,04 mln zł. Dokładna kwota w tabeli wynika z ponownego przeliczenia CSV zgodnie z regułami SQL.
+Liczba aktywnych klientów jest obliczana **na 31 marca 2026 r.**, czyli ostatnią datę w danych. Nie jest to liczba aktywnych klientów na dzień otwarcia repozytorium lub raportu.
 
-### Powracający klienci i ich wpłaty
-
-Uzupełniona historia zakupów pozwala rozdzielić pierwszą zaobserwowaną transakcję każdego klienta od jego kolejnych zakupów. Są to dodatkowe wyniki obliczone z danych, a nie osobne karty istniejącego raportu.
-
-| Miara | Wynik |
-| --- | ---: |
-| Klienci z co najmniej dwiema transakcjami | 595 |
-| Udział takich klientów w całej bazie | 56,29% |
-| Wpłaty z pierwszych zaobserwowanych transakcji | 502 442,98 zł |
-| Wpłaty z kolejnych transakcji | 539 973,29 zł |
-| Udział kolejnych transakcji w sumie wpłat | **51,80%** |
-
-Do wpłat powracających klientów zaliczana jest dopiero druga i każda następna transakcja danej osoby. Pierwsza transakcja klienta, który później wrócił, pozostaje w kategorii pierwszych zakupów. „Pierwszy” oznacza tutaj pierwszy zakup widoczny w dostarczonym zbiorze.
-
-### Zmiany aktywności i cen
-
-W miesięcznym modelu subskrypcji we wrześniu 2024 r. odnotowano 81 nowych klientów, a we wrześniu 2025 r. — 53. W obu miesiącach zmieniał się cennik. Zestawienie zakupów miesięcznych pokazuje równocześnie zmianę liczby transakcji i ich średniej wartości:
-
-| Miesiąc | Transakcje miesięczne | Średnia kwota | Suma wpłat za model miesięczny |
-| --- | ---: | ---: | ---: |
-| Sierpień 2024 | 60 | 88,95 zł | 5336,86 zł |
-| Wrzesień 2024 | 138 | 138,89 zł | 19 167,42 zł |
-| Sierpień 2025 | 156 | 167,63 zł | 26 150,82 zł |
-| Wrzesień 2025 | 198 | 176,48 zł | 34 943,04 zł |
-| Marzec 2026 | 210 | 199,50 zł | 41 895,76 zł |
-
-Wzrost sumy wpłat w tych porównaniach towarzyszy zarówno większej liczbie transakcji, jak i wyższej średniej kwocie. Sama zbieżność dat nie rozstrzyga, czy zakupy przyspieszyła zapowiedź podwyżki, promocja, pozyskanie nowych odbiorców czy inne działania.
-
-3012 transakcji, czyli **71,26%**, otrzymuje etykietę ceny promocyjnej. To wynik reguły dopasowania kwot do cennika, opisanej poniżej. Ocena skuteczności promocji wymagałaby dodatkowo danych o kampaniach, warunkach rabatów i kosztach.
-
-## Dane źródłowe
-
-Plik [`Raw Data/transactions.csv`](Raw%20Data/transactions.csv) zawiera 4227 wierszy danych i trzy kolumny. Oryginalna zawartość CSV została zachowana bez zmian.
-
-| Kolumna w CSV | Znaczenie | Przykład | Typ po przetworzeniu |
-| --- | --- | --- | --- |
-| `Data transakcji` | Data i czas z dokładnością do mikrosekund | `2023-11-05T18:04:23.495000` | `DATETIME(6)` |
-| `Klient` | Identyfikator klienta | `1` | `INT UNSIGNED` |
-| `Kwota` | Kwota transakcji | `35.6` | `DECIMAL(12,2)` |
-
-Separator pól to przecinek, separatorem dziesiętnym jest kropka. Pierwszy wiersz zawiera nagłówki. Znacznik czasu nie ma informacji o strefie czasowej; przetwarzanie zachowuje jego zapis bez przesunięć czasowych.
-
-Jeden wiersz oznacza jedną zarejestrowaną transakcję. CSV nie zawiera identyfikatora transakcji z systemu źródłowego, dlatego import nadaje techniczny numer wiersza. Nie znaleziono identycznych rekordów według kombinacji czasu, klienta i kwoty. Dane nie są automatycznie deduplikowane.
-
-| Rok | Liczba transakcji | Suma wpłat po korekcie | Zakres w zbiorze |
-| --- | ---: | ---: | --- |
-| 2023 | 132 | 32 430,77 zł | Od 5 listopada |
-| 2024 | 1187 | 238 495,14 zł | Styczeń–grudzień |
-| 2025 | 2239 | 579 573,31 zł | Styczeń–grudzień |
-| 2026 | 669 | 191 917,05 zł | Styczeń–marzec |
-
-Roczne sumy dla 2023 i 2026 obejmują niepełne lata. Nie należy zestawiać ich bezpośrednio z pełnymi latami jako rocznej dynamiki sprzedaży.
+Subskrypcje miesięczne odpowiadają za **90,68% transakcji**. Jednocześnie **595 klientów** ma więcej niż jedną zarejestrowaną transakcję. Uzupełniające obliczenie na danych SQL pokazuje, że zakupy po pierwszej transakcji klienta wygenerowały **539 973,29 zł**, czyli **51,80% wszystkich wpłat**. Ten wynik opisuje kolejne zakupy w dostępnej historii; nie jest osobną kartą w opublikowanym raporcie.
 
 ## Zawartość repozytorium
 
-| Ścieżka | Zawartość |
-| --- | --- |
-| `README.md` | Opis danych, wyników, SQL, modelu i odtworzenia wizualizacji |
-| `Raw Data/transactions.csv` | Oryginalne dane wejściowe |
-| `SQL/1. Database & Tables.sql` | Baza, tabela surowa i tabela transakcji |
-| `SQL/2. Import of data.sql` | Import CSV do warstwy surowej |
-| `SQL/3.1. Normalization of data.sql` | Walidacja, konwersja typów, korekta i reguły biznesowe |
-| `SQL/3.2. Customer history.sql` | Kolejność zakupów i historia klientów |
-| `SQL/4.1. Creation of reporting views.sql` | Widoki raportowe i statystyki kontrolne |
-| `SQL/4.2. Creation of dimension views.sql` | Kalendarz i pozostałe wymiary |
-| `SQL/4.3. Creation of cohort views.sql` | Szczegółowe dane kohort i macierz retencji |
-| `SQL/5. Validation.sql` | Kontrole danych i porównanie całej macierzy z raportem |
-| `SQL/Original/123.sql` | Niezmieniona, zachowana część pierwotnego skryptu, jako materiał referencyjny |
-| `Assets/` | Okładka, trzy obrazy raportu i ich miniatury w formacie WebP |
+| Lokalizacja | Zawartość |
+|---|---|
+| `Raw Data/` | Oryginalny plik `transactions.csv`, zachowany przed transformacjami SQL |
+| `SQL/` | Osiem skryptów: utworzenie bazy, import, przygotowanie danych i definicje widoków |
+| `Assets/` | Podglądy raportu w formacie WebP oraz ich miniatury |
+| `README.md` | Opis danych, przetwarzania, modelu i raportu oraz kolejności uruchamiania skryptów |
 
-Archiwalnego `SQL/Original/123.sql` nie należy uruchamiać w opisanym procesie. Zawiera pierwotną ścieżkę lokalną, poprzedni import i definicje zastąpione przez uporządkowane etapy. Wszystkie wykonywalne etapy znajdują się bezpośrednio w `SQL/`.
+Źródło danych znajduje się pod ścieżką [`Raw Data/transactions.csv`](Raw%20Data/transactions.csv), zgodną ze skryptem importującym.
 
-## Przetwarzanie w SQL
+## Dane źródłowe
 
-### Warstwa surowa i import
+Dane pochodzą z materiałów **KajoData**, udostępnionych w ramach **KajoDataSpace**. Plik CSV zawiera jeden rekord na transakcję.
 
-`transactions_raw` przechowuje wartości tekstowe oraz numer wiersza. Oddzielenie importu od obliczeń ułatwia sprawdzenie źródła przed aktualizacją danych raportowych.
+| Kolumna CSV | Znaczenie | Przykład |
+|---|---|---|
+| `Data transakcji` | Znacznik czasu wykonania transakcji | `2023-11-05T18:04:23.495000` |
+| `Klient` | Identyfikator pozwalający połączyć zakupy tej samej osoby | `1` |
+| `Kwota` | Wartość pojedynczej wpłaty | `35.6` |
 
-Import rozpoznaje trzy kolumny CSV i usuwa końcowy znak `CR`, jeśli plik zapisano z zakończeniami wierszy Windows. Właściwa konwersja czasu korzysta z formatu **`%Y-%m-%dT%H:%i:%s.%f`**. Zastępuje to zapis `%m/%d/%Y` z zachowanego skryptu, który nie odpowiada przesłanemu plikowi.
+Kwoty są prezentowane w złotych, zgodnie z raportem. W pliku nie występuje osobna kolumna waluty. Wszystkie trzy kolumny są wypełnione, a zbiór nie zawiera identycznych wierszy powtórzonych w całości. Kolejne transakcje jednego klienta są częścią historii jego aktywności, dlatego nie są usuwane jako duplikaty.
 
-### Normalizacja i ślad korekty
+Zakres nie obejmuje czterech pełnych lat: dla 2023 r. dostępne są dane od 5 listopada, a dla 2026 r. — do końca marca. Porównania roczne należy odczytywać z uwzględnieniem tych granic.
 
-Etap `3.1` sprawdza strukturę danych, konwertuje wartości, wylicza pola biznesowe i zastępuje zawartość tabeli `transactions` w transakcji. Błąd przed zatwierdzeniem pozostawia wcześniejszą tabelę raportową bez zmian. Ponowne wykonanie nie kumuluje tej samej korekty.
+CSV nie zawiera nazw produktów, identyfikatorów kampanii, informacji o naliczonych rabatach, kosztach ani powodach zakupu. Typ subskrypcji i kategoria ceny są **wyznaczane na podstawie reguł SQL**, a nie odczytywane z dodatkowych pól źródłowych. Suma wpłat jest w projekcie nazywana przychodem; dane nie opisują księgowego rozpoznawania przychodów w czasie.
 
-Oryginalny skrypt zawierał polecenie ustawiające kwotę wiersza `299` na `99`. W przesłanym CSV odpowiada mu:
+## Przetwarzanie danych w SQL
 
-| Pole | Wartość |
-| --- | --- |
-| Klient | `140` |
-| Czas transakcji | `2024-03-24T13:14:25.756000` |
-| Kwota źródłowa | 198,00 zł |
-| Kwota po korekcie | 99,00 zł |
+### Baza i tabela transakcji
 
-Regułę zachowano dla odtworzenia obliczeń autora, ale **nie ma materiału źródłowego wyjaśniającego jej uzasadnienie biznesowe**. Kwota 198 zł sama w sobie nie jest ekstremum tego zbioru. Nowy skrypt wyszukuje rekord po czasie, kliencie i oryginalnej kwocie. Wymaga dokładnie jednego dopasowania.
+Skrypty tworzą bazę `KDS_Transactions` oraz tabelę `transactions`. Dane źródłowe są uzupełniane o identyfikator transakcji i atrybuty analityczne.
 
-`ORIGINAL_TRANSACTION_VALUE` przechowuje pierwotną wartość, `TRANSACTION_VALUE` — wartość używaną w analizie, a `CORRECTION_APPLIED` wskazuje zmieniony rekord. Suma źródłowa wynosi **1 042 515,27 zł**; po korekcie jest niższa o 99 zł.
+| Kolumna tabeli | Typ | Rola |
+|---|---|---|
+| `TRANSACTION_ID` | `INT`, klucz główny, `AUTO_INCREMENT` | Identyfikator nadawany podczas importu |
+| `TRANSACTION_DATE` | `DATE` | Data transakcji bez części godzinowej |
+| `CLIENT_ID` | `INT` | Identyfikator klienta |
+| `TRANSACTION_VALUE` | `DECIMAL(10,2)` | Kwota z dokładnością do dwóch miejsc po przecinku |
+| `TRANSACTION_TYPE` | `VARCHAR(20)` | Wyznaczony rodzaj subskrypcji |
+| `EXPECTED_RENEWAL_DATE` | `DATE` | Przewidywana data kolejnego zakupu |
+| `PROMOTION_PRICE` | `VARCHAR(3)` | Flaga ceny regularnej lub niestandardowej |
+| `TRANSACTION_YEAR` | `INT` | Rok transakcji |
+| `TRANSACTION_MONTH_NUMBER` | `INT` | Numer miesiąca transakcji |
 
-### Typy subskrypcji
+### Import i przygotowanie dat
 
-W źródle nie ma kolumny określającej produkt. Typ subskrypcji jest **wnioskowany z kwoty** według reguły zachowanej w SQL:
+Import wykorzystuje `LOAD DATA LOCAL INFILE`. Skrypt pomija nagłówek CSV, odczytuje kolumny do zmiennych i przypisuje je do pól tabeli po konwersji.
 
-| Warunek | `TRANSACTION_TYPE` | Przewidywany termin odnowienia |
-| --- | --- | --- |
-| Kwota poniżej 260 zł | `MONTHLY` | Data transakcji + 1 miesiąc |
-| Kwota powyżej 260 zł i poniżej 600 zł | `SEMI-ANNUAL` | Data transakcji + 6 miesięcy |
-| Kwota powyżej 600 zł | `ANNUAL` | Data transakcji + 12 miesięcy |
-| Dokładnie 260 lub 600 zł | `NULL` | `NULL` |
+```sql
+TRANSACTION_DATE = STR_TO_DATE(
+    LEFT(TRIM(@TRANSACTION_DATE), 10),
+    '%Y-%m-%d'
+)
+```
 
-Kwoty graniczne nie występują w dostarczonych danych. Pozostawiono ich jawny brak klasyfikacji zamiast zmieniać reguły autora. Skrypt walidacji wykrywa takie przypadki przy innym zestawie wejściowym.
+`TRIM` usuwa otaczające spacje, `LEFT` zachowuje datę z początku znacznika czasu, a `STR_TO_DATE` przekształca tekst do wartości daty. Godzina pozostaje w oryginalnym CSV, ale nie jest przechowywana w tabeli analitycznej. Puste identyfikatory i kwoty są zamieniane na `NULL` przez `NULLIF`.
 
-Odnowienie wyznacza się przez dodanie miesięcy kalendarzowych, a nie stałej liczby dni. Nie uwzględnia ono anulowania subskrypcji, zwrotów ani nakładania się zakupionych okresów.
+### Klasyfikacja subskrypcji
 
-### Historyczne ceny standardowe
+Typ subskrypcji wynika z kwoty transakcji. Ta sama klasyfikacja służy do wyznaczenia przewidywanego terminu odnowienia.
 
-| Data transakcji | Kwoty uznawane za standardowe |
-| --- | --- |
-| Przed 10 września 2024 | 99, 495, 990 zł |
-| Od 10 września 2024 do 11 września 2025 włącznie | 199, 1799 zł |
-| Od 12 września 2025 | 249, 1999 zł |
+| Warunek dotyczący kwoty | `TRANSACTION_TYPE` | Przesunięcie daty |
+|---|---|---|
+| Poniżej 260 zł | `MONTHLY` | 1 miesiąc kalendarzowy |
+| Powyżej 260 zł i poniżej 600 zł | `SEMI-ANNUAL` | 6 miesięcy kalendarzowych |
+| Powyżej 600 zł | `ANNUAL` | 12 miesięcy kalendarzowych |
 
-Kwota zgodna z listą dla danej daty otrzymuje `PROMOTION_PRICE = 'NO'`. Każda inna otrzymuje `'YES'`. W Power BI odpowiadają im etykiety `REGULAR PRICE` i `DISCOUNTED PRICE`.
+Dokładne wartości 260 i 600 zł nie są objęte powyższymi warunkami; w dostarczonym zbiorze nie występują. `DATE_ADD` oblicza termin odnowienia na podstawie daty zakupu i długości przypisanego planu. Jest to termin oczekiwany, a nie potwierdzenie kolejnej wpłaty.
 
-Reguła nie sprawdza kodu rabatowego ani rzeczywistego cennika produktu. Cena wyższa od pozycji na liście również może otrzymać etykietę promocyjną. Dlatego udział 71,26% należy odczytywać jako udział kwot **niezgodnych z przyjętą listą cen standardowych**.
+| Rodzaj subskrypcji | Liczba transakcji | Udział |
+|---|---:|---:|
+| Miesięczna | 3 833 | 90,68% |
+| Półroczna | 49 | 1,16% |
+| Roczna | 345 | 8,16% |
 
-### Historia klienta
+### Jawna korekta jednej transakcji
 
-`vw_transaction_history` porządkuje wszystkie zakupy klienta po czasie transakcji i technicznym ID. Funkcje okienkowe wyliczają numer zakupu, pierwszą zaobserwowaną datę oraz poprzednią datę zakupu.
+Skrypt przygotowujący dane zmienia wartość transakcji `TRANSACTION_ID = 299` z **198 zł na 99 zł**. Przy pierwszym imporcie oryginalnego CSV jest to wpłata klienta `140` z 24 marca 2024 r.
 
-| Pole | Znaczenie |
-| --- | --- |
-| `PURCHASE_NUMBER` | Kolejny numer transakcji klienta |
-| `NEW_CLIENT` | `1` wyłącznie dla pierwszej zaobserwowanej transakcji |
-| `FIRST_PURCHASE_DATE` | Najwcześniejsza data zakupu w całej dostępnej historii |
-| `PREVIOUS_PURCHASE_DATE` | Data poprzedniej transakcji tego klienta |
-| `DAYS_SINCE_PREVIOUS_PURCHASE` | Różnica dni; `NULL` dla pierwszej transakcji |
-| `COHORT_MONTH` | Pierwszy dzień miesiąca pierwszego zakupu |
-| `COHORT_PERIOD` | Różnica miesięcy kalendarzowych względem pierwszego zakupu |
+Korekta jest wykonywana w bazie. Surowy plik zachowuje kwotę źródłową. Suma przed korektą wynosi **1 042 515,27 zł**, a po niej **1 042 416,27 zł**. Wyniki opisane w tym README odnoszą się do danych po korekcie.
 
-Historia powstaje przed filtrowaniem w Power BI. Wybranie innego roku nie zmienia powracającego klienta w nowego. Kilka zakupów jednego dnia zachowuje własną kolejność; odstęp liczony w dniach może wynosić zero.
+Przypisanie korekty do identyfikatora wymaga zachowania kolejności rekordów oraz importu do nowej, pustej tabeli. Zmiana kolejności CSV lub ponowne dopisanie danych może zmienić znaczenie identyfikatora `299`.
 
-## Widoki raportowe i poziom szczegółowości
+### Ceny regularne i niestandardowe
 
-| Widok | Jeden wiersz oznacza | Zastosowanie |
-| --- | --- | --- |
-| `vw_1` | Datę × typ subskrypcji × kategorię ceny | Sumy wpłat, liczby transakcji, minima i maksima |
-| `vw_2` | Datę × typ subskrypcji × kategorię ceny | Liczbę kupujących w tej konkretnej grupie oraz sumy transakcyjne |
-| `vw_1_active_customers` | Unikalną kombinację klienta, daty, typu i kategorii ceny | Liczenie kupujących przez `DISTINCTCOUNT` |
-| `vw_3` | Transakcję z historią klienta | Główny fakt dla interaktywnych miar |
-| `vw_2_customer_value` | Klienta | Sumę wpłat klienta, liczbę zakupów, obserwowany czas relacji i średni odstęp między zakupami |
-| `vw_5_data_config_2` | Cały zbiór | Statystyki kontrolne niezależne od filtrów raportu |
-| `vw_4_cohort_date` | Klienta | Pierwszą datę zakupu |
-| `vw_4_retention` | Unikalną kombinację klienta, daty, typu i kategorii ceny z przypisaną kohortą | Dynamiczną analizę kohort |
-| `vw_4_monthly_cohort_retention` | Miesiąc kohorty × okres 0–28 | Gotową macierz dla całego zbioru i porównanie z raportem |
+`PROMOTION_PRICE` porównuje kwotę z listą cen przypisaną do daty transakcji.
 
-Liczba klientów nie jest addytywna. Suma dziennych `ACTIVE_USERS` może wielokrotnie policzyć tę samą osobę. W miarach miesięcznych i rocznych należy używać `DISTINCTCOUNT` na danych szczegółowych. Średnią cenę wylicza się z sumy kwot podzielonej przez liczbę transakcji, zamiast uśredniać średnie poszczególnych grup.
+| Okres | Kwoty klasyfikowane jako regularne |
+|---|---|
+| Przed 10 września 2024 | 99, 495 i 990 zł |
+| Od 10 września 2024 do 11 września 2025 włącznie | 199 i 1 799 zł |
+| Od 12 września 2025 | 249 i 1 999 zł |
 
-`LTV` w `vw_2_customer_value` jest sumą **zaobserwowanych wpłat klienta**. Nie jest prognozą przyszłych zakupów. Typ subskrypcji w tym widoku pochodzi z ostatniej transakcji, natomiast w `vw_3` opisuje każdy zakup osobno.
+Kwoty zgodne z listą otrzymują `NO`, pozostałe — `YES`. Podział daje **1 215 transakcji regularnych** i **3 012 niestandardowych**. W raporcie druga grupa jest prezentowana jako transakcje promocyjne, z udziałem około **71%**.
 
-## Model danych Power BI
+Reguła sprawdza zgodność z cennikiem, a nie to, czy kwota jest od niego niższa. Przykładowo wpłata 2 089,05 zł przy cenie regularnej 1 999 zł również trafia do grupy `YES`. Tak należy interpretować użyte w raporcie określenie „discounted”.
 
-Na dostarczonym modelu widoczne są widoki `vw_1`, `vw_2`, szczegółowy widok klientów, `vw_3`, widok wartości klienta, tabela statystyk oraz widok retencji. Korzystają z wymiarów daty, kategorii ceny i typu subskrypcji. Retencja ma dodatkowo wymiary `FIRST_PURCHASE_DATE` i `COHORT_PERIOD`. Tabela statystyk pozostaje odłączona, a relacja pomiędzy wartością klienta a `vw_3` jest nieaktywna.
+### Historia zakupów i definicje wskaźników
 
-Część nazw na obrazie jest ucięta. Dla tych obiektów przyjęto opisowe nazwy `vw_1_active_customers`, `vw_2_customer_value` i `vw_4_retention`. Nie oznaczają one potwierdzenia pełnych nazw utraconych widoków. Zachowano nazwy dostępne w oryginalnym SQL i jednoznacznie widoczne na modelu.
+`ROW_NUMBER()` numeruje zakupy osobno dla każdego klienta. Porządek rosnący identyfikuje pierwszy zakup, a malejący — ostatni. Przy tej samej dacie kolejność rozstrzyga `TRANSACTION_ID`.
 
-Poniżej przedstawiono **odtworzony model do uruchomienia z tym repozytorium**. Wykorzystuje wspólne wymiary, szczegółowy fakt transakcji oraz osobny fakt retencji. W tabeli po schemacie podano dokładne klucze. Strzałki pokazują filtrowanie od strony `1` do strony `*`.
+| Pole | Definicja w SQL |
+|---|---|
+| `NEW_CLIENT` | `1` przy pierwszej zaobserwowanej transakcji klienta, `0` przy kolejnych |
+| `TRANSACTION_COUNT` | Liczba transakcji klienta w dostępnym zbiorze |
+| `LTV` | Suma wszystkich zaobserwowanych wpłat klienta |
+| `avg_LT` | Liczba dni między pierwszą i ostatnią zaobserwowaną transakcją |
+| `transaction_type` w `vw_2_kpi` | Rodzaj subskrypcji z ostatniej transakcji klienta |
+| `ACTIVE_CUSTOMERS` | Liczba klientów z co najmniej jedną przewidywaną datą odnowienia nie wcześniejszą niż ostatnia data danych |
+
+`LTV` nie jest prognozą przyszłej wartości klienta. Pomimo nazwy `avg_LT` opisuje odstęp między datami, a nie średnią z wielu okresów. Dla klienta z jedną transakcją wynosi zero. „Nowy klient” oznacza pierwszy zakup widoczny w zbiorze, niekoniecznie pierwszy zakup w całej historii tej osoby.
+
+## Organizacja skryptów i widoków
+
+Każdy plik zawiera opis swojego zakresu oraz komentarze przy istotnych operacjach. Numeracja określa kolejność wykonania.
+
+| Skrypt | Zakres |
+|---|---|
+| [1_Database_and_Table.sql](SQL/1_Database_and_Table.sql) | Utworzenie bazy, tabeli i typów danych |
+| [2_Import_of_Data.sql](SQL/2_Import_of_Data.sql) | Wczytanie CSV i konwersja wartości |
+| [3_Preparation_of_Data.sql](SQL/3_Preparation_of_Data.sql) | Typy subskrypcji, daty odnowień, korekta kwoty i kategorie cen |
+| [4.1_Dimension_Views.sql](SQL/4.1_Dimension_Views.sql) | Wymiary typu subskrypcji, roku, miesiąca i kategorii ceny |
+| [4.2_Transaction_Activity_Views.sql](SQL/4.2_Transaction_Activity_Views.sql) | Przychody, liczba transakcji i szczegóły aktywności klientów |
+| [4.3_Customer_History_Views.sql](SQL/4.3_Customer_History_Views.sql) | Podsumowania klientów i identyfikacja pierwszych zakupów |
+| [4.4_Cohort_Retention_View.sql](SQL/4.4_Cohort_Retention_View.sql) | Szczegółowe dane wejściowe do analizy kohort |
+| [4.5_Overall_Statistics_View.sql](SQL/4.5_Overall_Statistics_View.sql) | Statystyki całego zbioru, w tym mediana i aktywni klienci |
+
+### Poziom szczegółowości danych
+
+Widoki mają różne jednostki obserwacji. Rozróżnienie ich jest niezbędne przy agregowaniu wyników.
+
+| Widok | Jeden wiersz oznacza | Główne zastosowanie |
+|---|---|---|
+| `vw_1` | Datę × typ subskrypcji × kategorię ceny | Liczba transakcji i suma wpłat |
+| `vw_1_active_users` | Unikalne połączenie klienta, daty, typu i ceny | Liczenie klientów w wybranym zakresie |
+| `vw_2` | Datę × typ subskrypcji × kategorię ceny | Dzienne liczniki klientów, transakcji i przychodów |
+| `vw_2_kpi` | Klienta | Wartość i długość obserwowanej historii zakupów |
+| `vw_3` | Transakcję | Pierwszy zakup, kwoty i zakres cen |
+| `vw_4_retention` | Unikalne połączenie klienta, daty, typu i ceny | Aktywność klientów potrzebna do obliczenia retencji |
+| `vw_5_data_config` | Cały zbiór | Globalne KPI |
+
+Cztery dodatkowe widoki wymiarów to `vw_dim_transaction_type`, `vw_dim_date_year`, `vw_dim_date_month` i `vw_dim_promotion`. Łącznie skrypty tworzą **11 widoków SQL**.
+
+`ACTIVE_USERS` w `vw_2` liczy unikalnych klientów w obrębie jednej daty, typu subskrypcji i kategorii ceny. Suma takich liczników dla miesiąca może uwzględnić tę samą osobę wielokrotnie. Dla abonamentów miesięcznych w marcu 2024 wynosi ona **57**, podczas gdy liczba unikalnych klientów w całym miesiącu to **54**. Wartości wykresu liczby klientów w opublikowanym raporcie odpowiadają pierwszej z tych agregacji.
+
+Średnią wartość transakcji w dłuższym okresie należy wyliczać jako sumę wpłat podzieloną przez liczbę transakcji, zamiast uśredniać dzienne średnie bez uwzględnienia ich wag.
+
+## Model danych w Power BI
+
+Model łączy kilka tabel o różnej szczegółowości ze wspólnymi wymiarami daty, rodzaju subskrypcji i kategorii ceny. Osobne elementy obsługują historię klienta, analizę kohort i globalne statystyki.
+
+Poniższy schemat przedstawia główną część modelu. Dwa kalendarze są zgrupowane w jednym węźle dla czytelności; nie oznacza to jednej fizycznej tabeli. Pominięto prefiks bazy `kds_transactions`, a część kohortową opisano osobno poniżej. Relacje wymiarów z tabelami szczegółowymi mają postać **jeden do wielu**.
 
 ```mermaid
 flowchart TB
-    Calendar["Calendar: data transakcji"] --> Transactions["Transactions: vw_3"]
-    Subscription["Subscription: typ"] --> Transactions
-    Price["Price: kategoria ceny"] --> Transactions
-    Calendar --> Retention["Retention: vw_4_retention"]
-    Subscription --> Retention
-    Price --> Retention
-    FirstPurchase["FirstPurchase: pierwsza data zakupu"] --> Retention
-    CohortPeriod["CohortPeriod: numer okresu"] --> Retention
+    D["Kalendarze transakcji — 2 tabele"]
+    P["vw_dim_promotion"]
+    T["vw_dim_transaction_type"]
+    V1["vw_1"]
+    V2["vw_2"]
+    A["vw_1_active_users"]
+    V3["vw_3"]
+    K["vw_2_kpi"]
+
+    D --> V1
+    D --> V2
+    D --> A
+    D --> V3
+    P --> V1
+    P --> V2
+    P --> A
+    P --> V3
+    T --> V1
+    T --> V2
+    T --> A
+    T --> V3
+    T --> K
+    K -. "CLIENT_ID: 1 do wielu, nieaktywna" .-> V3
 ```
 
-### Nazwy tabel i relacje do odtworzenia
+### Wymiary i historia klienta
 
-Po imporcie można nadać tabelom poniższe krótkie nazwy. Używają ich miary DAX zamieszczone dalej.
+W modelu występuje kalendarz `vw_dim_transaction_date` z polem daty oraz drugi kalendarz zawierający datę, rok, numer miesiąca i nazwę miesiąca. Atrybuty te umożliwiają budowanie hierarchii czasu i sortowanie nazw miesięcy według ich numerów.
 
-| Nazwa w Power BI | Widok SQL |
-| --- | --- |
-| `Transactions` | `vw_3` |
-| `Calendar` | `vw_dim_transaction_date_2` |
-| `Subscription` | `vw_dim_transaction_type` |
-| `Price` | `vw_dim_promotion` |
-| `Retention` | `vw_4_retention` |
-| `FirstPurchase` | `vw_dim_first_purchase_date` |
-| `CohortPeriod` | `vw_dim_cohort_period` |
-| `Snapshot` | `vw_5_data_config_2` |
+`vw_dim_promotion` udostępnia flagę kategorii ceny. `vw_dim_transaction_type` zawiera typ subskrypcji oraz pole `TRANSACTION_TYPE_ORDER`, wykorzystywane do ustalenia kolejności kategorii.
 
-| Strona `1` | Strona `*` | Klucz po obu stronach | Kierunek |
-| --- | --- | --- | --- |
-| `Calendar` | `Transactions` | `TRANSACTION_DATE` | Jednokierunkowy |
-| `Subscription` | `Transactions` | `TRANSACTION_TYPE` | Jednokierunkowy |
-| `Price` | `Transactions` | `PROMOTION_PRICE` | Jednokierunkowy |
-| `Calendar` | `Retention` | `TRANSACTION_DATE` | Jednokierunkowy |
-| `Subscription` | `Retention` | `TRANSACTION_TYPE` | Jednokierunkowy |
-| `Price` | `Retention` | `PROMOTION_PRICE` | Jednokierunkowy |
-| `FirstPurchase` | `Retention` | `FIRST_PURCHASE_DATE` | Jednokierunkowy |
-| `CohortPeriod` | `Retention` | `COHORT_PERIOD` | Jednokierunkowy |
+`vw_2_kpi` ma jeden rekord na klienta i jest połączony z `vw_3` relacją po identyfikatorze klienta. **Relacja ta jest nieaktywna**. Nie należy traktować jej jako domyślnej ścieżki propagacji filtrów; wykorzystanie jej w obliczeniu wymaga odpowiedniej definicji miary.
 
-`Snapshot` pozostaje bez relacji. Opcjonalne `vw_1`, `vw_2` i `vw_1_active_customers` mogą otrzymać te same trzy relacje wymiarów co `Transactions`. Nie należy łączyć ich ze sobą ani z faktem transakcji.
+### Część kohortowa
 
-Na pierwotnym obrazie są dwa wymiary daty. Repozytorium zachowuje oba interfejsy: `vw_dim_transaction_date` i `vw_dim_transaction_date_2`. W opisanej konfiguracji wspólnym kalendarzem jest `date_2`; drugi widok nie jest potrzebny do miar poniżej. To jawne uproszczenie odtworzonego modelu.
+`vw_4_retention` współpracuje z wymiarami czasu, typu subskrypcji i kategorii ceny oraz z dwiema tabelami pomocniczymi:
 
-Opcjonalny `vw_2_customer_value` ma jeden wiersz na klienta. Jeśli potrzebna jest relacja do `Transactions`, kluczem jest `CLIENT_ID`, a relacja pozostaje **nieaktywna**, zgodnie z obrazem modelu. Nie należy włączać jej automatycznie obok aktywnych ścieżek filtrowania typu subskrypcji.
+| Tabela pomocnicza | Klucz relacji z `vw_4_retention` | Rola |
+|---|---|---|
+| `FIRST_PURCHASE_DATE` | `FIRST_PURCHASE_DATE` | Grupowanie klientów według daty pierwszej zaobserwowanej transakcji |
+| `COHORT_PERIOD` | `COHORT_PERIOD` | Porządkowanie kolejnych okresów od pierwszego zakupu |
 
-Kalendarz obejmuje wszystkie 878 dni między pierwszą i ostatnią transakcją. `MONTH_NAME` należy sortować według `MONTH_NUMBER`, `YEAR_MONTH` według `YEAR_MONTH_SORT`, a typy subskrypcji według `TRANSACTION_TYPE_ORDER`. Zbudowana hierarchia czasu powinna zawierać rok i miesiąc. Sam miesiąc bez roku połączyłby listopad z różnych lat.
+Obie relacje prowadzą od strony „jeden” tabeli pomocniczej do strony „wiele” danych aktywności. W części kohortowej model zawiera również pola pierwszej daty zakupu, okresu kohorty i atrybutów miesiąca.
 
-## Retencja kohortowa
+`vw_5_data_config` jest oddzielną tabelą z jednym wierszem globalnych statystyk. W przedstawionym modelu pozostaje **bez relacji** z pozostałymi tabelami.
 
-Kohorta powstaje według miesiąca **pierwszego zakupu dowolnego typu**. Dopiero liczenie klientów w poszczególnych okresach ogranicza się do transakcji `MONTHLY`.
+### Podział obliczeń między SQL a model
 
-Okres `0` to miesiąc pierwszego zakupu, okres `1` to następny miesiąc kalendarzowy itd. Zakup 31 stycznia i następny 1 lutego znajdują się w dwóch kolejnych okresach, mimo że dzieli je jeden dzień.
+SQL tworzy tabelę transakcji, przygotowuje dane i definiuje opisane widoki. Model uzupełnia tę warstwę o kalendarze, pola obliczeniowe, tabele pomocnicze i miary potrzebne do wizualizacji.
 
-W macierzy:
+| Element | Miejsce przygotowania |
+|---|---|
+| Typ subskrypcji, flaga ceny, data odnowienia | SQL |
+| Pierwsza transakcja klienta oznaczona przez `NEW_CLIENT` | SQL |
+| Podsumowania klientów i globalne statystyki | SQL |
+| Widoki roku i miesiąca `vw_dim_date_year`, `vw_dim_date_month` | SQL |
+| Dwa kalendarze wykorzystywane w modelu raportu | Warstwa modelu; ich pełnych definicji nie zawierają dołączone skrypty SQL |
+| `TRANSACTION_TYPE_ORDER` i `Price Type` | Pola dodatkowe w modelu |
+| `FIRST_PURCHASE_DATE`, `COHORT_PERIOD` i pomocnicze tabele kohort | Warstwa modelu |
+| Miary retencji i formatowanie macierzy | Warstwa modelu i wizualizacji |
 
-- kolumna `0` przedstawia liczbę klientów kohorty z zakupem miesięcznym w okresie początkowym;
-- kolumny `1–28` pokazują liczbę klientów tej kohorty z zakupem miesięcznym w danym okresie, podzieloną przez liczbę z okresu `0`;
-- jeden klient jest liczony tylko raz w danej komórce, niezależnie od liczby transakcji;
-- powrót po przerwie ponownie zwiększa wynik, więc retencja nie musi stale maleć.
+Widoki roku i miesiąca z SQL nie są tym samym co dwa kalendarze widoczne w modelu raportu. Uruchomienie skryptów odtwarza warstwę bazy danych; zbudowanie identycznego raportu wymaga również konfiguracji modelu i jego obliczeń.
 
-**Szczegół konieczny do zgodności z raportem:** klient rozpoczynający historię od innego typu subskrypcji może wejść do licznika, jeśli później kupi model miesięczny. Mianownik nadal opisuje miesięczne zakupy w okresie `0`. Jest to rekonstrukcja definicji prezentowanej w raporcie, a nie retencja zamkniętej grupy osób rozpoczynających wyłącznie od modelu miesięcznego. W innych danych taka definicja mogłaby przekroczyć 100%.
+## Raport interaktywny
 
-Przykładowo kohorta z listopada 2023 r. ma w okresie `0` 52 klientów. W kolejnym miesiącu kupuje 39 klientów tej kohorty, co daje 75%. W okresie `28` jest to 11 klientów, czyli po zaokrągleniu 21%. Ograniczenie wszystkich kolejnych okresów wyłącznie do osób zaczynających od planu miesięcznego dałoby inne wyniki.
+Raport składa się z pięciu stron. Nawigacja prowadzi od ogólnego obrazu sprzedaży przez ceny i aktywność klientów do retencji oraz zbiorczych statystyk. Fragmentatory daty pozwalają zawężać analizę czasu, a część kohortowa ma filtr kohorty. Globalne KPI z odłączonej tabeli statystyk opisują cały zbiór.
 
-Widok zbiorczy rozróżnia **brak zakupu w już zaobserwowanym miesiącu** od **miesiąca wykraczającego poza dane**. `RETENTION_RATE` wynosi odpowiednio `0` lub `NULL`. Dodatkowe `DISPLAY_RETENTION_RATE` pozostawia oba przypadki puste, aby odwzorować wygląd oryginalnej macierzy. Przykład: grudzień 2023, okres 12 to zaobserwowane zero; marzec 2026, okres 1 jest jeszcze nieobserwowany.
+### Przegląd transakcji i przychodów
 
-## Raport Power BI
+Pierwsza strona łączy liczbę transakcji, liczbę klientów i sumę wpłat z informacją o strukturze subskrypcji. Dwa wykresy pokazują:
 
-Raport prowadzi od głównych wskaźników do cen, aktywności klientów i wzorców powrotu. Publiczna wersja zawiera pięć stron, w tym stronę statystyk i komentarzy, której nie obejmują trzy dostarczone obrazy galerii.
+- zmianę minimalnej i maksymalnej ceny abonamentu miesięcznego;
+- miesięczne przychody z tego rodzaju subskrypcji.
 
-### Przegląd działalności
+Oznaczenia podwyżek wskazują przejścia z 99 do 199 zł we wrześniu 2024 oraz z 199 do 249 zł we wrześniu 2025. Wzrosty wynoszą w przybliżeniu **101%** i **25%**. Pokazane kwoty są punktami odniesienia dla analizy cen; nie każda transakcja w danym okresie ma taką wartość.
 
-Pierwsza strona pokazuje liczbę transakcji, klientów i sumę wpłat oraz strukturę typów subskrypcji. Wykresy modelu miesięcznego przedstawiają minimalną i maksymalną kwotę oraz przebieg wpłat. Oznaczenia zmian ceny 99 → 199 zł i 199 → 249 zł pomagają odczytać wykresy na wspólnej osi czasu.
+### Przychody i struktura cen
 
-Karty ogólne dotyczą całego zbioru, natomiast opisane wykresy są ograniczone do modelu miesięcznego. Różnica zakresu jest istotna przy porównywaniu sum.
+Skumulowany wykres kolumnowy porównuje przychody z abonamentów miesięcznych i rocznych. Subskrypcje półroczne są obecne w danych i globalnych statystykach, ale nie stanowią serii na tym wykresie. Z tego powodu suma jego dwóch serii nie jest pełnym przychodem ze wszystkich planów.
 
-### Przychody i kategorie cen
+Drugi wykres pokazuje miesięczny udział transakcji regularnych i oznaczonych jako promocyjne. Podstawą udziałów jest liczba transakcji, nie ich wartość.
 
-Wykres skumulowany porównuje wpłaty z planów miesięcznych i rocznych. W pokazanej konfiguracji pomija plan półroczny. Drugi wykres przedstawia udział **liczby transakcji** z ceną standardową i pozostałą w kolejnych miesiącach, a nie udział ich wartości.
+![Przychody według rodzaju subskrypcji i struktura cen](Assets/gallery-01.webp)
 
-### Aktywność i pozyskiwanie klientów
+### Nowi klienci i aktywność zakupowa
 
-Połączony wykres zestawia nowych klientów z przeciętną kwotą transakcji miesięcznej. Osobny wykres pokazuje kupujących według typu subskrypcji. Liczba kupujących w miesiącu oznacza klientów z zakupem w tym miesiącu; nie jest to liczba wszystkich osób mających ważną subskrypcję.
+Wykres łączony zestawia liczbę nowych klientów abonamentu miesięcznego ze średnią wartością transakcji tego planu. Druga wizualizacja przedstawia miesięczne liczniki aktywności dla planów miesięcznych i rocznych.
 
-### Powroty kolejnych kohort
+Pierwszy zakup jest wyznaczany na podstawie pełnej historii klienta, przed wyborem planu i okresu analizy. Klient wracający do zakupów nie staje się ponownie „nowy” tylko dlatego, że zmieniono filtr daty.
 
-Macierz przedstawia miesięczne kohorty, ich wielkość początkową i kolejne okresy zakupowe. Fragmentator dotyczy miesiąca pierwszego zakupu. Formatowanie warunkowe pozwala porównać przebieg powrotów, ale młodsze kohorty mają krótszy okres obserwacji.
+We wrześniu 2024 odnotowano **81 nowych klientów** z pierwszą transakcją miesięczną, a we wrześniu 2025 — **53**. To wzrosty w miesiącach zmian cen. Same szeregi miesięczne nie rozstrzygają, czy zakupy były skutkiem komunikacji podwyżki ani czy nastąpiły przed jej konkretną datą.
 
-### Statystyki i interpretacja
+![Nowi klienci, średnia wartość transakcji i aktywność według rodzaju subskrypcji](Assets/gallery-02.webp)
 
-Ostatnia strona pokazuje m.in. minimum, maksimum, średnią i medianę transakcji, liczbę aktywnych klientów oraz podział transakcji według typu subskrypcji i ceny. W modelu odpowiada jej odłączony widok `vw_5_data_config_2`.
+### Retencja kohortowa
 
-Komentarze raportu wskazują tematy do sprawdzenia: udział transakcji poza cennikiem, zachowanie klientów przy zmianach cen i przewagę modelu miesięcznego. Wnioski o przyczynach zakupów lub wpływie promocji na marżę wymagają dodatkowych danych; obecny zbiór pozwala opisać zaobserwowane zachowania.
+Macierz przedstawia aktywność zakupową klientów w kolejnych miesiącach od pierwszej zaobserwowanej transakcji. Wiersz oznacza kohortę pierwszego zakupu, a kolumna — odległość w miesiącach kalendarzowych od tego momentu.
 
-## Odtworzenie projektu
+- **Okres 0** pokazuje liczbę klientów kupujących plan miesięczny w początkowym miesiącu kohorty.
+- **Kolejne okresy** pokazują procent: liczba klientów z zakupem miesięcznym w danym okresie podzielona przez liczebność miesięczną z okresu 0.
+- **Puste pola** mogą oznaczać brak zakupów albo okres, który nie mieści się jeszcze w dostępnej historii kohorty.
 
-### 1. Uruchomienie SQL
+Datę pierwszego zakupu ustala się z uwzględnieniem wszystkich typów subskrypcji. Dopiero liczniki prezentowane w macierzy dotyczą planu miesięcznego. Osoba zaczynająca od innego planu może więc wejść do późniejszego licznika aktywności miesięcznej w swojej kohorcie.
 
-Skrypty przygotowano dla **MySQL 8.0+**. Wykorzystują funkcje okienkowe, CTE, `REGEXP_LIKE`, procedurę składowaną i `LOAD DATA LOCAL INFILE`. Potrzebne są uprawnienia do utworzenia bazy, tabel, widoków i procedury oraz importu lokalnego pliku.
+Przykładowo kohorta z listopada 2023 zaczyna się od **52 klientów**; w kolejnym miesiącu wartość wynosi **75%**, a w okresie 28 — **21%**. Macierz obejmuje 27 widocznych kohort i okresy od 0 do 28. W lipcu i sierpniu 2024 nie ma nowych klientów spełniających warunek początkowego zakupu miesięcznego.
 
-Otwórz klienta `mysql` z katalogu głównego repozytorium:
+Tak zdefiniowana retencja opisuje zakupy w miesiącach kalendarzowych. Nie jest miarą nieprzerwanego utrzymywania abonamentu. Powrót po przerwie może podnieść wartość późniejszego okresu, a młodsze kohorty mają krótszy czas obserwacji.
 
-```bash
-mysql --local-infile=1 --default-character-set=utf8mb4 -u YOUR_USER -p
-```
+![Macierz aktywności kohort klientów abonamentu miesięcznego](Assets/gallery-03.webp)
 
-Serwer również musi zezwalać na `local_infile`. Skrypt nie zmienia globalnych ustawień serwera. Przed importem można odczytać konfigurację:
+### Statystyki całego zbioru
+
+Ostatnia strona zbiera okres obserwacji, statystyki kwot, liczbę klientów, aktywnych klientów, strukturę subskrypcji i podział cen. Wartości pochodzą z `vw_5_data_config`.
+
+Mediana jest wyznaczana przez uporządkowanie kwot i wybór pozycji środkowej. Dla parzystej liczby rekordów obliczana jest średnia z dwóch centralnych wartości. W tym zbiorze mediana wynosi **169 zł**, a średnia **246,61 zł**; obecność droższych planów podnosi średnią względem wartości środkowej.
+
+## Aktywność klientów i znaczenie kolejnych zakupów
+
+Przychód z abonamentów miesięcznych rośnie wraz ze zmianą liczby transakcji i ich przeciętnej wartości. Wybrane miesiące pokazują oba składniki tego wzrostu:
+
+| Miesiąc | Transakcje miesięczne | Przychód z planu miesięcznego | Średnia wartość transakcji |
+|---|---:|---:|---:|
+| Sierpień 2024 | 60 | 5 336,86 zł | 88,95 zł |
+| Wrzesień 2024 | 138 | 19 167,42 zł | 138,89 zł |
+| Sierpień 2025 | 156 | 26 150,82 zł | 167,63 zł |
+| Wrzesień 2025 | 198 | 34 943,04 zł | 176,48 zł |
+| Marzec 2026 | 210 | 41 895,76 zł | 199,50 zł |
+
+Ponad połowa sumy wpłat pochodzi z transakcji następujących po pierwszym zaobserwowanym zakupie klienta. Można to odtworzyć bezpośrednio z `vw_3`:
 
 ```sql
-SHOW VARIABLES LIKE 'local_infile';
+SELECT
+    SUM(CASE WHEN NEW_CLIENT = 0 THEN TRANSACTION_VALUE ELSE 0 END)
+        AS RETURNING_PURCHASE_REVENUE,
+    ROUND(
+        100.0 * SUM(CASE WHEN NEW_CLIENT = 0 THEN TRANSACTION_VALUE ELSE 0 END)
+        / NULLIF(SUM(TRANSACTION_VALUE), 0),
+        2
+    ) AS RETURNING_PURCHASE_REVENUE_PERCENT
+FROM vw_3;
 ```
 
-Następnie wykonaj pliki w kolejności:
+Wynik to **539 973,29 zł i 51,80%**. Pierwsze zakupy klientów generują pozostałe **502 442,98 zł**. Do pierwszej kategorii trafiają wyłącznie kolejne transakcje — pierwsza wpłata osoby, która później wróciła, nadal pozostaje pierwszym zakupem.
+
+Duży udział kolejnych wpłat pokazuje znaczenie utrzymania aktywności klientów. Ocena skuteczności promocji wymagałaby dodatkowo historii ofert i kampanii, rzeczywiście naliczonych rabatów oraz danych o kosztach. Na podstawie samych dat i kwot można opisać zmiany, ale nie przypisać ich jednoznacznie określonej akcji marketingowej.
+
+## Uruchomienie warstwy SQL
+
+1. Przygotuj instancję **MySQL 8.0 lub nowszą**, obsługującą CTE i funkcje okna.
+2. Umieść plik `transactions.csv` w folderze `Raw Data`, a skrypty w folderze `SQL`.
+3. Uruchom `1_Database_and_Table.sql`, aby utworzyć nową bazę i tabelę.
+4. Włącz obsługę `LOCAL INFILE` po stronie klienta. Skrypt importu zawiera ustawienie po stronie serwera, którego wykonanie wymaga odpowiednich uprawnień.
+5. Sprawdź ścieżkę `'Raw Data/transactions.csv'`: jest rozwiązywana względem katalogu roboczego klienta SQL, a nie automatycznie względem położenia skryptu. W razie potrzeby podaj pełną ścieżkę.
+6. Wykonaj import jednokrotnie do pustej tabeli, następnie przygotowanie danych i skrypty widoków w kolejności numeracji.
+7. Sprawdź wynikowe statystyki i poprawność wczytanych dat.
 
 ```sql
-SOURCE SQL/1. Database & Tables.sql
-SOURCE SQL/2. Import of data.sql
-SOURCE SQL/3.1. Normalization of data.sql
-SOURCE SQL/3.2. Customer history.sql
-SOURCE SQL/4.1. Creation of reporting views.sql
-SOURCE SQL/4.2. Creation of dimension views.sql
-SOURCE SQL/4.3. Creation of cohort views.sql
-SOURCE SQL/5. Validation.sql
+USE KDS_Transactions;
+
+SELECT
+    COUNT(*) AS TRANSACTIONS,
+    COUNT(DISTINCT CLIENT_ID) AS CUSTOMERS,
+    COUNT(*) - COUNT(TRANSACTION_DATE) AS MISSING_DATES,
+    MIN(TRANSACTION_DATE) AS FIRST_DATE,
+    MAX(TRANSACTION_DATE) AS LAST_DATE,
+    SUM(TRANSACTION_VALUE) AS TOTAL_REVENUE
+FROM transactions;
+
+SELECT *
+FROM vw_5_data_config;
 ```
 
-To polecenia klienta `mysql`; każdą linię należy wykonać osobno. W MySQL Workbench można zamiast tego otwierać i uruchamiać kolejne pliki. W takim przypadku dostosuj ścieżkę CSV w etapie `2`. `DELIMITER` w etapie `3.1` wymaga klienta obsługującego definicje procedur.
+Oczekiwane wartości pierwszego zapytania: **4 227 transakcji**, **1 057 klientów**, **0 brakujących dat**, okres **2023-11-05–2026-03-31** i **1 042 416,27 zł** sumy wpłat. Pełne statystyki można porównać z tabelą na początku dokumentu.
 
-Po imporcie sprawdź `SHOW WARNINGS` oraz liczbę 4227 wierszy. Jeśli wystąpią ostrzeżenia importu, usuń ich przyczynę przed normalizacją. Etap `2` zastępuje tabelę surową; etap `3.1` zastępuje przetworzoną migawkę. Skrypty tworzą nowe obiekty w `KDS_Transactions`; nie są automatyczną migracją już istniejącej bazy z innym schematem.
+Do połączenia z Power BI służą przygotowane widoki. Kalendarze, dodatkowe kolumny, miary i relacje należy skonfigurować zgodnie z opisanym modelem. Zakres publikowanych materiałów obejmuje SQL, dane źródłowe i podglądy; gotową prezentację wyników udostępnia raport online.
 
-### 2. Podłączenie Power BI
+## Wykorzystane techniki
 
-W Power BI Desktop połącz się z bazą `KDS_Transactions` i zaimportuj widoki wymienione w tabeli nazw modelu. Utwórz relacje zgodnie z opisem, ustaw typy dat i sortowanie kolumn. Nie importuj pomocniczego `vw_numbers` ani tabeli surowej.
+| Obszar | Zastosowanie |
+|---|---|
+| Import danych | `LOAD DATA LOCAL INFILE`, zmienne użytkownika, konwersja dat i pustych pól |
+| Reguły klasyfikacji | `CASE`, `IN`, warunki dat i kwot |
+| Analiza czasu | `DATE_ADD`, `DATEDIFF`, `YEAR`, `MONTH`, `DATE_FORMAT` |
+| Agregacja | `GROUP BY`, `COUNT`, `COUNT(DISTINCT ...)`, `SUM`, `AVG`, `MIN`, `MAX` |
+| Historia zakupów | CTE i `ROW_NUMBER()` z partycjonowaniem po kliencie |
+| Statystyki | Ranking kwot, `COUNT(*) OVER ()`, `FLOOR` i `CEIL` przy medianie |
+| Model analityczny | Wspólne wymiary, różne poziomy szczegółowości, relacja nieaktywna i tabela globalnych KPI |
+| Prezentacja wyników | Wykresy liniowe, kolumnowe i łączone, udziały procentowe, fragmentatory i macierz kohort |
 
-Kalendarz można oznaczyć jako tabelę dat, wskazując `TRANSACTION_DATE`; opis konfiguracji znajduje się w [dokumentacji Microsoft](https://learn.microsoft.com/en-us/power-bi/transform-model/desktop-date-tables). Kalendarz tego projektu obejmuje zakres obserwacji. Nie implementowano dodatkowych obliczeń wymagających pełnych lat kalendarzowych.
-
-Poniższe miary są **odtworzonym zestawem startowym**, dopasowanym do jawnych nazw tabel. Nie są eksportem oryginalnych formuł DAX. Każdą definicję należy dodać jako osobną miarę.
-
-```dax
-Total Transactions = COUNTROWS(Transactions)
-
-Total Customers = DISTINCTCOUNT(Transactions[CLIENT_ID])
-
-Total Revenue = SUM(Transactions[TRANSACTION_VALUE])
-
-Average Transaction Value = DIVIDE([Total Revenue], [Total Transactions])
-
-Median Transaction Value = MEDIAN(Transactions[TRANSACTION_VALUE])
-
-Minimum Transaction Value = MIN(Transactions[TRANSACTION_VALUE])
-
-Maximum Transaction Value = MAX(Transactions[TRANSACTION_VALUE])
-
-New Customers = SUM(Transactions[NEW_CLIENT])
-
-Returning Revenue =
-    CALCULATE(
-        [Total Revenue],
-        KEEPFILTERS(Transactions[NEW_CLIENT] = 0)
-    )
-
-Returning Revenue Share = DIVIDE([Returning Revenue], [Total Revenue])
-
-Price Transaction Share =
-    DIVIDE(
-        [Total Transactions],
-        CALCULATE([Total Transactions], REMOVEFILTERS(Price))
-    )
-
-Active Customers at Snapshot = MAX(Snapshot[ACTIVE_CUSTOMERS])
-```
-
-Ostatnia miara pozostaje stała względem fragmentatorów, ponieważ `Snapshot` jest odłączony. Pozostałe miary działają na szczegółowym fakcie i reagują na jego wymiary. Dla udziału cen używaj legendy `Price[PRICE_TYPE]`.
-
-### 3. Miary macierzy kohort
-
-Na stronie kohort ustaw filtr `Subscription[TRANSACTION_TYPE] = MONTHLY` i pozostaw obie kategorie cen. Wiersze macierzy pochodzą z `FirstPurchase[YEAR_MONTH]`, a kolumny z `CohortPeriod[COHORT_PERIOD]`. Miary celowo usuwają filtr daty transakcji, aby fragmentator dat z innych stron nie ucinał historii kohorty. Fragmentator kohort ma korzystać z `FirstPurchase`.
-
-```dax
-Cohort Customers =
-    CALCULATE(
-        DISTINCTCOUNT(Retention[CLIENT_ID]),
-        REMOVEFILTERS(Calendar),
-        KEEPFILTERS(Subscription[TRANSACTION_TYPE] = "MONTHLY")
-    )
-
-Cohort Size =
-    CALCULATE(
-        [Cohort Customers],
-        REMOVEFILTERS(CohortPeriod),
-        Retention[COHORT_PERIOD] = 0
-    )
-
-Cohort Retention = DIVIDE([Cohort Customers], [Cohort Size])
-
-Cohort Cell =
-    VAR PeriodNumber = SELECTEDVALUE(CohortPeriod[COHORT_PERIOD])
-    RETURN
-        IF(
-            NOT HASONEVALUE(FirstPurchase[YEAR_MONTH])
-                || NOT HASONEVALUE(CohortPeriod[COHORT_PERIOD]),
-            BLANK(),
-            IF(
-                PeriodNumber = 0,
-                FORMAT([Cohort Size], "0"),
-                IF(
-                    ISBLANK([Cohort Retention]),
-                    BLANK(),
-                    FORMAT([Cohort Retention], "0%")
-                )
-            )
-        )
-```
-
-`Cohort Cell` daje liczbę klientów w kolumnie `0` i procent w dalszych kolumnach. Formatowanie warunkowe oprzyj na numerycznej mierze `Cohort Retention`, nie na tekście komórki. Wyłącz sumy częściowe i końcowe. Do porównania bez DAX służy `vw_4_monthly_cohort_retention`; jego wartości są policzone dla całego zbioru i nie należy traktować ich jako dynamicznych wskaźników po dowolnym filtrowaniu.
-
-### 4. Dobór pól do wizualizacji
-
-| Wizualizacja | Oś / grupowanie | Miara | Filtr |
-| --- | --- | --- | --- |
-| Karty główne | — | Transakcje, klienci, wpłaty | Cały zbiór lub wybrana data |
-| Minimum i maksimum ceny | `Calendar[YEAR_MONTH]` | Minimum / maksimum transakcji | `MONTHLY` |
-| Wpłaty za model miesięczny | `Calendar[YEAR_MONTH]` | `Total Revenue` | `MONTHLY` |
-| Wpłaty według modelu | Miesiąc, legenda typu | `Total Revenue` | `MONTHLY`, `ANNUAL` |
-| Udział cen | Miesiąc, legenda `Price[PRICE_TYPE]` | `Total Transactions` na wykresie 100% lub `Price Transaction Share` | Wszystkie typy |
-| Nowi klienci i średnia kwota | Miesiąc | `New Customers`, `Average Transaction Value` | `MONTHLY` |
-| Kupujący według modelu | Miesiąc, legenda typu | `Total Customers` | `MONTHLY`, `ANNUAL` |
-| Macierz kohort | Kohorta × okres | `Cohort Cell` | `MONTHLY` |
-
-Dokładne ustawienia motywu, interakcji, linii trendu, zakładek i oryginalnych miar nie są częścią zachowanego SQL. Repozytorium zawiera dane i obliczenia potrzebne do odtworzenia analiz; nie zawiera pliku `.pbix` ani automatycznie zbudowanej kopii interfejsu raportu.
-
-## Zakres rekonstrukcji i weryfikacja
-
-Zachowane źródła obejmują CSV, fragment SQL, obraz modelu, obrazy raportu oraz publiczny raport. Pozwoliły zachować reguły cenowe, klasyfikację subskrypcji i widok statystyk, a także odtworzyć brakującą historię klientów, agregacje i retencję.
-
-| Element | Podstawa |
-| --- | --- |
-| Progi kwot, terminy odnowienia, listy cen, korekta kwoty | Zachowany SQL |
-| `vw_5_data_config_2`, wymiary typu i ceny, pierwsza data zakupu | Zachowany SQL; uzupełniona dokumentacja i pola pomocnicze |
-| `vw_1`, `vw_2`, `vw_3`, szczegółowi klienci i retencja | Odtworzenie na podstawie modelu, danych i wyników raportu |
-| Pełny kalendarz, sortowanie, ślad korekty, kontrola importu | Uzupełnienia zapewniające czytelne i powtarzalne przetwarzanie |
-| `vw_2_customer_value` | Jawna definicja wartości i historii klienta; pierwotna formuła `avg_LT` nie była dostępna |
-| Miary DAX w README | Nowe definicje do odtworzenia opisanej konfiguracji |
-
-Weryfikacja z 24 października 2026 r. objęła:
-
-- przeliczenie wszystkich 4227 transakcji i porównanie pól pochodnych z niezależnym obliczeniem;
-- zgodność liczby klientów, typów subskrypcji, kategorii cen, aktywnych klientów, średniej i mediany z raportem live;
-- uzgodnienie sum źródłowych i przetworzonych oraz pojedynczej korekty;
-- zgodność **783 komórek macierzy**, czyli 27 kohort × 29 okresów, z wartościami i pustymi polami raportu live;
-- unikalność kluczy wymiarów oraz uzgodnienie agregatów z faktami szczegółowymi.
-
-Logikę obliczeń wykonano w środowisku SQLite z adapterami funkcji dat MySQL i porównano z niezależnym przeliczeniem w Pythonie. **Nie wykonano importu, procedury ani pełnego przebiegu skryptów na natywnym serwerze MySQL; miary DAX nie były uruchamiane w Power BI Desktop.** Do sprawdzenia środowiska docelowego służy etap `5. Validation.sql`, zawierający wartości oczekiwane i pełną macierz referencyjną. Zgodność wyświetlanych procentów nie oznacza odzyskania pierwotnego kodu DAX.
-
+**Autor analizy i raportu:** Paweł Bugowski.  
+**Źródło danych:** KajoData, materiały udostępnione w ramach KajoDataSpace.
