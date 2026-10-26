@@ -217,7 +217,6 @@ The repository contains `Assets/`, `Raw Data/` and `SQL/` directories. The `READ
 | `SQL/3.2_Summary_Views.sql` | Store and monthly summaries, plus sales record detail |
 | `SQL/3.3_Sales_Views.sql` | Monthly volume, revenue, profit and margin |
 | `SQL/3.4_Inventory_Views.sql` | Stock on hand, days of inventory and retail valuation |
-| `SQL/4_Data_Validation.sql` | Quality checks, reference totals and view reconciliation |
 | `Assets/cover.webp`, `Assets/cover-thumb.webp` | Overview page preview and thumbnail |
 | `Assets/gallery-01.webp`, `Assets/gallery-01-thumb.webp` | Revenue analysis preview and thumbnail |
 | `Assets/gallery-02.webp`, `Assets/gallery-02-thumb.webp` | Profit analysis preview and thumbnail |
@@ -306,12 +305,6 @@ Zero stock with an existing sales history gives zero days. No history or a zero 
 The calculations assume the default MySQL setting `div_precision_increment = 4`. Intermediate division precision matters for values close to a rounding threshold.
 
 `vw_value` values each inventory record at its retail price. Both views retain the rows of the original store–product pairs, even though `STORE_ID` is not included in their final column lists.
-
-### 7. Checking and Reconciling Results
-
-`4_Data_Validation.sql` contains read-only queries. It checks table row counts, date coverage, missing references, invalid quantities and financial totals. It also compares the overall results from `vw_kpi` with the separate sales and inventory views.
-
-Reference values describe the supplied dataset. They are not used to overwrite data or force a particular result. The script also displays average margins by category and average days of inventory by product.
 
 ## Data Model and Aggregation Rules
 
@@ -455,7 +448,6 @@ A practical analysis sequence is to review the KPIs, select a category and locat
 | 4 | `3.2_Summary_Views.sql` | `vw_kpi`, `vw_landing`, `vw_data` |
 | 5 | `3.3_Sales_Views.sql` | `vw_volume`, `vw_revenue`, `vw_profit` |
 | 6 | `3.4_Inventory_Views.sql` | `vw_level`, `vw_value` |
-| 7 | `4_Data_Validation.sql` | Quality checks and result reconciliation |
 
 Each script selects the `toys_in_mexico` database. For standalone queries, use:
 
