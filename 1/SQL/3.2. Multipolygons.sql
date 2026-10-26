@@ -27,6 +27,9 @@
 -- and visualization in Power BI.
 -- -----------------------------------------------------------------------------------------------------------------
 
+-- Selects the NYC_ACCIDENTS database as the active database.
+USE NYC_ACCIDENTS;
+
 -- Creates a table containing the geographic boundaries of the NYC boroughs.
 CREATE TABLE IF NOT EXISTS borough_boundaries (
     ID INT AUTO_INCREMENT PRIMARY KEY,
