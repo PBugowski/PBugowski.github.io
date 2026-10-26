@@ -29,7 +29,8 @@
 -- further SQL analysis and Power BI reporting.
 -- -----------------------------------------------------------------------------------------------------------------
 
-USE NYC_ACCIDENTS;																									-- Selects the NYC_ACCIDENTS database as the active database.
+-- Selects the NYC_ACCIDENTS database as the active database.
+USE NYC_ACCIDENTS;
 
 UPDATE accidents
 SET
