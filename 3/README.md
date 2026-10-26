@@ -433,10 +433,9 @@ A practical analysis sequence is to review the KPIs, select a category and locat
 ### Environment Setup
 
 1. Download the repository and retain the CSV filenames.
-2. Check the paths in `SQL/2_Import_of_Data.sql`. If the client's working directory is not the repository root, provide absolute file paths.
+2. Check the path in `SQL/2_Import_of_Data.sql`. The client must resolve `'Raw Data/products.csv'` relative to its working directory; use the full file path if necessary.
 3. Ensure local file loading is enabled on both the server and the client. The script includes an optional commented statement, `SET GLOBAL local_infile = 1`; executing it requires appropriate permissions.
-4. Start with a new database and empty tables. Run the import once and inspect the `SHOW WARNINGS` messages.
-5. Create the views, then run validation and compare the reference totals.
+4. Run the scripts in a new database dedicated to this project, in the order shown below.
 
 ### Execution Order
 
