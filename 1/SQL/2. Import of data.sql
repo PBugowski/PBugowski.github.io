@@ -13,6 +13,8 @@
 -- the accidents table.
 -- -----------------------------------------------------------------------------------------------------------------
 
+USE WEBINAR_NYC_ACCIDENTS;																-- Selects the NYC_ACCIDENTS database as the active database.
+
 SET GLOBAL local_infile = 1; 															-- Enables loading local files into MySQL.
 
 LOAD DATA LOCAL INFILE 'C:/Users/pbugo/Desktop/Webinar/NYC.csv' 						-- Specifies the local CSV file containing the NYC accident data.
