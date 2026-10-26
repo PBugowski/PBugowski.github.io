@@ -1,39 +1,56 @@
--- 1. Creation of Database and Tables
+-- 1. Creation of Database and Tables with Appropriate Data Types
 -- -----------------------------------------------------------------------------------------------------------------
--- Creates the toys_in_mexico database and five tables for the source CSV files.
--- Run this script in a new database before the import and view scripts.
--- The scripts use MySQL 8.0 or later and follow their filename order.
+-- Creates the TOYS_IN_MEXICO database and five tables for the source CSV files.
+-- The tables store:
+--   - products: one catalog row per product, with its category, cost and price,
+--   - stores: one row per store, with its city, location type and opening date,
+--   - sales: one record per SALE_ID, with units sold for a product, store and date,
+--   - inventory: one stock snapshot per store and product,
+--   - calendar: one row per date in the supplied calendar.
 --
--- products stores one catalog row per product, including its cost and price.
--- stores stores one row per store. sales stores one row per SALE_ID, with the
--- number of units sold for one product at one store on a given date.
--- inventory contains one stock snapshot per store and product. calendar
--- contains one row per date and preserves the supplied date coverage.
+-- DECIMAL(10,2) stores costs and prices with two decimal places. INT is used
+-- for identifiers and unit counts. DATE stores calendar dates without time
+-- components, while VARCHAR stores names and category labels.
 --
--- Monetary values use DECIMAL to retain two decimal places. Identifiers and
--- unit counts use INT. Dates are stored without time components.
--- Product and store identifiers connect the tables. Source completeness is
--- checked separately by the validation script rather than foreign keys.
+-- Product, store, sales and calendar rows have individual primary keys.
+-- Inventory uses the combination of STORE_ID and PRODUCT_ID. The sales
+-- index follows product, store and date to support analysis at that level.
+-- References between tables are checked by the validation script rather
+-- than enforced through foreign keys.
 --
--- The database and tables are deliberately created without dropping existing
--- objects. Run the import once into empty tables. Recreating the views does
--- not require importing the source data again.
+-- The scripts use MySQL 8.0 syntax, including common table expressions.
+-- Execute them in the following order:
+--   1. Database and Tables
+--   2. Import of Data
+--   3.1. Dimension Views
+--   3.2. Summary Views
+--   3.3. Sales Views
+--   3.4. Inventory Views
+--   4. Data Validation
+--
+-- This script initializes a new database without dropping existing objects.
+-- Each subsequent script selects toys_in_mexico explicitly. Import the source
+-- files once into empty tables; recreating views does not require reimporting.
 -- -----------------------------------------------------------------------------------------------------------------
 
-CREATE DATABASE toys_in_mexico
-CHARACTER SET utf8mb4
-COLLATE utf8mb4_unicode_ci;
 
-USE toys_in_mexico;
+-- Database Setup
+-- -----------------------------------------------------------------------------------------------------------------
+CREATE DATABASE toys_in_mexico                                                       -- Creates the database used by the sales and inventory analysis.
+CHARACTER SET utf8mb4                                                                -- Sets UTF-8 character encoding.
+COLLATE utf8mb4_unicode_ci;                                                          -- Defines case-insensitive Unicode text comparison and sorting.
+
+
+USE TOYS_IN_MEXICO;                                                                  -- Selects the active database.
 
 
 -- Product Catalog
 -- -----------------------------------------------------------------------------------------------------------------
 CREATE TABLE products (
-    PRODUCT_ID INT PRIMARY KEY,                    -- PRIMARY KEY identifies each row and prevents duplicate identifiers.
+    PRODUCT_ID INT PRIMARY KEY,                                                      -- PRIMARY KEY identifies each row and prevents duplicate or missing identifiers.
     PRODUCT_NAME VARCHAR(255),
     PRODUCT_CATEGORY VARCHAR(255),
-    PRODUCT_COST DECIMAL(10,2),
+    PRODUCT_COST DECIMAL(10,2),                                                      -- Stores monetary amounts with two decimal places.
     PRODUCT_PRICE DECIMAL(10,2)
 );
 
@@ -45,11 +62,11 @@ CREATE TABLE stores (
     STORE_NAME VARCHAR(255),
     STORE_CITY VARCHAR(255),
     STORE_LOCATION VARCHAR(255),
-    STORE_OPEN_DATE DATE
+    STORE_OPEN_DATE DATE                                                             -- Stores the calendar date without a time component.
 );
 
 
--- Sales Transactions
+-- Sales Records
 -- -----------------------------------------------------------------------------------------------------------------
 CREATE TABLE sales (
     SALE_ID INT PRIMARY KEY,
@@ -57,7 +74,7 @@ CREATE TABLE sales (
     STORE_ID INT,
     PRODUCT_ID INT,
     UNITS INT,
-    INDEX idx_sales_product_store_date (PRODUCT_ID, STORE_ID, D_DATE)  -- Supports product/store grouping and distinct sales-date counts.
+    INDEX idx_sales_product_store_date (PRODUCT_ID, STORE_ID, D_DATE)                -- Creates an index ordered by product, store and date to support access using these fields.
 );
 
 
@@ -67,7 +84,7 @@ CREATE TABLE inventory (
     STORE_ID INT,
     PRODUCT_ID INT,
     STOCK_ON_HAND INT,
-    PRIMARY KEY (STORE_ID, PRODUCT_ID)              -- The combination identifies one inventory record for a product at a store.
+    PRIMARY KEY (STORE_ID, PRODUCT_ID)                                               -- The two-column key makes each store/product combination unique.
 );
 
 

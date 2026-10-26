@@ -1,32 +1,40 @@
--- 3.4. Creation of Inventory Views
+-- 3.4. Creation of Inventory and Stock Coverage Views
 -- -----------------------------------------------------------------------------------------------------------------
--- Creates vw_level and vw_value from the inventory snapshot. Each source store/product pair
--- remains one output row. The existing column lists omit STORE_ID, so rows with the same
--- product and location type can belong to different stores. They must not be deduplicated.
+-- Creates two views from the inventory snapshot:
+--   - vw_level: stock on hand and estimated days of inventory,
+--   - vw_value: retail inventory value.
 --
--- vw_level retains stock on hand and estimates DAYS_OF_INVENTORY. For each store/product
--- pair, average daily units equal total units sold divided by the number of distinct dates
--- with sales. Days without sales are excluded. The calculation uses the complete available
--- sales history, not a recent period or every calendar day.
+-- Each source store/product pair remains one output row. STORE_ID is not
+-- included in the output, so rows with the same product and location type
+-- can belong to different stores. They must not be deduplicated.
 --
--- Calculations assume the default MySQL div_precision_increment of 4. Integer division using
--- / gives a decimal result; the grouped daily average is stored with four fractional digits
--- before the outer calculation. Keep the existing expression and numeric types, because
--- changing intermediate precision can change the final rounded coverage.
+-- sales_by_product calculates average units sold per sales day for each
+-- product and store. Its denominator counts only dates with recorded sales
+-- for that pair. The complete sales history is used, rather than a recent
+-- period or every calendar day.
 --
--- Stock is divided by that daily average and rounded to one decimal place. A zero stock value
--- produces zero days when sales history exists. No sales history, or a zero daily average,
--- produces NULL. Keep this distinction rather than replacing missing coverage with zero. An
--- average of DAYS_OF_INVENTORY averages these already rounded pair-level values and ignores
--- NULL. It is not a ratio of combined stock to combined demand.
+-- DAYS_OF_INVENTORY divides stock by that daily average and rounds the
+-- result to one decimal place. Zero stock produces zero coverage when sales
+-- history exists. Missing history or a zero daily average produces NULL.
+-- A later average ignores NULL and uses the already rounded pair-level
+-- values; it is not combined stock divided by a combined sales rate.
 --
--- vw_value multiplies each stock quantity by its catalog selling price. Sum INVENTORY_VALUE
--- to obtain the retail value of the recorded stock. Neither inventory view has a stock date
--- or replenishment history. Their calculations do not establish lost sales or forecast the
--- exact date a product will run out.
+-- The calculations assume MySQL div_precision_increment = 4. The grouped
+-- daily average has four fractional digits before the outer division.
+-- Changing intermediate precision or numeric types can change the final
+-- rounded coverage, even when the underlying quantities are unchanged.
+--
+-- vw_value multiplies each stock quantity by its catalog selling price.
+-- Neither view contains a stock date or replenishment history. The coverage
+-- indicator does not establish lost sales or predict the exact date a
+-- product will run out. Run this script after importing all four source
+-- tables used by the views: inventory, sales, products and stores.
 -- -----------------------------------------------------------------------------------------------------------------
 
-USE toys_in_mexico;
+
+-- Active database choice
+-- -----------------------------------------------------------------------------------------------------------------
+USE TOYS_IN_MEXICO;                                                          		 -- Selects the active database for subsequent statements.
 
 
 -- Stock and Estimated Coverage
@@ -36,7 +44,7 @@ WITH sales_by_product AS (
     SELECT
         PRODUCT_ID,
         STORE_ID,
-        SUM(UNITS) / COUNT(DISTINCT D_DATE) AS AVG_DAILY_UNITS_SOLD  -- Counts only distinct dates with recorded sales for this pair.
+        SUM(UNITS) / COUNT(DISTINCT D_DATE) AS AVG_DAILY_UNITS_SOLD                  -- COUNT counts non-NULL values, or all rows with *; here it counts sales days per product/store pair.
     FROM sales
     GROUP BY
         PRODUCT_ID,
@@ -48,7 +56,7 @@ SELECT
     st.STORE_LOCATION,
     i.STOCK_ON_HAND,
     ROUND(
-        i.STOCK_ON_HAND / NULLIF(s.AVG_DAILY_UNITS_SOLD, 0),
+        i.STOCK_ON_HAND / NULLIF(s.AVG_DAILY_UNITS_SOLD, 0),                         -- Compares the recorded stock with the historical daily sales average for the same pair.
         1
     ) AS DAYS_OF_INVENTORY
 FROM inventory i
@@ -68,7 +76,7 @@ SELECT
     p.PRODUCT_CATEGORY,
     p.PRODUCT_NAME,
     st.STORE_LOCATION,
-    i.STOCK_ON_HAND * p.PRODUCT_PRICE AS INVENTORY_VALUE
+    i.STOCK_ON_HAND * p.PRODUCT_PRICE AS INVENTORY_VALUE                             -- Values the snapshot at the catalog selling price rather than product cost.
 FROM inventory i
 JOIN products p
     ON i.PRODUCT_ID = p.PRODUCT_ID

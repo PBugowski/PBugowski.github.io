@@ -1,26 +1,36 @@
 -- 3.3. Creation of Monthly Sales Views
 -- -----------------------------------------------------------------------------------------------------------------
--- Creates vw_volume, vw_revenue and vw_profit. Each row represents one product, category,
--- store location type, year and month. Store locations are grouped across all stores of that
--- type. The views retain all products, allowing rankings to be calculated after selecting the
--- required categories and locations.
+-- Creates three views for monthly sales analysis:
+--   - vw_volume: units sold,
+--   - vw_revenue: revenue,
+--   - vw_profit: profit and profit margin.
 --
--- vw_volume contains units sold, vw_revenue contains revenue, and vw_profit contains profit
--- and PROFIT_MARGIN. Revenue and profit use the catalog assumptions defined in the summary
--- script.
+-- Each row represents one product, category, store location type, year and
+-- month. Stores sharing a location type are grouped together; these are not
+-- individual store summaries. The calculations use the catalog prices and
+-- costs defined in the summary script.
 --
--- PROFIT_MARGIN is calculated for each grouped row as profit divided by revenue, then rounded
--- to two decimal places as a ratio. A value of 0.30 represents 30%. This rounding is retained
--- before any subsequent averaging. AVG(PROFIT_MARGIN) gives equal weight to the returned
--- product/location/year/month rows. It is not the same calculation as SUM(PROFIT) /
--- SUM(REVENUE), which weights results by revenue.
+-- PROFIT_MARGIN divides group profit by group revenue and rounds the ratio
+-- to two decimal places. A value of 0.30 represents 30%. Zero revenue leaves
+-- the margin undefined as NULL rather than causing division by zero.
 --
--- YEAR keeps the source years separate. Grouping only by MONTH_NUMBER or MONTH_NAME in a
--- later query combines those years. The same English month-name session setting is required
--- as in the summary script.
+-- A later average of PROFIT_MARGIN gives equal weight to the returned rows
+-- and uses values that have already been rounded. It is not equivalent to
+-- dividing total profit by total revenue. Preserve the calculation order
+-- when comparing category averages with the supplied reference values.
+--
+-- The YEAR column keeps identical months in different years separate.
+-- Aggregating only by month number or name combines those years again.
+-- All products remain available; any ranking is applied by a later query
+-- after the required category and location filters have been selected.
+--
+-- Run this script after importing sales, products and stores.
 -- -----------------------------------------------------------------------------------------------------------------
 
-USE toys_in_mexico;
+
+-- Active database choice
+-- -----------------------------------------------------------------------------------------------------------------
+USE TOYS_IN_MEXICO;                                                          		 -- Selects the active database for subsequent statements.
 
 
 -- Monthly Units Sold
@@ -30,7 +40,7 @@ SELECT
     p.PRODUCT_CATEGORY,
     p.PRODUCT_NAME,
     st.STORE_LOCATION,
-    YEAR(s.D_DATE) AS YEAR,                    -- Extracts the calendar year so identical months remain separate.
+    YEAR(s.D_DATE) AS YEAR,                                                          -- YEAR extracts the calendar year, keeping the same month in different years separate.
     MONTH(s.D_DATE) AS MONTH_NUMBER,
     MONTHNAME(s.D_DATE) AS MONTH_NAME,
     SUM(s.UNITS) AS UNITS_SOLD
@@ -84,13 +94,13 @@ SELECT
     MONTH(s.D_DATE) AS MONTH_NUMBER,
     MONTHNAME(s.D_DATE) AS MONTH_NAME,
     SUM(s.UNITS * (p.PRODUCT_PRICE - p.PRODUCT_COST)) AS PROFIT,
-    ROUND(
+    ROUND(                                                                           -- ROUND keeps the specified number of decimal places in the group margin ratio.
         (
             SUM(s.UNITS * (p.PRODUCT_PRICE - p.PRODUCT_COST))
-            / NULLIF(SUM(s.UNITS * p.PRODUCT_PRICE), 0)  -- A zero denominator becomes NULL, avoiding division by zero.
+            / NULLIF(SUM(s.UNITS * p.PRODUCT_PRICE), 0)                              -- Zero group revenue leaves the margin undefined instead of dividing by zero.
         ),
         2
-    ) AS PROFIT_MARGIN                        -- ROUND retains the original two-decimal ratio before later averaging.
+    ) AS PROFIT_MARGIN
 FROM sales s
 JOIN products p
     ON s.PRODUCT_ID = p.PRODUCT_ID

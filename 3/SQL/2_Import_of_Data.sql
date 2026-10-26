@@ -1,50 +1,56 @@
--- 2. Importing Data from CSV
+-- 2. Importing Source Data from CSV
 -- -----------------------------------------------------------------------------------------------------------------
--- Imports products, stores, sales, inventory and calendar from the Raw Data folder. The
--- relative paths are resolved by the MySQL client. Start the client from the directory
--- containing Raw Data or replace each path with an absolute path.
+-- Imports products, stores, sales, inventory and calendar from Raw Data into
+-- the tables created by the database script. The import process:
+--   - reads comma-separated values with optional double quotation marks,
+--   - skips each CSV header,
+--   - temporarily stores source text in user variables,
+--   - removes surrounding spaces and converts empty text to NULL,
+--   - removes currency symbols from product costs and prices,
+--   - parses source dates and removes a trailing carriage return.
 --
--- The column lists follow the original CSV order. Product costs and prices contain a dollar
--- sign and trailing spaces. Sales dates and store opening dates use YYYY-MM-DD; calendar
--- dates use M/D/YYYY. The import removes surrounding spaces and a trailing carriage return
--- from the last field, and converts dates explicitly. Empty source values become NULL. No
--- sales, prices or stock quantities are corrected or deduplicated.
+-- The variable lists follow the original column order in each CSV. Sales
+-- and store opening dates use YYYY-MM-DD; calendar dates use M/D/YYYY.
+-- Product amounts contain a dollar sign and may include trailing spaces.
+-- The final field of each row is cleaned for files using CRLF line endings.
+-- The script does not correct quantities, update prices or deduplicate rows.
 --
--- Run the import once into the empty tables created by script 1. Inspect each SHOW WARNINGS
--- result and resolve any skipped rows or conversion warnings before continuing. Local file
--- loading must be enabled by both the server and the client. The commented server setting is
--- only needed when local_infile is disabled and requires administrative privileges.
+-- The relative paths are resolved by the MySQL client. Its working directory
+-- must contain Raw Data, or the paths must be adjusted to the source files.
+-- Local loading must be enabled on both the server and the client. The
+-- commented server setting is optional and requires administrative privileges.
 -- -----------------------------------------------------------------------------------------------------------------
 
-USE toys_in_mexico;
+
+-- Active database choice
+-- -----------------------------------------------------------------------------------------------------------------
+USE TOYS_IN_MEXICO;                                                          		 		-- Selects the active database for subsequent statements.
 
 
--- SET GLOBAL local_infile = 1;  -- Enable on the server only if local loading is currently disabled.
+-- Local File Loading
+-- -----------------------------------------------------------------------------------------------------------------
+SET GLOBAL local_infile = 1;                                                         		-- Enables local file loading on the server.
 
 
 -- Products Import
 -- -----------------------------------------------------------------------------------------------------------------
-
-LOAD DATA LOCAL INFILE 'Raw Data/products.csv'       -- Reads the CSV from the client computer.
-INTO TABLE products
-FIELDS TERMINATED BY ','                           -- Separates source columns with commas.
-OPTIONALLY ENCLOSED BY '"'                         -- Allows quoted field values.
-LINES TERMINATED BY '\n'                           -- Reads LF records; The last field is cleaned separately for CRLF files.
-IGNORE 1 ROWS                                     -- Skips the header.
-(@PRODUCT_ID, @PRODUCT_NAME, @PRODUCT_CATEGORY, @PRODUCT_COST, @PRODUCT_PRICE)  -- User variables hold source text before conversion.
+LOAD DATA LOCAL INFILE 'Raw Data/products.csv'                                       		-- Reads the CSV from the client computer.
+INTO TABLE products                                                                  		-- Specifies the destination table.
+FIELDS TERMINATED BY ','                                                             		-- Uses commas to separate source columns.
+OPTIONALLY ENCLOSED BY '"'                                                           		-- Allows field values to be enclosed in double quotation marks.
+LINES TERMINATED BY '\n'                                                             		-- Uses newline characters to separate source records.
+IGNORE 1 ROWS                                                                        		-- Skips the column names in the first row.
+(@PRODUCT_ID, @PRODUCT_NAME, @PRODUCT_CATEGORY, @PRODUCT_COST, @PRODUCT_PRICE)       		-- Reads source text into variables before assigning table columns.
 SET
-    PRODUCT_ID = NULLIF(TRIM(@PRODUCT_ID), ''),  -- TRIM removes surrounding spaces; NULLIF converts empty text to NULL.
+    PRODUCT_ID = NULLIF(TRIM(@PRODUCT_ID), ''),                                      		-- TRIM removes surrounding spaces; NULLIF returns NULL when its two arguments are equal.
     PRODUCT_NAME = NULLIF(TRIM(@PRODUCT_NAME), ''),
     PRODUCT_CATEGORY = NULLIF(TRIM(@PRODUCT_CATEGORY), ''),
-    PRODUCT_COST = NULLIF(TRIM(REPLACE(@PRODUCT_COST, '$', '')), ''),  -- REPLACE removes the currency symbol before the DECIMAL conversion.
-    PRODUCT_PRICE = NULLIF(TRIM(REPLACE(REPLACE(@PRODUCT_PRICE, '\r', ''), '$', '')), '');  -- Removes the final CR character when the source uses CRLF records.
-
-SHOW WARNINGS;  -- Check import diagnostics immediately, before running another statement.
+    PRODUCT_COST = NULLIF(TRIM(REPLACE(@PRODUCT_COST, '$', '')), ''),                		-- REPLACE substitutes matching text; an empty replacement removes the currency symbol.
+    PRODUCT_PRICE = NULLIF(TRIM(REPLACE(REPLACE(@PRODUCT_PRICE, '\r', ''), '$', '')), ''); 	-- Also removes a trailing carriage return from the final field of a CRLF record.
 
 
 -- Stores Import
 -- -----------------------------------------------------------------------------------------------------------------
-
 LOAD DATA LOCAL INFILE 'Raw Data/stores.csv'
 INTO TABLE stores
 FIELDS TERMINATED BY ','
@@ -57,14 +63,11 @@ SET
     STORE_NAME = NULLIF(TRIM(@STORE_NAME), ''),
     STORE_CITY = NULLIF(TRIM(@STORE_CITY), ''),
     STORE_LOCATION = NULLIF(TRIM(@STORE_LOCATION), ''),
-    STORE_OPEN_DATE = STR_TO_DATE(NULLIF(TRIM(REPLACE(@STORE_OPEN_DATE, '\r', '')), ''), '%Y-%m-%d');  -- STR_TO_DATE parses text using the specified source-date format.
-
-SHOW WARNINGS;
+    STORE_OPEN_DATE = STR_TO_DATE(NULLIF(TRIM(REPLACE(@STORE_OPEN_DATE, '\r', '')), ''), '%Y-%m-%d'); -- STR_TO_DATE parses the text according to the specified year-month-day format.
 
 
 -- Sales Import
 -- -----------------------------------------------------------------------------------------------------------------
-
 LOAD DATA LOCAL INFILE 'Raw Data/sales.csv'
 INTO TABLE sales
 FIELDS TERMINATED BY ','
@@ -79,12 +82,9 @@ SET
     PRODUCT_ID = NULLIF(TRIM(@PRODUCT_ID), ''),
     UNITS = NULLIF(TRIM(REPLACE(@UNITS, '\r', '')), '');
 
-SHOW WARNINGS;
-
 
 -- Inventory Import
 -- -----------------------------------------------------------------------------------------------------------------
-
 LOAD DATA LOCAL INFILE 'Raw Data/inventory.csv'
 INTO TABLE inventory
 FIELDS TERMINATED BY ','
@@ -97,12 +97,9 @@ SET
     PRODUCT_ID = NULLIF(TRIM(@PRODUCT_ID), ''),
     STOCK_ON_HAND = NULLIF(TRIM(REPLACE(@STOCK_ON_HAND, '\r', '')), '');
 
-SHOW WARNINGS;
-
 
 -- Calendar Import
 -- -----------------------------------------------------------------------------------------------------------------
-
 LOAD DATA LOCAL INFILE 'Raw Data/calendar.csv'
 INTO TABLE calendar
 FIELDS TERMINATED BY ','
@@ -111,6 +108,4 @@ LINES TERMINATED BY '\n'
 IGNORE 1 ROWS
 (@D_DATE)
 SET
-    D_DATE = STR_TO_DATE(NULLIF(TRIM(REPLACE(@D_DATE, '\r', '')), ''), '%m/%d/%Y');
-
-SHOW WARNINGS;
+    D_DATE = STR_TO_DATE(NULLIF(TRIM(REPLACE(@D_DATE, '\r', '')), ''), '%m/%d/%Y');  -- The calendar file supplies month/day/year dates, unlike the other date sources.
