@@ -24,7 +24,10 @@
 -- counting view rows is not equivalent to counting unique customers.
 -- -----------------------------------------------------------------------------------------------------------------
 
-USE KDS_Transactions;
+
+-- Active database choice
+-- -----------------------------------------------------------------------------------------------------------------
+USE KDS_Transactions;																-- Selects the active database for subsequent statements.	
 
 
 -- Cohort Activity Detail
@@ -35,4 +38,4 @@ SELECT DISTINCT
     TRANSACTION_DATE,
     TRANSACTION_TYPE,
     PROMOTION_PRICE
-FROM transactions;                                                                    -- Retains activity across all plans for the first-purchase calculation.
+FROM transactions;                                                                  -- Retains activity across all plans for the first-purchase calculation.

@@ -28,18 +28,21 @@
 -- identifier resolves ties according to the original CSV row order.
 -- -----------------------------------------------------------------------------------------------------------------
 
-USE KDS_Transactions;
+
+-- Active database choice
+-- -----------------------------------------------------------------------------------------------------------------
+USE KDS_Transactions;																		-- Selects the active database for subsequent statements.	
 
 
 -- Customer Value and Observed Lifetime
 -- -----------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE VIEW vw_2_kpi AS
-WITH customer_value AS (                                                              -- WITH defines named intermediate query results used by this view.
+WITH customer_value AS (                                                            		-- WITH defines named intermediate query results used by this view.
     SELECT
         CLIENT_ID,
         COUNT(*) AS TRANSACTION_COUNT,
         SUM(TRANSACTION_VALUE) AS LTV,
-        DATEDIFF(MAX(TRANSACTION_DATE), MIN(TRANSACTION_DATE)) AS OBSERVED_LIFETIME_DAYS  -- DATEDIFF returns the number of days between the latest and earliest purchase dates.
+        DATEDIFF(MAX(TRANSACTION_DATE), MIN(TRANSACTION_DATE)) AS OBSERVED_LIFETIME_DAYS  	-- DATEDIFF returns the number of days between the latest and earliest purchase dates.
     FROM transactions
     GROUP BY CLIENT_ID
 ),
@@ -47,9 +50,9 @@ latest_transaction AS (
     SELECT
         CLIENT_ID,
         TRANSACTION_TYPE,
-        ROW_NUMBER() OVER (                                                           -- Assigns consecutive positions to transactions in each customer partition.
-            PARTITION BY CLIENT_ID                                                    -- Restarts the purchase numbering for each customer.
-            ORDER BY TRANSACTION_DATE DESC, TRANSACTION_ID DESC                       -- Places the latest date first and resolves same-day ties by transaction ID.
+        ROW_NUMBER() OVER (                                                           		-- Assigns consecutive positions to transactions in each customer partition.
+            PARTITION BY CLIENT_ID                                                   	 	-- Restarts the purchase numbering for each customer.
+            ORDER BY TRANSACTION_DATE DESC, TRANSACTION_ID DESC                       		-- Places the latest date first and resolves same-day ties by transaction ID.
         ) AS RN
     FROM transactions
 )
@@ -60,9 +63,9 @@ SELECT
     c.OBSERVED_LIFETIME_DAYS AS avg_LT,
     t.TRANSACTION_TYPE AS transaction_type
 FROM customer_value c
-JOIN latest_transaction t                                                             -- Connects each customer summary with that customer's transaction sequence.
+JOIN latest_transaction t                                                             		-- Connects each customer summary with that customer's transaction sequence.
     ON c.CLIENT_ID = t.CLIENT_ID
-WHERE t.RN = 1;                                                                       -- Keeps the subscription type from the latest observed transaction.
+WHERE t.RN = 1;                                                                       		-- Keeps the subscription type from the latest observed transaction.
 
 
 -- Transactions with First-Purchase Identification
@@ -78,7 +81,7 @@ WITH numbered_transactions AS (
         PROMOTION_PRICE,
         ROW_NUMBER() OVER (
             PARTITION BY CLIENT_ID
-            ORDER BY TRANSACTION_DATE, TRANSACTION_ID                                 -- Places the earliest observed purchase first, with ID resolving same-day ties.
+            ORDER BY TRANSACTION_DATE, TRANSACTION_ID                                 		-- Places the earliest observed purchase first, with ID resolving same-day ties.
         ) AS PURCHASE_NUMBER
     FROM transactions
 )
@@ -90,7 +93,7 @@ SELECT
     TRANSACTION_TYPE,
     PROMOTION_PRICE,
     CASE
-        WHEN PURCHASE_NUMBER = 1 THEN 1                                               -- Flags only the first observed purchase as a new customer.
+        WHEN PURCHASE_NUMBER = 1 THEN 1                                               		-- Flags only the first observed purchase as a new customer.
         ELSE 0
     END AS NEW_CLIENT
 FROM numbered_transactions;

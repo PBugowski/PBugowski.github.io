@@ -31,14 +31,17 @@
 -- actually took place.
 -- -----------------------------------------------------------------------------------------------------------------
 
-USE KDS_Transactions;
+
+-- Active database choice
+-- -----------------------------------------------------------------------------------------------------------------
+USE KDS_Transactions;																	-- Selects the active database for subsequent statements.	
 
 
 -- Subscription Types
 -- -----------------------------------------------------------------------------------------------------------------
 UPDATE transactions
 SET TRANSACTION_TYPE =
-    CASE                                                                              -- Evaluates the amount against the subscription rules; unmatched values remain NULL.
+    CASE                                                                           		-- Evaluates the amount against the subscription rules; unmatched values remain NULL.
         WHEN TRANSACTION_VALUE < 260
             THEN 'MONTHLY'
         WHEN TRANSACTION_VALUE > 260
@@ -55,7 +58,7 @@ UPDATE transactions
 SET EXPECTED_RENEWAL_DATE =
     CASE
         WHEN TRANSACTION_TYPE = 'MONTHLY'
-            THEN DATE_ADD(TRANSACTION_DATE, INTERVAL 1 MONTH)                         -- DATE_ADD advances the date by the specified number of calendar months.
+            THEN DATE_ADD(TRANSACTION_DATE, INTERVAL 1 MONTH)                       	-- DATE_ADD advances the date by the specified number of calendar months.
         WHEN TRANSACTION_TYPE = 'SEMI-ANNUAL'
             THEN DATE_ADD(TRANSACTION_DATE, INTERVAL 6 MONTH)
         WHEN TRANSACTION_TYPE = 'ANNUAL'
@@ -68,7 +71,7 @@ SET EXPECTED_RENEWAL_DATE =
 -- -----------------------------------------------------------------------------------------------------------------
 UPDATE transactions
 SET TRANSACTION_VALUE = 99
-WHERE TRANSACTION_ID = 299;                                                           -- Applies the existing correction to this specific imported transaction.
+WHERE TRANSACTION_ID = 299;                                                          	-- Applies the existing correction to this specific imported transaction.
 
 
 -- Regular and Non-Standard Prices
@@ -77,16 +80,16 @@ UPDATE transactions
 SET PROMOTION_PRICE =
     CASE
         WHEN TRANSACTION_DATE < '2024-09-10'
-             AND TRANSACTION_VALUE IN (99, 495, 990)                                  -- IN tests whether the amount matches one of the regular prices before 2024-09-10.
+             AND TRANSACTION_VALUE IN (99, 495, 990)                                	-- IN tests whether the amount matches one of the regular prices before 2024-09-10.
             THEN 'NO'
-        WHEN TRANSACTION_DATE >= '2024-09-10'                                         -- Starts the next price period, ending before 2025-09-12.
+        WHEN TRANSACTION_DATE >= '2024-09-10'                                         	-- Starts the next price period, ending before 2025-09-12.
              AND TRANSACTION_DATE < '2025-09-12'
              AND TRANSACTION_VALUE IN (199, 1799)
             THEN 'NO'
-        WHEN TRANSACTION_DATE >= '2025-09-12'                                         -- Applies the latest regular-price period.
+        WHEN TRANSACTION_DATE >= '2025-09-12'                                       	-- Applies the latest regular-price period.
              AND TRANSACTION_VALUE IN (249, 1999)
             THEN 'NO'
-        ELSE 'YES'                                                                    -- Labels every remaining amount as a non-standard price.
+        ELSE 'YES'                                                                    	-- Labels every remaining amount as a non-standard price.
     END;
 
 
@@ -94,5 +97,5 @@ SET PROMOTION_PRICE =
 -- -----------------------------------------------------------------------------------------------------------------
 UPDATE transactions
 SET
-    TRANSACTION_YEAR = YEAR(TRANSACTION_DATE),                                        -- YEAR extracts the calendar year.
-    TRANSACTION_MONTH_NUMBER = MONTH(TRANSACTION_DATE);                               -- MONTH extracts the calendar month number from 1 to 12.
+    TRANSACTION_YEAR = YEAR(TRANSACTION_DATE),                                       	-- YEAR extracts the calendar year.
+    TRANSACTION_MONTH_NUMBER = MONTH(TRANSACTION_DATE);									-- MONTH extracts the calendar month number from 1 to 12.

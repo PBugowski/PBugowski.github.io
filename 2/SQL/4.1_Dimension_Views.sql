@@ -24,15 +24,18 @@
 -- rather than storing separate copies of the lookup values.
 -- -----------------------------------------------------------------------------------------------------------------
 
-USE KDS_Transactions;
+
+-- Active database choice
+-- -----------------------------------------------------------------------------------------------------------------
+USE KDS_Transactions;																-- Selects the active database for subsequent statements.	
 
 
 -- Subscription Type Dimension
 -- -----------------------------------------------------------------------------------------------------------------
-CREATE OR REPLACE VIEW vw_dim_transaction_type AS                                     -- Creates the view or replaces its existing definition.
-SELECT DISTINCT TRANSACTION_TYPE                                                      -- DISTINCT keeps one row for each different combination of selected values.
+CREATE OR REPLACE VIEW vw_dim_transaction_type AS                                   -- Creates the view or replaces its existing definition.
+SELECT DISTINCT TRANSACTION_TYPE                                                    -- DISTINCT keeps one row for each different combination of selected values.
 FROM transactions
-WHERE TRANSACTION_TYPE IS NOT NULL                                                    -- Excludes missing subscription categories.
+WHERE TRANSACTION_TYPE IS NOT NULL                                                  -- Excludes missing subscription categories.
 ORDER BY TRANSACTION_TYPE;
 
 
@@ -50,7 +53,7 @@ ORDER BY TRANSACTION_YEAR;
 CREATE OR REPLACE VIEW vw_dim_date_month AS
 SELECT DISTINCT
     MONTH(TRANSACTION_DATE) AS TRANSACTION_MONTH_NUMBER,
-    MONTHNAME(TRANSACTION_DATE) AS TRANSACTION_MONTH_NAME                             -- Returns the month name in the current MySQL session language.
+    MONTHNAME(TRANSACTION_DATE) AS TRANSACTION_MONTH_NAME                           -- Returns the month name in the current MySQL session language.
 FROM transactions
 WHERE TRANSACTION_DATE IS NOT NULL
 ORDER BY TRANSACTION_MONTH_NUMBER;

@@ -31,6 +31,9 @@
 -- KDS_Transactions explicitly before accessing its tables or views.
 -- -----------------------------------------------------------------------------------------------------------------
 
+
+-- Database Setup
+-- -----------------------------------------------------------------------------------------------------------------
 CREATE DATABASE KDS_Transactions                                                      -- Creates the database used by the transaction analysis.
 CHARACTER SET utf8mb4                                                                 -- Sets UTF-8 character encoding.
 COLLATE utf8mb4_unicode_ci;                                                           -- Defines case-insensitive Unicode text comparison and sorting.
@@ -39,6 +42,8 @@ COLLATE utf8mb4_unicode_ci;                                                     
 USE KDS_Transactions;                                                                 -- Selects the active database.
 
 
+-- Transaction Records
+-- -----------------------------------------------------------------------------------------------------------------
 CREATE TABLE transactions(
 TRANSACTION_ID INT PRIMARY KEY AUTO_INCREMENT,                                        -- Assigns a unique, automatically incremented identifier to each imported row.
 TRANSACTION_DATE DATE,                                                                -- Stores the calendar date without the source timestamp.

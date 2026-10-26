@@ -17,7 +17,10 @@
 -- validity or expected renewal status.
 -- -----------------------------------------------------------------------------------------------------------------
 
-USE KDS_Transactions;
+
+-- Active database choice
+-- -----------------------------------------------------------------------------------------------------------------
+USE KDS_Transactions;																-- Selects the active database for subsequent statements.	
 
 
 -- Daily Revenue and Transaction Counts
@@ -27,10 +30,10 @@ SELECT
     TRANSACTION_DATE,
     TRANSACTION_TYPE,
     PROMOTION_PRICE,
-    COUNT(*) AS NUMBER_OF_TRANSACTIONS,                                               -- Counts all transaction rows within the group.
-    SUM(TRANSACTION_VALUE) AS TOTAL_REVENUE                                           -- Adds the transaction amounts within the group.
+    COUNT(*) AS NUMBER_OF_TRANSACTIONS,                                             -- Counts all transaction rows within the group.
+    SUM(TRANSACTION_VALUE) AS TOTAL_REVENUE                                         -- Adds the transaction amounts within the group.
 FROM transactions
-GROUP BY                                                                              -- Produces a separate summary for each date, subscription type and price category.
+GROUP BY                                                                            -- Produces a separate summary for each date, subscription type and price category.
     TRANSACTION_DATE,
     TRANSACTION_TYPE,
     PROMOTION_PRICE;
@@ -54,7 +57,7 @@ SELECT
     TRANSACTION_DATE,
     TRANSACTION_TYPE,
     PROMOTION_PRICE,
-    COUNT(DISTINCT CLIENT_ID) AS ACTIVE_USERS,                                        -- Counts each customer once within the current group.
+    COUNT(DISTINCT CLIENT_ID) AS ACTIVE_USERS,                                      -- Counts each customer once within the current group.
     COUNT(*) AS NUMBER_OF_TRANSACTIONS,
     SUM(TRANSACTION_VALUE) AS TOTAL_REVENUE
 FROM transactions
