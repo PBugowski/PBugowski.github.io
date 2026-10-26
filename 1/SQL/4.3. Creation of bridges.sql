@@ -23,6 +23,9 @@
 -- the relevant visualizations and dashboards.
 -- -----------------------------------------------------------------------------------------------------------------
 
+-- Selects the NYC_ACCIDENTS database as the active database.
+USE NYC_ACCIDENTS;
+
 -- Creates a bridge view connecting DIM_VEHICLE_VW with the P1_VW.
 CREATE OR REPLACE VIEW BRIDGE_VEHICLE_P1_VW AS
 SELECT COLLISION_ID, VEHICLE_TYPE_CODE_1 AS VEHICLE_TYPE
