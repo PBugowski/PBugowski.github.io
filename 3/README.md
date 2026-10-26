@@ -455,8 +455,6 @@ Each script selects the `toys_in_mexico` database. For standalone queries, use:
 USE toys_in_mexico;
 ```
 
-Month names should be read in a session with `lc_time_names = 'en_US'`, and division calculations should use the default `div_precision_increment = 4`.
-
 The scripts provide a process for reproducing the data, not migrations intended for unrestricted repeated execution. Primary keys prevent the same identifiers from being inserted again, but repeated imports can produce skipped rows and warnings. They are not a source update procedure. View definitions can be rerun using `CREATE OR REPLACE VIEW` without reloading the CSV files.
 
 ### Recreating the Power BI Layer
