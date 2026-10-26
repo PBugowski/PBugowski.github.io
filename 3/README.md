@@ -1,336 +1,334 @@
-# Maven Toys — sprzedaż i zapasy w sklepach z zabawkami w Meksyku
+# Maven Toys — Sales and Inventory in Mexican Toy Stores
 
-## Od danych sprzedażowych do analizy produktów, lokalizacji i stanów magazynowych
+## From Sales Data to Product, Location and Inventory Analysis
 
-Projekt analityczny łączący **MySQL, analizę sprzedaży i zapasów oraz Power BI**. Na podstawie historii sprzedaży, katalogu produktów, informacji o sklepach i stanów magazynowych przedstawia skalę działalności sieci Maven Toys, udział poszczególnych kategorii w przychodzie i zysku oraz strukturę zapasu.
+An analytics project combining **MySQL, sales and inventory analysis, and Power BI**. Using sales history, a product catalog, store information and inventory records, it presents the scale of the Maven Toys chain, each category's contribution to revenue and profit, and the composition of stock.
 
-Przygotowałem tę analizę, aby porównać popularność produktów z ich rentownością i dostępnością. Zestawiłem liczbę sprzedanych sztuk z przychodem i zyskiem, uwzględniając kategorie produktów, rodzaje lokalizacji sklepów oraz rozkład sprzedaży w czasie. Część magazynowa uzupełnia ten obraz o ilość i wartość zapasu oraz wskaźnik jego pokrycia historyczną sprzedażą.
+I prepared this analysis to compare product popularity with profitability and availability. I examined units sold alongside revenue and profit, considering product categories, store location types and sales patterns over time. The inventory analysis adds stock quantities, retail inventory value and a coverage indicator based on historical sales.
 
-**[Otwórz interaktywny raport w Power BI](https://app.powerbi.com/view?r=eyJrIjoiNjZmM2I0Y2QtNmYzMC00ODE4LWJiOTQtZDQzODA5MmIzN2Q0IiwidCI6ImE0ZmE1ZWNhLTdhM2YtNDRhYS04ZTI4LTc2MjBhMzk0NjEwZiJ9)**
+**[Open the interactive Power BI report](https://app.powerbi.com/view?r=eyJrIjoiNjZmM2I0Y2QtNmYzMC00ODE4LWJiOTQtZDQzODA5MmIzN2Q0IiwidCI6ImE0ZmE1ZWNhLTdhM2YtNDRhYS04ZTI4LTc2MjBhMzk0NjEwZiJ9)**
 
-> **Zakres danych:** od 1 stycznia 2022 do 30 września 2023 r., łącznie 829 262 rekordy sprzedaży w 638 dniach i 21 miesiącach kalendarzowych. Dane obejmują pełny 2022 r. oraz pierwsze trzy kwartały 2023 r. Stany magazynowe są pojedynczym zapisem, bez historii zmian i daty przypisanej do każdego rekordu.
+> **Data coverage:** January 1, 2022 to September 30, 2023, with 829,262 sales records across 638 days and 21 calendar months. The data covers the full year of 2022 and the first three quarters of 2023. Inventory is a single snapshot, with no change history or date assigned to individual records.
 
-| Element | Zakres |
+| Item | Scope |
 | --- | --- |
-| Autor analizy i raportu | Paweł Bugowski |
-| Przedmiot analizy | Sprzedaż, przychody, zysk i zapasy sieci sklepów z zabawkami |
-| Źródło | Maven Analytics — zbiór Mexico Toy Sales |
-| Charakter danych | Dane fikcyjnej sieci Maven Toys |
-| Dane wejściowe | 5 plików CSV w katalogu `Raw Data/` |
-| Sprzedaż | 829 262 rekordy, 1 090 565 sprzedanych sztuk |
-| Sieć i asortyment | 50 sklepów, 35 produktów, 5 kategorii i 4 rodzaje lokalizacji |
-| Przygotowanie danych | 7 udokumentowanych skryptów MySQL |
-| Warstwa SQL | 5 tabel źródłowych i 10 widoków |
-| Model raportowy | 2 wspólne wymiary i 8 widoków analitycznych |
-| Raport | 6 stron Power BI |
-| Udostępnienie raportu | KajoDataSpace, zgodnie ze stopką raportu |
+| Analysis and report author | Paweł Bugowski |
+| Subject | Sales, revenue, profit and inventory across a toy store chain |
+| Source | Maven Analytics — Mexico Toy Sales dataset |
+| Data type | Data for the fictional Maven Toys chain |
+| Input data | 5 CSV files in `Raw Data/` |
+| Sales | 829,262 records, 1,090,565 units sold |
+| Stores and assortment | 50 stores, 35 products, 5 categories and 4 location types |
+| Data preparation | 7 documented MySQL scripts |
+| SQL layer | 5 source tables and 10 views |
+| Reporting model | 2 shared dimensions and 8 analytical views |
+| Report | 6 Power BI pages |
+| Report hosting | KajoDataSpace, as credited in the report footer |
 
-## Spis treści
+## Table of Contents
 
-- [Cele i pytania analityczne](#cele-i-pytania-analityczne)
-- [Dane i zakres analizy](#dane-i-zakres-analizy)
-- [Najważniejsze wyniki](#najważniejsze-wyniki)
-- [Zawartość repozytorium](#zawartość-repozytorium)
-- [Przygotowanie danych w SQL](#przygotowanie-danych-w-sql)
-- [Model danych i zasady agregacji](#model-danych-i-zasady-agregacji)
-- [Raport Power BI](#raport-power-bi)
-- [Jak odtworzyć projekt](#jak-odtworzyć-projekt)
-- [Kontrola jakości danych i zapytania walidacyjne](#kontrola-jakości-danych-i-zapytania-walidacyjne)
-- [Źródła i autor](#źródła-i-autor)
+- [Objectives and Analytical Questions](#objectives-and-analytical-questions)
+- [Data and Scope](#data-and-scope)
+- [Key Findings](#key-findings)
+- [Repository Contents](#repository-contents)
+- [Data Preparation in SQL](#data-preparation-in-sql)
+- [Data Model and Aggregation Rules](#data-model-and-aggregation-rules)
+- [Power BI Report](#power-bi-report)
+- [Reproducing the Project](#reproducing-the-project)
+- [Data Quality Checks and Validation Queries](#data-quality-checks-and-validation-queries)
+- [Sources and Author](#sources-and-author)
 
-## Cele i pytania analityczne
+## Objectives and Analytical Questions
 
-Wysoka sprzedaż produktu nie musi oznaczać wysokiego zysku, a duży zapas nie musi oznaczać nadmiaru. Interpretacja wymaga zestawienia kilku wielkości: wolumenu, ceny, kosztu katalogowego, rodzaju lokalizacji oraz tempa sprzedaży. Projekt łączy te perspektywy w jednej warstwie danych i sześciu stronach raportu.
+High unit sales do not necessarily mean high profit, and a large stock quantity does not necessarily indicate excess inventory. Interpretation requires several measures to be considered together: volume, price, catalog cost, location type and sales pace. The project brings these perspectives together in a single data layer and six report pages.
 
-Analiza odpowiada na następujące pytania:
+The analysis addresses the following questions:
 
-1. Ile sztuk sprzedano i jaki przychód oraz zysk wygenerowała sprzedaż?
-2. Które kategorie odpowiadają za największy wolumen, a które za najwyższy wynik finansowy?
-3. Jak różnią się wyniki sklepów w lokalizacjach miejskich, komercyjnych, mieszkalnych i na lotniskach?
-4. Które produkty dominują pod względem sprzedaży i przychodu?
-5. Jak rozkładają się sprzedaż, przychody i zysk w poszczególnych miesiącach?
-6. W jakich produktach i kategoriach znajduje się największy zapas oraz jego wartość detaliczna?
-7. Jak wygląda pokrycie zapasu historycznym tempem sprzedaży i które produkty wymagają bliższego sprawdzenia?
+1. How many units were sold, and how much revenue and profit did they generate?
+2. Which categories account for the largest volume, and which deliver the strongest financial results?
+3. How do results differ between downtown, commercial, residential and airport locations?
+4. Which products lead in units sold and revenue?
+5. How are sales, revenue and profit distributed across months?
+6. Which products and categories hold the largest stock quantities and retail inventory values?
+7. How does stock coverage compare with historical sales pace, and which products warrant closer examination?
 
-W tym projekcie **przychód** oznacza liczbę sprzedanych sztuk pomnożoną przez cenę z katalogu. **Zysk** to różnica między tak wyznaczonym przychodem a kosztem sprzedanych produktów według tego samego katalogu. Nie jest to wynik netto po kosztach funkcjonowania sklepów.
+In this project, **revenue** means units sold multiplied by the catalog price. **Profit** is the difference between that revenue and the cost of the products sold, using the same catalog. It is not net profit after store operating expenses.
 
-**Wartość zapasu jest wyceną detaliczną**, czyli iloczynem stanu magazynowego i ceny sprzedaży. Nie opisuje kapitału zaangażowanego w zakup towaru według kosztu nabycia.
+**Inventory value is measured at retail prices**: stock on hand multiplied by the selling price. It does not represent the capital invested in purchasing goods at acquisition cost.
 
-## Dane i zakres analizy
+## Data and Scope
 
-### Pochodzenie i jednostka obserwacji
+### Origin and Unit of Observation
 
-Źródłem jest zbiór [Mexico Toy Sales udostępniony przez Maven Analytics](https://mavenanalytics.io/data-playground/mexico-toy-sales), opisujący fikcyjną sieć sklepów z zabawkami w Meksyku. Wszystkie wartości przedstawione w tym README odnoszą się do konkretnych plików CSV znajdujących się w repozytorium.
+The source is the [Mexico Toy Sales dataset published by Maven Analytics](https://mavenanalytics.io/data-playground/mexico-toy-sales), describing a fictional toy store chain in Mexico. All figures in this README refer to the specific CSV files included in this repository.
 
-Wiersz `sales.csv` opisuje sprzedaż określonej liczby sztuk **jednego produktu w jednym sklepie w danym dniu**. Identyfikator `Sale_ID` rozróżnia rekordy sprzedaży. W danych nie ma identyfikatora klienta ani osobnego identyfikatora koszyka, dlatego liczba rekordów nie oznacza liczby kupujących ani pełnych paragonów obejmujących wiele produktów.
+Each row in `sales.csv` records the sale of a quantity of **one product at one store on a given day**. `Sale_ID` distinguishes sales records. There is no customer identifier or separate shopping basket identifier, so the record count does not represent the number of customers or complete receipts containing multiple products.
 
-W `inventory.csv` jednostką obserwacji jest para **sklep–produkt**. Ten plik przedstawia stan zapasu, a nie kolejne przyjęcia, wydania lub dostawy. Katalog produktów i katalog sklepów dostarczają nazw oraz atrybutów wykorzystywanych w grupowaniu.
+In `inventory.csv`, the unit of observation is a **store–product pair**. The file captures stock on hand rather than successive receipts, issues or deliveries. The product and store catalogs provide names and attributes used for grouping.
 
-### Pliki źródłowe
+### Source Files
 
-| Plik | Rekordy | Kolumny | Jednostka obserwacji |
+| File | Records | Columns | Unit of observation |
 | --- | ---: | ---: | --- |
-| `sales.csv` | 829 262 | 5 | Rekord sprzedaży produktu w sklepie i dniu |
-| `products.csv` | 35 | 5 | Produkt z kategorią, kosztem i ceną |
-| `stores.csv` | 50 | 5 | Sklep z miastem, rodzajem lokalizacji i datą otwarcia |
-| `inventory.csv` | 1 593 | 3 | Stan magazynowy dla pary sklep–produkt |
-| `calendar.csv` | 638 | 1 | Dzień kalendarzowy |
+| `sales.csv` | 829,262 | 5 | A product sales record for a store and date |
+| `products.csv` | 35 | 5 | A product with its category, cost and price |
+| `stores.csv` | 50 | 5 | A store with its city, location type and opening date |
+| `inventory.csv` | 1,593 | 3 | Stock on hand for a store–product pair |
+| `calendar.csv` | 638 | 1 | A calendar day |
 
-Kalendarz obejmuje wszystkie dni od 1 stycznia 2022 do 30 września 2023 r. Daty sprzedaży mieszczą się w tym zakresie. Kolumna daty otwarcia sklepu opisuje historię placówki i nie wyznacza początku okresu analizy sprzedaży.
+The calendar includes every day from January 1, 2022 to September 30, 2023. All sales dates fall within this range. Store opening dates describe each store's history and do not define the start of the sales analysis period.
 
-### Definicje pól źródłowych
+### Source Field Definitions
 
-| Plik | Pole CSV | Pole SQL | Znaczenie |
+| File | CSV field | SQL field | Meaning |
 | --- | --- | --- | --- |
-| `sales.csv` | `Sale_ID` | `SALE_ID` | Unikalny identyfikator rekordu sprzedaży |
-| `sales.csv` | `Date` | `D_DATE` | Data sprzedaży |
-| `sales.csv` | `Store_ID` | `STORE_ID` | Identyfikator sklepu |
-| `sales.csv` | `Product_ID` | `PRODUCT_ID` | Identyfikator produktu |
-| `sales.csv` | `Units` | `UNITS` | Liczba sprzedanych sztuk w rekordzie |
-| `products.csv` | `Product_ID` | `PRODUCT_ID` | Identyfikator produktu |
-| `products.csv` | `Product_Name` | `PRODUCT_NAME` | Nazwa produktu |
-| `products.csv` | `Product_Category` | `PRODUCT_CATEGORY` | Kategoria asortymentowa |
-| `products.csv` | `Product_Cost` | `PRODUCT_COST` | Jednostkowy koszt katalogowy |
-| `products.csv` | `Product_Price` | `PRODUCT_PRICE` | Jednostkowa cena katalogowa |
-| `stores.csv` | `Store_ID` | `STORE_ID` | Identyfikator sklepu |
-| `stores.csv` | `Store_Name` | `STORE_NAME` | Nazwa sklepu |
-| `stores.csv` | `Store_City` | `STORE_CITY` | Miasto |
-| `stores.csv` | `Store_Location` | `STORE_LOCATION` | Rodzaj lokalizacji sklepu |
-| `stores.csv` | `Store_Open_Date` | `STORE_OPEN_DATE` | Data otwarcia sklepu |
-| `inventory.csv` | `Store_ID`, `Product_ID` | `STORE_ID`, `PRODUCT_ID` | Para identyfikująca stan produktu w sklepie |
-| `inventory.csv` | `Stock_On_Hand` | `STOCK_ON_HAND` | Liczba sztuk w zapasie |
-| `calendar.csv` | `Date` | `D_DATE` | Data kalendarzowa |
+| `sales.csv` | `Sale_ID` | `SALE_ID` | Unique sales record identifier |
+| `sales.csv` | `Date` | `D_DATE` | Sales date |
+| `sales.csv` | `Store_ID` | `STORE_ID` | Store identifier |
+| `sales.csv` | `Product_ID` | `PRODUCT_ID` | Product identifier |
+| `sales.csv` | `Units` | `UNITS` | Number of units sold in the record |
+| `products.csv` | `Product_ID` | `PRODUCT_ID` | Product identifier |
+| `products.csv` | `Product_Name` | `PRODUCT_NAME` | Product name |
+| `products.csv` | `Product_Category` | `PRODUCT_CATEGORY` | Product category |
+| `products.csv` | `Product_Cost` | `PRODUCT_COST` | Catalog unit cost |
+| `products.csv` | `Product_Price` | `PRODUCT_PRICE` | Catalog unit price |
+| `stores.csv` | `Store_ID` | `STORE_ID` | Store identifier |
+| `stores.csv` | `Store_Name` | `STORE_NAME` | Store name |
+| `stores.csv` | `Store_City` | `STORE_CITY` | City |
+| `stores.csv` | `Store_Location` | `STORE_LOCATION` | Store location type |
+| `stores.csv` | `Store_Open_Date` | `STORE_OPEN_DATE` | Store opening date |
+| `inventory.csv` | `Store_ID`, `Product_ID` | `STORE_ID`, `PRODUCT_ID` | Pair identifying a product's stock at a store |
+| `inventory.csv` | `Stock_On_Hand` | `STOCK_ON_HAND` | Number of units in stock |
+| `calendar.csv` | `Date` | `D_DATE` | Calendar date |
 
-Kategorie produktów to `Art & Crafts`, `Electronics`, `Games`, `Sports & Outdoors` i `Toys`. Rodzaje lokalizacji to `Airport`, `Commercial`, `Downtown` i `Residential`. **Rodzaj lokalizacji nie jest nazwą miasta ani konkretnego sklepu** — wiele placówek może należeć do tej samej grupy.
+The product categories are `Art & Crafts`, `Electronics`, `Games`, `Sports & Outdoors` and `Toys`. Location types are `Airport`, `Commercial`, `Downtown` and `Residential`. **A location type is not a city or a specific store** — multiple stores can belong to the same group.
 
-Kwoty zachowują symbol `$` używany w katalogu i raporcie. CSV nie zawierają osobnej kolumny z kodem waluty ani kursów przeliczeniowych. Ceny i koszty są atrybutami produktu; plik sprzedaży nie przechowuje ceny faktycznie zastosowanej przy każdym zakupie, rabatu ani historycznych zmian kosztu.
+Amounts retain the `$` symbol used in the catalog and report. The CSV files do not contain a separate currency code or exchange rates. Prices and costs are product attributes; the sales file does not record the actual price applied to each purchase, discounts or historical cost changes.
 
-### Jakość danych wejściowych
+### Input Data Quality
 
-| Kontrola | Wynik |
+| Check | Result |
 | --- | ---: |
-| Puste pola w pięciu plikach CSV | 0 |
-| Powtórzone całe wiersze w poszczególnych plikach | 0 |
-| Rekordy sprzedaży z nieznanym produktem | 0 |
-| Rekordy sprzedaży z nieznanym sklepem | 0 |
-| Daty sprzedaży poza dostarczonym kalendarzem | 0 |
-| Rekordy zapasu z nieznanym produktem lub sklepem | 0 |
-| Powtórzone pary sklep–produkt w zapasie | 0 |
-| Sprzedaż z liczbą sztuk równą zero lub ujemną | 0 |
-| Ujemne stany magazynowe | 0 |
+| Empty fields across the five CSV files | 0 |
+| Duplicate complete rows within individual files | 0 |
+| Sales records with an unknown product | 0 |
+| Sales records with an unknown store | 0 |
+| Sales dates outside the supplied calendar | 0 |
+| Inventory records with an unknown product or store | 0 |
+| Duplicate store–product pairs in inventory | 0 |
+| Sales records with zero or negative units | 0 |
+| Negative stock quantities | 0 |
 
-Możliwych kombinacji 50 sklepów i 35 produktów jest 1 750, natomiast plik zapasu zawiera 1 593 pary. **Brakujących 157 kombinacji nie uzupełniam automatycznie zerami.** Brak rekordu i zarejestrowany zerowy stan to różne informacje. Sam plik nie wyjaśnia, czy brakująca para oznacza produkt nieobecny w asortymencie sklepu, czy brak obserwacji.
+There are 1,750 possible combinations of 50 stores and 35 products, while the inventory file contains 1,593 pairs. **I do not automatically fill the 157 missing combinations with zeros.** A missing record and a recorded zero stock quantity convey different information. The file does not explain whether a missing pair represents a product excluded from a store's assortment or a missing observation.
 
-## Najważniejsze wyniki
+## Key Findings
 
-Wyniki poniżej odnoszą się do pełnego zakresu danych. Obliczenia SQL wykorzystują niezmienione ilości, ceny i koszty z CSV. Karty raportu skracają duże liczby do tysięcy i milionów; dokładne wartości pochodzą z obliczeń na danych źródłowych.
+The results below cover the full dataset. SQL calculations use the original quantities, prices and costs from the CSV files. Report cards abbreviate large numbers to thousands and millions; exact figures come from calculations on the source data.
 
-### Skala sprzedaży i zapasu
+### Sales and Inventory at a Glance
 
-| Wskaźnik | Wartość | Interpretacja |
+| Metric | Value | Interpretation |
 | --- | ---: | --- |
-| Rekordy sprzedaży | **829 262** | Liczba pozycji oznaczonych `SALE_ID` |
-| Sprzedane sztuki | **1 090 565** | Suma `UNITS` |
-| Przychód | **14 444 572,35 $** | Sprzedane sztuki × cena katalogowa |
-| Zysk | **4 014 029,00 $** | Sprzedane sztuki × różnica ceny i kosztu |
-| Produkty obecne w sprzedaży | **35** | Unikalne nazwy produktów w szczegółach sprzedaży |
-| Sklepy obecne w sprzedaży | **50** | Unikalne nazwy sklepów w szczegółach sprzedaży |
-| Kategorie produktów | **5** | Kategorie występujące w sprzedaży |
-| Stan magazynowy | **29 742 szt.** | Suma zapisanych stanów |
-| Detaliczna wartość zapasu | **410 240,58 $** | Stan magazynowy × cena katalogowa |
+| Sales records | **829,262** | Number of records identified by `SALE_ID` |
+| Units sold | **1,090,565** | Sum of `UNITS` |
+| Revenue | **$14,444,572.35** | Units sold × catalog price |
+| Profit | **$4,014,029.00** | Units sold × the difference between price and cost |
+| Products with recorded sales | **35** | Distinct product names in sales detail |
+| Stores with recorded sales | **50** | Distinct store names in sales detail |
+| Product categories | **5** | Categories appearing in sales |
+| Stock on hand | **29,742 units** | Sum of recorded stock quantities |
+| Retail inventory value | **$410,240.58** | Stock on hand × catalog price |
 
-Sprzedaż obejmuje cały okres obserwacji, a zapas jest pojedynczym stanem. Nie należy traktować 29 742 sztuk jako sumy dostaw w tych 21 miesiącach ani porównywać wartości zapasu z przychodem tak, jakby obie wielkości opisywały przepływ w tym samym okresie.
+Sales cover the entire observation period, while inventory is a single snapshot. The 29,742 units should not be treated as total deliveries over those 21 months. Inventory value and revenue should not be compared as if both represented flows over the same period.
 
-### Kategorie: popularność a wynik finansowy
+### Categories: Popularity and Financial Contribution
 
-| Kategoria | Sprzedane sztuki | Przychód | Zysk | Stan magazynowy |
+| Category | Units sold | Revenue | Profit | Stock on hand |
 | --- | ---: | ---: | ---: | ---: |
-| Art & Crafts | 325 574 | 2 705 364,26 $ | 753 354,00 $ | 8 635 |
-| Electronics | 134 075 | 2 246 771,25 $ | 1 001 437,00 $ | 2 418 |
-| Games | 194 673 | 2 226 836,27 $ | 673 993,00 $ | 6 155 |
-| Sports & Outdoors | 169 043 | 2 172 359,57 $ | 505 718,00 $ | 4 981 |
-| Toys | 267 200 | 5 093 241,00 $ | 1 079 527,00 $ | 7 553 |
+| Art & Crafts | 325,574 | $2,705,364.26 | $753,354.00 | 8,635 |
+| Electronics | 134,075 | $2,246,771.25 | $1,001,437.00 | 2,418 |
+| Games | 194,673 | $2,226,836.27 | $673,993.00 | 6,155 |
+| Sports & Outdoors | 169,043 | $2,172,359.57 | $505,718.00 | 4,981 |
+| Toys | 267,200 | $5,093,241.00 | $1,079,527.00 | 7,553 |
 
-**Art & Crafts** prowadzi pod względem liczby sprzedanych sztuk i wielkości zapasu. **Toys** generuje najwyższy przychód i zysk. **Electronics** ma najniższy wolumen spośród pięciu kategorii, ale drugi najwyższy zysk. Sama popularność mierzona liczbą sztuk nie wystarcza więc do ustalenia znaczenia kategorii dla wyniku finansowego.
+**Art & Crafts** leads in units sold and stock quantity. **Toys** generates the highest revenue and profit. **Electronics** has the lowest sales volume of the five categories but the second-highest profit. Popularity measured in units alone is therefore insufficient to assess a category's financial contribution.
 
-| Rodzaj lokalizacji | Zysk |
+| Location type | Profit |
 | --- | ---: |
-| Downtown | 2 248 728,00 $ |
-| Commercial | 926 864,00 $ |
-| Residential | 460 388,00 $ |
-| Airport | 378 049,00 $ |
+| Downtown | $2,248,728.00 |
+| Commercial | $926,864.00 |
+| Residential | $460,388.00 |
+| Airport | $378,049.00 |
 
-Największy łączny zysk przypada na sklepy `Downtown`. To wynik całej grupy placówek, a nie przeciętnego sklepu. Ocena efektywności lokalizacji wymaga dodatkowo uwzględnienia liczby sklepów, ich wielkości i dostępnego asortymentu.
+`Downtown` stores generate the highest total profit. This is the result for the entire group, not an average store. Assessing location efficiency also requires the number of stores, their size and their available assortment to be considered.
 
-### Produkty dominujące w sprzedaży
+### Leading Products by Sales
 
-| Produkt | Sprzedane sztuki |
+| Product | Units sold |
 | --- | ---: |
-| Colorbuds | 104 368 |
-| PlayDoh Can | 103 128 |
-| Barrel O' Slime | 91 663 |
-| Deck Of Cards | 84 034 |
-| Magic Sand | 60 598 |
+| Colorbuds | 104,368 |
+| PlayDoh Can | 103,128 |
+| Barrel O' Slime | 91,663 |
+| Deck Of Cards | 84,034 |
+| Magic Sand | 60,598 |
 
-Najwyższy przychód generują **Lego Bricks — 2 388 882,63 $**, następnie **Colorbuds — 1 564 476,32 $**, **Magic Sand — 968 962,02 $**, **Action Figure — 926 748,42 $** i **Rubik's Cube — 912 983,28 $**.
+The highest revenue comes from **Lego Bricks — $2,388,882.63**, followed by **Colorbuds — $1,564,476.32**, **Magic Sand — $968,962.02**, **Action Figure — $926,748.42** and **Rubik's Cube — $912,983.28**.
 
-Lider wolumenu i lider przychodu to różne produkty. Zestawienie obu rankingów pozwala odróżnić artykuły sprzedawane często od tych, których wyższa cena jednostkowa ma duży udział w wartości sprzedaży.
+The volume leader and revenue leader are different products. Comparing the two rankings distinguishes products sold in large quantities from those whose higher unit prices contribute substantially to sales value.
 
-### Zapasy i ich pokrycie sprzedażą
+### Inventory and Sales Coverage
 
-Najwyższa detaliczna wartość zapasu przypada na **Lego Bricks — 44 708,82 $**. Kolejne pozycje to **Dinosaur Figures — 34 057,28 $**, **Magic Sand — 30 732,78 $**, **Rubik's Cube — 29 925,03 $** oraz **Nerf Gun — 24 227,88 $**.
+**Lego Bricks — $44,708.82** has the highest retail inventory value. It is followed by **Dinosaur Figures — $34,057.28**, **Magic Sand — $30,732.78**, **Rubik's Cube — $29,925.03** and **Nerf Gun — $24,227.88**.
 
-Wykres pięciu produktów pokazujący dni zapasu wybiera produkty według **sumy sztuk w zapasie**, a następnie prezentuje ich średni wskaźnik DOI:
+The five-product chart displaying days of inventory selects products by **total units in stock** and then presents their average DOI:
 
-| Produkt | Stan magazynowy | Średnie dni zapasu, w przybliżeniu |
+| Product | Stock on hand | Approximate average days of inventory |
 | --- | ---: | ---: |
-| Deck Of Cards | 2 738 | 4,48 |
-| Dinosaur Figures | 2 272 | 4,09 |
-| PlayDoh Can | 2 129 | 3,10 |
-| Magic Sand | 1 922 | 2,88 |
-| Rubik's Cube | 1 497 | 2,68 |
+| Deck Of Cards | 2,738 | 4.48 |
+| Dinosaur Figures | 2,272 | 4.09 |
+| PlayDoh Can | 2,129 | 3.10 |
+| Magic Sand | 1,922 | 2.88 |
+| Rubik's Cube | 1,497 | 2.68 |
 
-Wskaźnik opiera się na dniach, w których dany produkt sprzedawał się w danym sklepie. Nie uwzględnia wszystkich dni kalendarzowych, dlatego wartości nie należy odczytywać jako prognozy faktycznego czasu do wyczerpania towaru.
+The indicator uses days on which a product recorded sales at a particular store. It does not include every calendar day, so it should not be interpreted as a forecast of the actual time until stock runs out.
 
-Niski wskaźnik dla **Jenga — około 0,66**, **Playfoam — około 0,66** i **Hot Wheels 5-Pack — około 0,76** wskazuje produkty warte sprawdzenia pod kątem dostępności i terminów dostaw. Z kolei wysoka wartość zapasu Lego Bricks uzasadnia monitorowanie tego produktu zarówno pod kątem sprzedaży, jak i środków związanych z utrzymywaniem asortymentu. Decyzja o dostawie wymaga potwierdzenia bieżącego stanu w konkretnym sklepie oraz czasu realizacji zamówienia.
+Low values for **Jenga — approximately 0.66**, **Playfoam — approximately 0.66** and **Hot Wheels 5-Pack — approximately 0.76** identify products worth checking for availability and delivery schedules. The high inventory value of Lego Bricks, in turn, supports monitoring both its sales and the resources associated with carrying it. A replenishment decision requires confirmation of current stock at the specific store and the order lead time.
 
-### Miesiące i porównywalność okresów
+### Months and Period Comparability
 
-Wykresy miesięczne prezentują sumy według nazwy miesiąca, łącząc lata. **Styczeń–wrzesień obejmują dwa lata, natomiast październik–grudzień tylko 2022 r.** Niższy wynik końcówki wykresu nie jest więc sam w sobie dowodem sezonowego spadku sprzedaży.
+The monthly charts show totals by month name, combining years. **January–September include two years, while October–December include only 2022.** Lower values at the end of the chart are therefore not, by themselves, evidence of a seasonal decline in sales.
 
-Widoki `vw_volume`, `vw_revenue` i `vw_profit` zachowują kolumnę `YEAR`. Pozwala ona przygotować porównanie rok do roku dla wspólnego zakresu styczeń–wrzesień lub analizę kolejnych 21 miesięcy bez łączenia lat. `vw_landing` celowo agreguje dane według miesiąca bez roku, zgodnie z przeglądowym układem raportu.
+The `vw_volume`, `vw_revenue` and `vw_profit` views retain the `YEAR` column. This supports a year-over-year comparison for the shared January–September period or an analysis of 21 consecutive months without combining years. `vw_landing` deliberately aggregates by month without year, matching the report's overview layout.
 
-## Zawartość repozytorium
+## Repository Contents
 
-Repozytorium obejmuje katalogi `Assets/`, `Raw Data/` i `SQL/`. Dokumentacja `README.md` znajduje się w katalogu głównym.
+The repository contains `Assets/`, `Raw Data/` and `SQL/` directories. The `README.md` documentation is stored at the repository root.
 
-| Plik | Zawartość |
+| File | Contents |
 | --- | --- |
-| `Raw Data/sales.csv` | Historia sprzedaży produktów w sklepach |
-| `Raw Data/products.csv` | Katalog produktów, kategorii, kosztów i cen |
-| `Raw Data/stores.csv` | Katalog sklepów, miast i rodzajów lokalizacji |
-| `Raw Data/inventory.csv` | Zapis stanów magazynowych dla par sklep–produkt |
-| `Raw Data/calendar.csv` | Kalendarz obejmujący okres sprzedaży |
-| `SQL/1_Database_and_Tables.sql` | Baza `toys_in_mexico` i pięć tabel źródłowych |
-| `SQL/2_Import_of_Data.sql` | Import CSV, odczyt dat i przekształcenie kwot |
-| `SQL/3.1_Dimension_Views.sql` | Wymiary kategorii produktów i rodzaju lokalizacji |
-| `SQL/3.2_Summary_Views.sql` | Podsumowania sklepów, miesięcy i szczegóły rekordów sprzedaży |
-| `SQL/3.3_Sales_Views.sql` | Miesięczny wolumen, przychód, zysk i marża |
-| `SQL/3.4_Inventory_Views.sql` | Stan magazynowy, dni zapasu i wycena detaliczna |
-| `SQL/5_Data_Validation.sql` | Kontrole jakości, sumy referencyjne i uzgodnienie widoków |
-| `Assets/cover.webp`, `Assets/cover-thumb.webp` | Podgląd strony przeglądowej i miniatura |
-| `Assets/gallery-01.webp`, `Assets/gallery-01-thumb.webp` | Podgląd analizy przychodów i miniatura |
-| `Assets/gallery-02.webp`, `Assets/gallery-02-thumb.webp` | Podgląd analizy zysku i miniatura |
-| `Assets/gallery-03.webp`, `Assets/gallery-03-thumb.webp` | Podgląd analizy poziomu zapasów i miniatura |
-| `README.md` | Opis danych, wyników, SQL, modelu i sposobu odtworzenia |
+| `Raw Data/sales.csv` | Product sales history by store |
+| `Raw Data/products.csv` | Product catalog with categories, costs and prices |
+| `Raw Data/stores.csv` | Store directory with cities and location types |
+| `Raw Data/inventory.csv` | Stock snapshot for store–product pairs |
+| `Raw Data/calendar.csv` | Calendar covering the sales period |
+| `SQL/1_Database_and_Tables.sql` | The `toys_in_mexico` database and five source tables |
+| `SQL/2_Import_of_Data.sql` | CSV import, date parsing and monetary value conversion |
+| `SQL/3.1_Dimension_Views.sql` | Product category and location type dimensions |
+| `SQL/3.2_Summary_Views.sql` | Store and monthly summaries, plus sales record detail |
+| `SQL/3.3_Sales_Views.sql` | Monthly volume, revenue, profit and margin |
+| `SQL/3.4_Inventory_Views.sql` | Stock on hand, days of inventory and retail valuation |
+| `SQL/4_Data_Validation.sql` | Quality checks, reference totals and view reconciliation |
+| `Assets/cover.webp`, `Assets/cover-thumb.webp` | Overview page preview and thumbnail |
+| `Assets/gallery-01.webp`, `Assets/gallery-01-thumb.webp` | Revenue analysis preview and thumbnail |
+| `Assets/gallery-02.webp`, `Assets/gallery-02-thumb.webp` | Profit analysis preview and thumbnail |
+| `Assets/gallery-03.webp`, `Assets/gallery-03-thumb.webp` | Inventory level analysis preview and thumbnail |
+| `README.md` | Data, findings, SQL, model and reproduction guide |
 
-Publiczny link udostępnia interaktywny raport, a skrypty odtwarzają warstwę SQL. Zestaw plików nie zawiera `.pbix` ani `.pbit`. Definicje miar, ustawienia interakcji i formatowanie wizualizacji pozostają częścią pliku raportu.
+The public link provides access to the interactive report, while the scripts reproduce the SQL layer. The file set does not include a `.pbix` or `.pbit` file. Measure definitions, interaction settings and visual formatting remain part of the report file.
 
-## Przygotowanie danych w SQL
+## Data Preparation in SQL
 
-### 1. Utworzenie bazy i tabel
+### 1. Creating the Database and Tables
 
-Skrypt `1_Database_and_Tables.sql` tworzy bazę `toys_in_mexico` z kodowaniem `utf8mb4` i regułą porównywania tekstu `utf8mb4_unicode_ci`.
+`1_Database_and_Tables.sql` creates the `toys_in_mexico` database with the `utf8mb4` character set and `utf8mb4_unicode_ci` collation.
 
-Pięć tabel odpowiada plikom CSV. Ceny i koszty mają typ `DECIMAL(10,2)`, identyfikatory i liczby sztuk — `INT`, daty — `DATE`, a nazwy i kategorie — `VARCHAR(255)`.
+The five tables correspond to the CSV files. Prices and costs use `DECIMAL(10,2)`, identifiers and unit quantities use `INT`, dates use `DATE`, and names and categories use `VARCHAR(255)`.
 
-Klucze główne to `PRODUCT_ID` w produktach, `STORE_ID` w sklepach, `SALE_ID` w sprzedaży oraz `D_DATE` w kalendarzu. Tabela zapasów ma klucz złożony z `STORE_ID` i `PRODUCT_ID`. Indeks `idx_sales_product_store_date` wspiera grupowanie historii według produktu i sklepu oraz odczyt dni sprzedaży.
+The primary keys are `PRODUCT_ID` for products, `STORE_ID` for stores, `SALE_ID` for sales and `D_DATE` for the calendar. The inventory table has a composite key consisting of `STORE_ID` and `PRODUCT_ID`. The `idx_sales_product_store_date` index supports grouping sales history by product and store and accessing sales dates.
 
-Skrypt nie deklaruje kluczy obcych. Spójność identyfikatorów jest sprawdzana osobnymi zapytaniami walidacyjnymi. Utworzenie tabel nie usuwa ani nie zastępuje istniejącej bazy.
+The script does not declare foreign keys. Identifier consistency is checked through separate validation queries. Creating the tables does not delete or replace an existing database.
 
-### 2. Import i interpretacja wartości źródłowych
+### 2. Importing and Interpreting Source Values
 
-`2_Import_of_Data.sql` używa `LOAD DATA LOCAL INFILE`, pomija nagłówki i odczytuje pola rozdzielone przecinkami, z opcjonalnymi podwójnymi cudzysłowami. Zmienne użytkownika pozwalają przekształcić tekst przed przypisaniem go do kolumn tabel.
+`2_Import_of_Data.sql` uses `LOAD DATA LOCAL INFILE`, skips headers and reads comma-separated fields with optional double quotes. User variables allow text to be transformed before it is assigned to table columns.
 
-Przy imporcie:
+During import:
 
-- `TRIM` usuwa otaczające spacje, a `NULLIF(..., '')` zamienia puste wartości na `NULL`;
-- `REPLACE` usuwa znak `$` z kosztów i cen oraz znak powrotu karetki z ostatniego pola rekordu;
-- daty sprzedaży i otwarcia sklepów są interpretowane jako `%Y-%m-%d`;
-- daty kalendarza są interpretowane jako `%m/%d/%Y`;
-- `SHOW WARNINGS` po każdym imporcie pozwala sprawdzić ostrzeżenia dotyczące odczytu lub konwersji.
+- `TRIM` removes surrounding spaces, and `NULLIF(..., '')` converts empty values to `NULL`;
+- `REPLACE` removes the `$` symbol from costs and prices and the carriage return character from the last field in a record;
+- sales dates and store opening dates are parsed using `%Y-%m-%d`;
+- calendar dates are parsed using `%m/%d/%Y`;
+- `SHOW WARNINGS` after each import exposes any reading or conversion warnings.
 
-Surowe dane pozostają niezmienione. Nie ma etapu aktualizowania cen, korygowania ilości ani usuwania rekordów sprzedaży. Przygotowanie polega na poprawnym odczycie typów i budowie widoków.
+The raw data remains unchanged. There is no step that updates prices, adjusts quantities or removes sales records. Preparation consists of correctly parsing data types and building views.
 
-Ścieżki `Raw Data/...` odnoszą się do katalogu roboczego klienta MySQL, nie automatycznie do położenia pliku SQL.
+Paths such as `Raw Data/...` are relative to the MySQL client's working directory, not automatically to the location of the SQL file.
 
-### 3. Wymiary kategorii i lokalizacji
+### 3. Category and Location Dimensions
 
-`3.1_Dimension_Views.sql` tworzy dwa widoki za pomocą `SELECT DISTINCT`:
+`3.1_Dimension_Views.sql` creates two views using `SELECT DISTINCT`:
 
-| Widok | Kolumna | Liczba wierszy |
+| View | Column | Rows |
 | --- | --- | ---: |
 | `vw_dim_category` | `PRODUCT_CATEGORY` | 5 |
 | `vw_dim_location` | `STORE_LOCATION` | 4 |
 
-Źródłem wymiarów są katalogi produktów i sklepów. Wymiary zapewniają wspólne wartości filtrów dla wszystkich części analizy, niezależnie od poziomu szczegółowości poszczególnych widoków.
+The dimensions are sourced from the product and store catalogs. They provide shared filter values for every part of the analysis, regardless of the level of detail in individual views.
 
-### 4. Podsumowania i szczegóły sprzedaży
+### 4. Sales Summaries and Detail
 
-`3.2_Summary_Views.sql` tworzy `vw_kpi`, `vw_landing` i `vw_data`.
+`3.2_Summary_Views.sql` creates `vw_kpi`, `vw_landing` and `vw_data`.
 
-W `vw_kpi` dwa CTE niezależnie agregują sprzedaż i zapas do poziomu **sklep × kategoria**. Dopiero gotowe podsumowania są łączone po `STORE_ID` i `PRODUCT_CATEGORY`. Dzięki temu stan magazynowy nie jest powielany przez każdą transakcję danego produktu.
+In `vw_kpi`, two CTEs independently aggregate sales and inventory to the **store × category** level. Only then are the summaries joined on `STORE_ID` and `PRODUCT_CATEGORY`. This prevents stock quantities from being repeated for every sales transaction involving a product.
 
-Punktem wyjścia jest sprzedaż, a `LEFT JOIN` dołącza zapas. `COALESCE` zastępuje brak podsumowania zapasu zerem w tym konkretnym widoku. Grupa sklep–kategoria występująca wyłącznie w magazynie nie weszłaby do `vw_kpi`; w dostarczonym zbiorze sumy tego widoku są zgodne z sumami pełnej tabeli zapasu.
+Sales form the starting point, and a `LEFT JOIN` adds inventory. `COALESCE` replaces a missing inventory summary with zero in this particular view. A store–category group appearing only in inventory would not enter `vw_kpi`; for the supplied dataset, the totals in this view match those of the complete inventory table.
 
-`vw_landing` agreguje przychód i zysk według kategorii, produktu, rodzaju lokalizacji i miesiąca, bez rozdzielania lat. `vw_data` zachowuje jeden wiersz na rekord sprzedaży, dołączając nazwy produktu i sklepu oraz kategorię i lokalizację.
+`vw_landing` aggregates revenue and profit by category, product, location type and month, without separating years. `vw_data` retains one row per sales record and adds product and store names, category and location.
 
-Skrypt ustawia `lc_time_names = 'en_US'`, aby funkcja `MONTHNAME` zwracała angielskie nazwy miesięcy. Ustawienie dotyczy bieżącej sesji; połączenia później odczytujące te widoki powinny używać tej samej konfiguracji.
+### 5. Monthly Volume, Revenue and Profit
 
-### 5. Miesięczny wolumen, przychód i zysk
+`3.3_Sales_Views.sql` creates three views with the same level of detail: **product × category × location type × year × month**.
 
-`3.3_Sales_Views.sql` tworzy trzy widoki o wspólnym poziomie szczegółowości: **produkt × kategoria × rodzaj lokalizacji × rok × miesiąc**.
-
-| Widok | Wartości liczbowe |
+| View | Numeric values |
 | --- | --- |
-| `vw_volume` | `UNITS_SOLD` — suma sprzedanych sztuk |
-| `vw_revenue` | `REVENUE` — suma sztuk przemnożonych przez cenę |
-| `vw_profit` | `PROFIT` oraz `PROFIT_MARGIN` |
+| `vw_volume` | `UNITS_SOLD` — total units sold |
+| `vw_revenue` | `REVENUE` — total units multiplied by price |
+| `vw_profit` | `PROFIT` and `PROFIT_MARGIN` |
 
-Marża jest liczona w każdej grupie jako zysk podzielony przez przychód, a następnie zaokrąglana do dwóch miejsc **jako ułamek**. Wartość `0.30` oznacza 30%. `NULLIF` zabezpiecza mianownik przed zerem.
+Within each group, margin is calculated as profit divided by revenue and then rounded to two decimal places **as a ratio**. A value of `0.30` means 30%. `NULLIF` protects against a zero denominator.
 
-Późniejsze `AVG(PROFIT_MARGIN)` uśrednia już zaokrąglone wartości i nadaje każdemu wierszowi taką samą wagę. Nie jest równoważne podzieleniu łącznego zysku przez łączny przychód. Zachowanie tej kolejności obliczeń jest konieczne do odtworzenia tabeli średnich marż.
+A subsequent `AVG(PROFIT_MARGIN)` averages values that have already been rounded and gives each row equal weight. This is not equivalent to dividing total profit by total revenue. Preserving this calculation order is necessary to reproduce the average margin table.
 
-### 6. Poziom i wartość zapasu
+### 6. Inventory Level and Value
 
-`3.4_Inventory_Views.sql` tworzy `vw_level` oraz `vw_value`.
+`3.4_Inventory_Views.sql` creates `vw_level` and `vw_value`.
 
-W `vw_level` CTE wyznacza przeciętną liczbę sprzedanych sztuk dla każdej pary produkt–sklep:
+In `vw_level`, a CTE calculates average units sold per sales day for each product–store pair:
 
 ```sql
 SUM(UNITS) / COUNT(DISTINCT D_DATE)
 ```
 
-Mianownik obejmuje wyłącznie dni z zarejestrowaną sprzedażą tej pary. Następnie stan magazynowy jest dzielony przez otrzymaną średnią, a wynik zaokrąglany do jednego miejsca po przecinku jako `DAYS_OF_INVENTORY`.
+The denominator includes only dates with recorded sales for that pair. Stock on hand is then divided by the resulting average, and the result is rounded to one decimal place as `DAYS_OF_INVENTORY`.
 
-Zerowy zapas przy istniejącej historii sprzedaży daje zero dni. Brak historii lub zerowe tempo sprzedaży daje `NULL`. Średnia wskaźnika pomija `NULL`; zamiana takich wartości na zero zmieniłaby jej znaczenie.
+Zero stock with an existing sales history gives zero days. No history or a zero sales rate gives `NULL`. The average excludes `NULL` values; replacing them with zeros would change its meaning.
 
-Obliczenia zakładają domyślne ustawienie MySQL `div_precision_increment = 4`. Precyzja pośredniego dzielenia ma znaczenie dla wartości znajdujących się blisko granicy zaokrąglenia.
+The calculations assume the default MySQL setting `div_precision_increment = 4`. Intermediate division precision matters for values close to a rounding threshold.
 
-`vw_value` wycenia każdy zapis zapasu według ceny detalicznej. Oba widoki zachowują wiersze źródłowych par sklep–produkt, mimo że nie udostępniają `STORE_ID` w swojej końcowej liście kolumn.
+`vw_value` values each inventory record at its retail price. Both views retain the rows of the original store–product pairs, even though `STORE_ID` is not included in their final column lists.
 
-### 7. Kontrola i uzgodnienie wyników
+### 7. Checking and Reconciling Results
 
-`5_Data_Validation.sql` zawiera zapytania tylko do odczytu. Sprawdza liczebności tabel, zakres dat, brakujące powiązania, niepoprawne ilości i sumy finansowe. Porównuje też łączny wynik `vw_kpi` z osobnymi widokami sprzedaży i zapasu.
+`4_Data_Validation.sql` contains read-only queries. It checks table row counts, date coverage, missing references, invalid quantities and financial totals. It also compares the overall results from `vw_kpi` with the separate sales and inventory views.
 
-Wartości referencyjne są opisem dołączonego zbioru. Nie są używane do nadpisywania danych ani dopasowywania wyniku. Skrypt pokazuje również średnie marże według kategorii oraz średnie dni zapasu według produktu.
+Reference values describe the supplied dataset. They are not used to overwrite data or force a particular result. The script also displays average margins by category and average days of inventory by product.
 
-## Model danych i zasady agregacji
+## Data Model and Aggregation Rules
 
-### Struktura modelu raportowego
+### Reporting Model Structure
 
-Model wykorzystuje **dwa wspólne wymiary**, które filtrują **osiem widoków analitycznych**. Każdy wymiar łączy się ze wszystkimi ośmioma widokami relacją jeden-do-wielu. Filtrowanie przebiega od wymiaru do danych analitycznych.
+The model uses **two shared dimensions** to filter **eight analytical views**. Each dimension connects to all eight views through one-to-many relationships. Filters flow from the dimension to the analytical data.
 
-Poniższy schemat grupuje widoki tematycznie dla czytelności. Każda nazwa wewnątrz grupy oznacza osobny widok i osobne połączenie z oboma wymiarami.
+The diagram below groups views by subject for readability. Each name within a group represents a separate view and a separate relationship with both dimensions.
 
 ```mermaid
 flowchart TD
     C["vw_dim_category — PRODUCT_CATEGORY"]
     L["vw_dim_location — STORE_LOCATION"]
-    K["Podsumowania: vw_kpi, vw_landing"]
-    S["Sprzedaż: vw_volume, vw_revenue, vw_profit"]
-    I["Zapasy: vw_level, vw_value"]
-    D["Szczegóły: vw_data"]
+    K["Summaries: vw_kpi, vw_landing"]
+    S["Sales: vw_volume, vw_revenue, vw_profit"]
+    I["Inventory: vw_level, vw_value"]
+    D["Detail: vw_data"]
     C -->|"1:*"| K
     C -->|"1:*"| S
     C -->|"1:*"| I
@@ -341,151 +339,153 @@ flowchart TD
     L -->|"1:*"| D
 ```
 
-Widoki analityczne nie są ze sobą łączone bezpośrednimi relacjami. Wspólny wybór kategorii lub rodzaju lokalizacji dociera do nich przez wymiary. Pozwala to zestawiać wartości obliczane na różnych poziomach szczegółowości bez łączenia samych agregatów w jedną tabelę.
+There are no direct relationships between analytical views. A shared category or location selection reaches them through the dimensions. This allows values calculated at different levels of detail to be compared without joining the aggregates into a single table.
 
-Tabele `products`, `stores`, `sales`, `inventory` i `calendar` są warstwą źródłową w MySQL. Nie są dodatkowymi tabelami na pokazanym modelu raportowym. W szczególności dostarczony `calendar` nie stanowi w nim powiązanego wymiaru czasu; atrybuty roku i miesiąca znajdują się bezpośrednio w odpowiednich widokach.
+The `products`, `stores`, `sales`, `inventory` and `calendar` tables form the source layer in MySQL. They are not additional tables in the reporting model shown above. In particular, the supplied `calendar` is not a connected date dimension in this model; year and month attributes are included directly in the relevant views.
 
-### Widoki, kolumny i poziom szczegółowości
+### Views, Columns and Level of Detail
 
-Wszystkie widoki analityczne zawierają `PRODUCT_CATEGORY` i `STORE_LOCATION`.
+All analytical views contain `PRODUCT_CATEGORY` and `STORE_LOCATION`.
 
-| Widok | Pozostałe kolumny | Poziom szczegółowości | Wiersze |
+| View | Other columns | Level of detail | Rows |
 | --- | --- | --- | ---: |
-| `vw_kpi` | `STORE_ID`, `STORE_NAME`, `STORE_CITY`, `REVENUE`, `PROFIT`, `UNITS_SOLD`, `INVENTORY`, `INVENTORY_VALUE` | Sklep × kategoria | 250 |
-| `vw_landing` | `PRODUCT_NAME`, `MONTH_NAME`, `MONTH_NUMBER`, `REVENUE`, `PROFIT` | Produkt × lokalizacja × miesiąc, łącznie dla lat | 1 572 |
-| `vw_data` | `STORE_NAME`, `PRODUCT_NAME`, `SALE_ID` | Rekord sprzedaży | 829 262 |
-| `vw_volume` | `PRODUCT_NAME`, `YEAR`, `MONTH_NUMBER`, `MONTH_NAME`, `UNITS_SOLD` | Produkt × lokalizacja × rok × miesiąc | 2 459 |
-| `vw_revenue` | `PRODUCT_NAME`, `YEAR`, `MONTH_NUMBER`, `MONTH_NAME`, `REVENUE` | Produkt × lokalizacja × rok × miesiąc | 2 459 |
-| `vw_profit` | `PRODUCT_NAME`, `YEAR`, `MONTH_NUMBER`, `MONTH_NAME`, `PROFIT`, `PROFIT_MARGIN` | Produkt × lokalizacja × rok × miesiąc | 2 459 |
-| `vw_level` | `PRODUCT_NAME`, `STOCK_ON_HAND`, `DAYS_OF_INVENTORY` | Źródłowa para sklep–produkt, bez identyfikatora sklepu w wyniku | 1 593 |
-| `vw_value` | `PRODUCT_NAME`, `INVENTORY_VALUE` | Źródłowa para sklep–produkt, bez identyfikatora sklepu w wyniku | 1 593 |
+| `vw_kpi` | `STORE_ID`, `STORE_NAME`, `STORE_CITY`, `REVENUE`, `PROFIT`, `UNITS_SOLD`, `INVENTORY`, `INVENTORY_VALUE` | Store × category | 250 |
+| `vw_landing` | `PRODUCT_NAME`, `MONTH_NAME`, `MONTH_NUMBER`, `REVENUE`, `PROFIT` | Product × location × month, combining years | 1,572 |
+| `vw_data` | `STORE_NAME`, `PRODUCT_NAME`, `SALE_ID` | Sales record | 829,262 |
+| `vw_volume` | `PRODUCT_NAME`, `YEAR`, `MONTH_NUMBER`, `MONTH_NAME`, `UNITS_SOLD` | Product × location × year × month | 2,459 |
+| `vw_revenue` | `PRODUCT_NAME`, `YEAR`, `MONTH_NUMBER`, `MONTH_NAME`, `REVENUE` | Product × location × year × month | 2,459 |
+| `vw_profit` | `PRODUCT_NAME`, `YEAR`, `MONTH_NUMBER`, `MONTH_NAME`, `PROFIT`, `PROFIT_MARGIN` | Product × location × year × month | 2,459 |
+| `vw_level` | `PRODUCT_NAME`, `STOCK_ON_HAND`, `DAYS_OF_INVENTORY` | Original store–product pair, without a store identifier in the output | 1,593 |
+| `vw_value` | `PRODUCT_NAME`, `INVENTORY_VALUE` | Original store–product pair, without a store identifier in the output | 1,593 |
 
-W widokach magazynowych dwa wiersze z tą samą nazwą produktu i tym samym rodzajem lokalizacji mogą pochodzić z różnych sklepów. Nawet identyczne widoczne wartości nie są podstawą do usunięcia wiersza. Dodanie `DISTINCT` mogłoby zaniżyć sumę zapasu i zmienić średnie DOI.
+In the inventory views, two rows with the same product name and location type may come from different stores. Even identical visible values are not grounds for removing a row. Adding `DISTINCT` could understate total stock and change average DOI.
 
-### Zasady poprawnej agregacji
+### Correct Aggregation Rules
 
-1. **Sztuki a rekordy:** sumuj `UNITS_SOLD` dla wolumenu. Liczbę rekordów sprzedaży obliczaj z `SALE_ID` w `vw_data`, a nie przez zliczenie wierszy zagregowanego widoku.
-2. **Sprzedaż a zapas:** agreguj obie wielkości niezależnie przed ich łączeniem. Nie dołączaj zapasu do każdej transakcji i nie sumuj tak powielonych wartości.
-3. **Średnia marża:** tabela raportu używa średniej z `PROFIT_MARGIN`. Marża całej sprzedaży wymaga ilorazu łącznego zysku i przychodu — to inny wskaźnik.
-4. **Dni zapasu:** średnia w raporcie jest średnią z zaokrąglonych wskaźników poszczególnych par sklep–produkt, a nie ilorazem łącznego zapasu i łącznego tempa sprzedaży.
-5. **Miesiące:** `MONTH_NAME` sortuj po `MONTH_NUMBER`. Do zachowania kolejności 21 miesięcy dodaj `YEAR`; sama nazwa miesiąca łączy lata.
-6. **Rankingi:** najpierw zastosuj kontekst kategorii i lokalizacji, potem agreguj produkty i wybierz ranking. Widoki SQL zachowują wszystkie produkty, dzięki czemu wybór filtrów nie jest ograniczony wcześniejszym globalnym `LIMIT`.
+1. **Units versus records:** sum `UNITS_SOLD` for volume. Count sales records using `SALE_ID` in `vw_data`, rather than counting rows in an aggregated view.
+2. **Sales and inventory:** aggregate both independently before joining them. Do not attach stock to every transaction and then sum the repeated values.
+3. **Average margin:** the report table uses the average of `PROFIT_MARGIN`. The margin for total sales requires total profit divided by total revenue — a different metric.
+4. **Days of inventory:** the report average is the mean of rounded indicators for individual store–product pairs, not total stock divided by the combined sales rate.
+5. **Months:** sort `MONTH_NAME` by `MONTH_NUMBER`. Include `YEAR` to preserve a sequence of 21 months; month names alone combine years.
+6. **Rankings:** apply the category and location context first, then aggregate products and select the ranking. SQL views retain all products, so filter selections are not constrained by an earlier global `LIMIT`.
 
-## Raport Power BI
+## Power BI Report
 
-Raport prowadzi od ogólnej skali działalności przez wolumen, przychody i zysk do poziomu oraz wartości zapasu. Wspólne filtry kategorii produktów i rodzaju lokalizacji pozwalają porównywać te perspektywy w tym samym kontekście.
+The report moves from an overview of the business through volume, revenue and profit to inventory levels and value. Shared product category and location type filters allow these perspectives to be compared in the same context.
 
-### Przegląd sprzedaży i zapasów
+### Sales and Inventory Overview
 
-Strona otwierająca zawiera pięć głównych KPI: sprzedane sztuki, przychód, zysk, stan magazynowy i detaliczną wartość zapasu. Uzupełniają je liczba produktów, kategorii, rekordów sprzedaży i sklepów obecnych w danych.
+The opening page contains five main KPIs: units sold, revenue, profit, stock on hand and retail inventory value. These are complemented by counts of products, categories, sales records and stores present in the data.
 
-Wykresy przedstawiają zysk kategorii, zysk rodzajów lokalizacji oraz rozkład zysku według miesięcy. Wykres podpisany „Top 5 Products by Profit” grupuje dane według `PRODUCT_CATEGORY`, więc jego pięć słupków reprezentuje **kategorie**, nie pięć pojedynczych produktów.
+The charts show profit by category, profit by location type and the monthly distribution of profit. The chart titled “Top 5 Products by Profit” groups data by `PRODUCT_CATEGORY`, so its five bars represent **categories**, not five individual products.
 
-Podstawą kart finansowych i magazynowych jest `vw_kpi`, miesięcznego trendu — `vw_landing`, a liczników szczegółowych — `vw_data`.
+Financial and inventory cards use `vw_kpi`, the monthly trend uses `vw_landing`, and detail counts use `vw_data`.
 
-### Wolumen sprzedaży
+### Sales Volume
 
-Strona pokazuje liczbę sprzedanych sztuk według kategorii, rodzaju lokalizacji i produktu. Ranking pięciu najlepiej sprzedających się produktów jest oparty na sumie `UNITS_SOLD`. Wykres liniowy przedstawia miesięczne wartości dla pięciu kategorii.
+This page shows units sold by category, location type and product. The top five products ranking is based on the sum of `UNITS_SOLD`. A line chart displays monthly values for the five categories.
 
-Źródłem jest `vw_volume`. Ta część raportu pomaga określić, które produkty i grupy asortymentowe odpowiadają za największą liczbę sprzedanych sztuk, bez mieszania wolumenu z różnicami cen jednostkowych.
+The source is `vw_volume`. This part of the report identifies the products and categories responsible for the largest number of units sold, without mixing volume with differences in unit prices.
 
-### Przychody i produkty o największej wartości sprzedaży
+### Revenue and Leading Products by Sales Value
 
-Strona przedstawia przychód według kategorii oraz rodzaju lokalizacji, miesięczny rozkład przychodu kategorii i pięć produktów z najwyższą wartością sprzedaży.
+This page presents revenue by category and location type, the monthly distribution of category revenue, and the five products with the highest sales value.
 
-Źródłem jest `vw_revenue`. Porównanie tej strony z wolumenem pokazuje różnicę między liczbą sprzedanych sztuk a ich wartością: Colorbuds prowadzi w liczbie sztuk, natomiast Lego Bricks w przychodzie.
+The source is `vw_revenue`. Comparing this page with volume highlights the difference between units sold and their value: Colorbuds leads in units, while Lego Bricks leads in revenue.
 
-### Zysk i średnia marża
+### Profit and Average Margin
 
-Strona prezentuje zysk kategorii, przekrój lokalizacji i kategorii oraz rozkład miesięczny. Tabela obok wykresów zawiera średnią marżę obliczaną z `vw_profit`:
+This page presents category profit, the breakdown by location and category, and the monthly distribution. The table alongside the charts contains average margins calculated from `vw_profit`:
 
-| Kategoria | Średnia marża w raporcie |
+| Category | Average margin in the report |
 | --- | ---: |
-| Art & Crafts | 29,68% |
-| Electronics | 34,25% |
-| Games | 35,77% |
-| Sports & Outdoors | 27,61% |
-| Toys | 27,98% |
+| Art & Crafts | 29.68% |
+| Electronics | 34.25% |
+| Games | 35.77% |
+| Sports & Outdoors | 27.61% |
+| Toys | 27.98% |
 
-Tabela opisuje średnią zaokrąglonych marż grup produkt–lokalizacja–rok–miesiąc. Na przykład druga pozycja Electronics w zysku nie wynika bezpośrednio z tej średniej: o sumie zysku decydują również wartość i struktura sprzedaży.
+The table describes the average of rounded margins for product–location–year–month groups. For example, Electronics ranking second in profit cannot be explained directly by this average: total profit also depends on sales value and mix.
 
-### Poziom zapasów i dni pokrycia
+### Inventory Levels and Days of Coverage
 
-Strona łączy stan magazynowy według kategorii i lokalizacji z dwoma rankingami pokrycia zapasu. Wykorzystuje `vw_level`, natomiast główna karta stanu korzysta z podsumowania zapasu w `vw_kpi`.
+This page combines stock on hand by category and location with two stock coverage rankings. It uses `vw_level`, while the main inventory card uses the stock summary in `vw_kpi`.
 
-Wizualizacja „Top 5 Products by DOI” wybiera pięć produktów według `SUM(STOCK_ON_HAND)` i wyświetla ich `AVG(DAYS_OF_INVENTORY)`. Nie jest to ranking pięciu największych średnich DOI w całym asortymencie.
+“Top 5 Products by DOI” selects five products by `SUM(STOCK_ON_HAND)` and displays their `AVG(DAYS_OF_INVENTORY)`. It is not a ranking of the five highest average DOI values across the full assortment.
 
-Wizualizacja „Bottom 10 Products by DOI” wybiera dziesięć produktów według najniższej średniej `DAYS_OF_INVENTORY`. Oba wykresy prezentują ten sam wskaźnik, lecz stosują inne kryterium wyboru produktów.
+“Bottom 10 Products by DOI” selects ten products with the lowest average `DAYS_OF_INVENTORY`. Both charts display the same indicator but use different criteria to select products.
 
-### Detaliczna wartość zapasu
+### Retail Inventory Value
 
-Ostatnia strona pokazuje wycenę zapasu według kategorii i rodzaju lokalizacji oraz pięć produktów o najwyższej wartości zapasu. Źródłem jest `vw_value`, a główna karta korzysta z `INVENTORY_VALUE` w `vw_kpi`.
+The final page shows inventory valuation by category and location type, along with the five products with the highest inventory value. Its source is `vw_value`, while the main card uses `INVENTORY_VALUE` from `vw_kpi`.
 
-Najwyższa wartość kategorii przypada na Toys: **132 107,47 $**. Połączenie tej perspektywy z poziomem zapasów i sprzedażą pozwala wskazać, w których produktach koncentruje się największa detaliczna wartość dostępnego towaru.
+Toys has the highest category inventory value: **$132,107.47**. Combining this perspective with stock levels and sales identifies the products in which the largest retail value of available goods is concentrated.
 
-### Filtry i forma wizualna
+### Filters and Visual Design
 
-Raport wykorzystuje ciemne tło, żółte akcenty i spójną nawigację. Kategorie są dostępne po lewej stronie, a rodzaje lokalizacji po prawej. Wykresy rankingowe produktów są wyróżnione kolorem łososiowym; pozostałe serie korzystają z odcieni żółtego.
+The report uses a dark background, yellow accents and consistent navigation. Category filters are on the left, and location types are on the right. Product ranking charts are highlighted in salmon; other series use shades of yellow.
 
-Praktyczna kolejność analizy to przegląd KPI, wybór kategorii i lokalizacji, zestawienie wolumenu z przychodem i zyskiem, a następnie sprawdzenie zapasu. Wnioski o zamówieniach warto potwierdzić bieżącą dostępnością, planem dostaw i czasem realizacji. Sam zapis zapasu nie pokazuje utraconej sprzedaży, a dane katalogowe nie ujawniają faktycznych rabatów.
+A practical analysis sequence is to review the KPIs, select a category and location, compare volume with revenue and profit, and then examine inventory. Replenishment conclusions should be checked against current availability, delivery plans and lead times. The inventory snapshot does not reveal lost sales, and catalog data does not show actual discounts.
 
-## Jak odtworzyć projekt
+## Reproducing the Project
 
-### Wymagania
+### Requirements
 
-- MySQL 8.0 lub nowszy, obsługujący CTE używane w definicjach widoków.
-- Klient SQL obsługujący `LOAD DATA LOCAL INFILE`.
-- Pięć plików źródłowych w katalogu `Raw Data/`.
-- Uprawnienia do utworzenia bazy, tabel i widoków oraz importowania danych.
-- Power BI Desktop i skonfigurowane połączenie z MySQL, jeśli celem jest odtworzenie modelu raportowego.
+- MySQL 8.0 or later, supporting the CTEs used in view definitions.
+- An SQL client supporting `LOAD DATA LOCAL INFILE`.
+- The five source files in `Raw Data/`.
+- Permissions to create the database, tables and views, and to import data.
+- Power BI Desktop with a configured MySQL connection if the reporting model is to be reproduced.
 
-### Przygotowanie środowiska
+### Environment Setup
 
-1. Pobierz repozytorium i zachowaj nazwy plików CSV.
-2. Sprawdź ścieżki w `SQL/2_Import_of_Data.sql`. Jeżeli klient nie pracuje w katalogu głównym repozytorium, wpisz pełne ścieżki do plików.
-3. Upewnij się, że lokalny import jest włączony po stronie serwera i klienta. Skrypt zawiera opcjonalną, zakomentowaną instrukcję `SET GLOBAL local_infile = 1`; jej wykonanie wymaga odpowiednich uprawnień.
-4. Rozpocznij od nowej bazy i pustych tabel. Wykonaj import jeden raz i sprawdź komunikaty `SHOW WARNINGS`.
-5. Utwórz widoki, a następnie wykonaj kontrolę danych i porównaj sumy referencyjne.
+1. Download the repository and retain the CSV filenames.
+2. Check the paths in `SQL/2_Import_of_Data.sql`. If the client's working directory is not the repository root, provide absolute file paths.
+3. Ensure local file loading is enabled on both the server and the client. The script includes an optional commented statement, `SET GLOBAL local_infile = 1`; executing it requires appropriate permissions.
+4. Start with a new database and empty tables. Run the import once and inspect the `SHOW WARNINGS` messages.
+5. Create the views, then run validation and compare the reference totals.
 
-### Kolejność wykonania
+### Execution Order
 
-| Kolejność | Skrypt w `SQL/` | Oczekiwany rezultat |
+| Order | Script in `SQL/` | Expected result |
 | --- | --- | --- |
-| 1 | `1_Database_and_Tables.sql` | Baza i pięć pustych tabel |
-| 2 | `2_Import_of_Data.sql` | Dane z pięciu CSV z poprawnymi typami |
+| 1 | `1_Database_and_Tables.sql` | Database and five empty tables |
+| 2 | `2_Import_of_Data.sql` | Data from five CSV files with the correct types |
 | 3 | `3.1_Dimension_Views.sql` | `vw_dim_category`, `vw_dim_location` |
 | 4 | `3.2_Summary_Views.sql` | `vw_kpi`, `vw_landing`, `vw_data` |
 | 5 | `3.3_Sales_Views.sql` | `vw_volume`, `vw_revenue`, `vw_profit` |
 | 6 | `3.4_Inventory_Views.sql` | `vw_level`, `vw_value` |
-| 7 | `5_Data_Validation.sql` | Kontrole jakości i uzgodnienie wyników |
+| 7 | `4_Data_Validation.sql` | Quality checks and result reconciliation |
 
-Każdy skrypt wybiera bazę `toys_in_mexico`. Dla samodzielnych zapytań można użyć:
+Each script selects the `toys_in_mexico` database. For standalone queries, use:
 
 ```sql
 USE toys_in_mexico;
 ```
 
-Nazwy miesięcy powinny być odczytywane w sesji z `lc_time_names = 'en_US'`, a obliczenia dzielenia z domyślnym `div_precision_increment = 4`.
+Month names should be read in a session with `lc_time_names = 'en_US'`, and division calculations should use the default `div_precision_increment = 4`.
 
-Skrypty tworzą proces odtworzenia danych, nie migracje przeznaczone do dowolnego powtarzania. Klucze główne zabezpieczają przed ponownym zapisaniem tych samych identyfikatorów, ale kolejny import może generować pominięcia i ostrzeżenia. Nie jest procedurą aktualizacji źródła. Definicje widoków można ponownie wykonać przez `CREATE OR REPLACE VIEW`, bez ponownego ładowania CSV.
+The scripts provide a process for reproducing the data, not migrations intended for unrestricted repeated execution. Primary keys prevent the same identifiers from being inserted again, but repeated imports can produce skipped rows and warnings. They are not a source update procedure. View definitions can be rerun using `CREATE OR REPLACE VIEW` without reloading the CSV files.
 
-### Odtworzenie warstwy Power BI
+### Recreating the Power BI Layer
 
-Połącz Power BI z bazą i zaimportuj dziesięć widoków wymienionych w opisie modelu. Sprawdź typy kolumn liczbowych, nazwy kategorii oraz lokalizacji. Utwórz połączenia `1:*` od obu wymiarów do każdego z ośmiu widoków analitycznych, z pojedynczym kierunkiem filtrowania.
+Connect Power BI to the database and import the ten views listed in the model description. Check numeric column types, category names and location values. Create `1:*` relationships from both dimensions to each of the eight analytical views, with single-direction filtering.
 
-Ustaw sortowanie `MONTH_NAME` według `MONTH_NUMBER`. Dla wyglądu i wartości opublikowanych wykresów miesięcznych zachowaj agregowanie po nazwie miesiąca, łącznie dla lat. W analizie rozdzielającej lata wykorzystaj dodatkowo `YEAR` — będzie to inny układ osi czasu.
+Sort `MONTH_NAME` by `MONTH_NUMBER`. To reproduce the published monthly charts and their values, retain aggregation by month name across years. Use `YEAR` as well when separating years; this produces a different time axis.
 
-Dla tabeli marż użyj średniej `PROFIT_MARGIN`, dla rankingów DOI średniej `DAYS_OF_INVENTORY`, a dla wolumenu i wartości odpowiednich sum. Ustaw wybór pięciu produktów na stronie zapasów według stanu magazynowego. Liczbę produktów i sklepów obliczaj jako liczbę unikalnych nazw w szczegółach sprzedaży.
+Use the average of `PROFIT_MARGIN` for the margin table, the average of `DAYS_OF_INVENTORY` for DOI rankings, and the appropriate sums for volume and value metrics. Select the five products on the inventory page by stock on hand. Count products and stores as distinct names in sales detail.
 
-Skrypty odtwarzają dane potrzebne do raportu, ale nie tworzą automatycznie pliku Power BI, formatowania, nawigacji ani ustawień wizualizacji.
+The scripts reproduce the data required for the report, but do not automatically create the Power BI file, formatting, navigation or visual settings.
 
-## Kontrola jakości danych i zapytania walidacyjne
+## Data Quality Checks and Validation Queries
 
-Pełny zestaw kontroli znajduje się w `SQL/5_Data_Validation.sql`. Poniższe przykłady pozwalają szybko sprawdzić najważniejsze etapy odtworzenia.
+The complete set of checks is included in `SQL/4_Data_Validation.sql`. The examples below provide a quick way to verify the main reproduction steps.
 
-Weryfikacja obliczeń obejmowała porównanie wszystkich dziesięciu widoków z pierwotnymi definicjami oraz 345 kontroli liczbowych, w tym 180 wartości miesięcznych i 100 wartości w przekroju kategoria–lokalizacja. Sprawdzono sześć stron raportu, średnie marże i rankingi. Były to obliczenia kontrolne na CSV i w środowisku odtwarzającym potrzebne funkcje SQL; nie pełne uruchomienie importu na natywnym serwerze MySQL.
+Validation included comparison of all ten views with the original definitions, followed by execution of the calculation logic in MySQL 8.0.46. All 370 numeric checks passed, including 180 monthly values and 100 category–location values. All six report pages were reviewed, including average margins and product rankings. Imported rows were also reconciled against all five source CSV files.
 
-### Liczba rekordów, identyfikatory i zakres dat
+The MySQL test used an offline initialization session. In the test copy, files were loaded directly by the server instead of transferred through `LOAD DATA LOCAL INFILE`, and view definers were specified explicitly for that session. Calculation expressions, joins, grouping and rounding were unchanged. The standard client-side file transfer still depends on the local environment. Report comparisons covered the default filter state; cards abbreviated to thousands or millions were checked at their displayed precision.
+
+### Record Counts, Identifiers and Date Coverage
 
 ```sql
 SELECT
@@ -499,9 +499,9 @@ SELECT
 FROM sales;
 ```
 
-Oczekiwane wartości: `829262`, `829262`, `50`, `35`, `2022-01-01`, `2023-09-30`, `1090565`.
+Expected values: `829262`, `829262`, `50`, `35`, `2022-01-01`, `2023-09-30`, `1090565`.
 
-### Sumy sprzedaży i zapasu
+### Sales and Inventory Totals
 
 ```sql
 SELECT
@@ -513,9 +513,9 @@ SELECT
 FROM vw_kpi;
 ```
 
-Oczekiwane wartości: `1090565`, `14444572.35`, `4014029.00`, `29742`, `410240.58`.
+Expected values: `1090565`, `14444572.35`, `4014029.00`, `29742`, `410240.58`.
 
-### Niezależna kontrola wyceny zapasu
+### Independent Inventory Valuation Check
 
 ```sql
 SELECT
@@ -526,9 +526,9 @@ JOIN products p
     ON i.PRODUCT_ID = p.PRODUCT_ID;
 ```
 
-Oczekiwany wynik: `29742` i `410240.58`. Porównanie z `vw_kpi` pozwala sprawdzić, czy łączenie zagregowanej sprzedaży i zapasu nie zmieniło sumy.
+Expected result: `29742` and `410240.58`. Comparing these figures with `vw_kpi` checks whether joining aggregated sales and inventory changed the total.
 
-### Średnie marże według kategorii
+### Average Margins by Category
 
 ```sql
 SELECT
@@ -539,9 +539,9 @@ GROUP BY PRODUCT_CATEGORY
 ORDER BY PRODUCT_CATEGORY;
 ```
 
-Oczekiwane wartości w kolejności kategorii: `29.68`, `34.25`, `35.77`, `27.61`, `27.98`. Zmiana tego wyrażenia na iloraz sum zysku i przychodu da inny wskaźnik.
+Expected values in category order: `29.68`, `34.25`, `35.77`, `27.61`, `27.98`. Replacing this expression with total profit divided by total revenue produces a different metric.
 
-### Nieznane identyfikatory i powtórzone pary zapasu
+### Unknown Identifiers and Duplicate Inventory Pairs
 
 ```sql
 SELECT
@@ -560,14 +560,14 @@ GROUP BY STORE_ID, PRODUCT_ID
 HAVING COUNT(*) > 1;
 ```
 
-Pierwsze zapytanie powinno zwrócić `0`, a drugie pusty zbiór. Kontrole pozostałych powiązań i niepoprawnych ilości znajdują się w skrypcie walidacyjnym.
+The first query should return `0`, and the second an empty result set. Checks for other references and invalid quantities are included in the validation script.
 
-## Źródła i autor
+## Sources and Author
 
-- **Źródło danych:** [Maven Analytics — Mexico Toy Sales](https://mavenanalytics.io/data-playground/mexico-toy-sales). Strona źródłowa oznacza zbiór jako Public Domain.
-- **Dane użyte w obliczeniach:** pięć plików CSV w katalogu [`Raw Data/`](Raw%20Data/).
-- **Przygotowanie danych:** siedem udokumentowanych skryptów w katalogu [`SQL/`](SQL/).
-- **Raport interaktywny:** [Maven Toys — Sales and Inventory Analysis](https://app.powerbi.com/view?r=eyJrIjoiNjZmM2I0Y2QtNmYzMC00ODE4LWJiOTQtZDQzODA5MmIzN2Q0IiwidCI6ImE0ZmE1ZWNhLTdhM2YtNDRhYS04ZTI4LTc2MjBhMzk0NjEwZiJ9).
-- **Grafiki raportu:** podgląd strony głównej, trzy podglądy analiz i cztery miniatury w katalogu [`Assets/`](Assets/).
-- **Autor projektu i raportu:** Paweł Bugowski.
-- **Udostępnienie raportu:** KajoDataSpace, zgodnie ze stopką raportu.
+- **Data source:** [Maven Analytics — Mexico Toy Sales](https://mavenanalytics.io/data-playground/mexico-toy-sales). The source page labels the dataset as Public Domain.
+- **Data used in calculations:** five CSV files in [`Raw Data/`](Raw%20Data/).
+- **Data preparation:** seven documented scripts in [`SQL/`](SQL/).
+- **Interactive report:** [Maven Toys — Sales and Inventory Analysis](https://app.powerbi.com/view?r=eyJrIjoiNjZmM2I0Y2QtNmYzMC00ODE4LWJiOTQtZDQzODA5MmIzN2Q0IiwidCI6ImE0ZmE1ZWNhLTdhM2YtNDRhYS04ZTI4LTc2MjBhMzk0NjEwZiJ9).
+- **Report graphics:** an overview page preview, three analysis previews and four thumbnails in [`Assets/`](Assets/).
+- **Project and report author:** Paweł Bugowski.
+- **Report hosting:** KajoDataSpace, as credited in the report footer.
