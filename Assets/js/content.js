@@ -8,7 +8,7 @@
 window.PORTFOLIO = {
   "name": "Paweł Bugowski",
   "role": "Data Analyst",
-  "about": "I’m Paweł, a process engineer looking to bring my analytical skills into a Data Analyst role. My background shapes how I approach problems:\n\nI’ve completed nine projects covering topics such as retail sales, video games, UK railway performance, company rankings and road safety. The three projects featured here are a selection of that work. Across these projects, I’ve developed my skills in preparing data, writing SQL, validating results and building interactive Power BI reports.\n\nI enjoy investigating how things work and finding patterns that deserve a closer look. I also care about making my work easy to follow through clear visuals, documented calculations and explanations of what the data can — and cannot — tell us.\n\nI’m looking for a team where I can contribute, learn from experienced colleagues and apply these skills to real business challenges. If you’re hiring a Data Analyst, I’d be glad to discuss how I could support your team.",
+  "about": "I’m Paweł, a process engineer looking to bring my analytical skills into a Data Analyst role. My background shapes how I approach problems: understand the process, examine the details and check whether the conclusions hold up.\n\nI’ve completed nine projects covering topics such as retail sales, video games, UK railway performance, company rankings and road safety. The three projects featured here are a selection of that work. Across these projects, I’ve developed my skills in preparing data, writing SQL, validating results and building interactive Power BI reports.\n\nI enjoy investigating how things work and finding patterns that deserve a closer look. I also care about making my work easy to follow through clear visuals, documented calculations and explanations of what the data can — and cannot — tell us.\n\nI’m looking for a team where I can contribute, learn from experienced colleagues and apply these skills to real business challenges. If you’re hiring a Data Analyst, I’d be glad to discuss how I could support your team.",
   "photo": "Assets/images/autor.png",
   "photoAlt": "Paweł Bugowski — Data Analyst",
   "email": "pbugowski96@gmail.com",
@@ -381,10 +381,5 @@ window.PORTFOLIO = {
       ]
     }
   ],
-  "aboutTitle": "From process engineering to data analysis",
-  "aboutSteps": [
-    "Understand the process",
-    "Examine the details",
-    "Check whether the conclusions hold up"
-  ]
+  "aboutTitle": "From process engineering to data analysis"
 };

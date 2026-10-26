@@ -162,26 +162,21 @@
 @media(max-width:780px){.toolkit-row--tools{grid-template-columns:repeat(2,minmax(0,1fr))}.toolkit-row .skill-card{padding:20px}.toolkit-group+.toolkit-group{margin-top:28px}}
 @media(max-width:560px){.toolkit-row--tools,.toolkit-row--workflow{grid-template-columns:1fr}.toolkit-row{gap:14px}.toolkit-row .skill-card h4{font-size:20px}.toolkit-group-title{font-size:17px}}
 
-/* About me: a readable biography with a numbered analytical approach. */
-#about-me .about-grid{grid-template-columns:242px minmax(0,1fr);gap:48px;align-items:start}
-.about-profile{min-width:0}
-#about-me .social-stack{display:flex;flex-direction:column;gap:16px;border:0;padding:0;margin-top:28px}
+/* About me: portrait, biography and contact links in three columns. */
+#about-me .about-grid{grid-template-columns:242px minmax(0,1fr) 200px;gap:32px;align-items:center}
+#about-me .portrait-wrap{grid-column:1}
+#about-me .about-copy{grid-column:2;padding-left:28px;min-width:0}
+#about-me .social-stack{grid-column:3;display:flex;flex-direction:column;gap:20px;border-left:1px solid #343637;padding:0 0 0 24px;margin:0;min-width:0}
 #about-me .social-link{min-width:0}
 #about-me .social-link small{overflow-wrap:anywhere}
-#about-me .about-copy{padding-left:36px;min-width:0}
-#about-me .about-copy h2{max-width:680px;font-size:clamp(26px,2.8vw,34px);line-height:1.2;margin-bottom:24px}
+#about-me .about-copy h2{font-size:clamp(26px,2.8vw,34px);line-height:1.2;margin-bottom:24px}
 #about-text p{font-size:14px;line-height:1.85;margin:0 0 20px;color:#b9bec2}
 #about-text p:last-child{margin-bottom:0}
-.about-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:32px;list-style:none;padding:22px 0;margin:4px 0 24px;border-top:1px solid var(--color-border);border-bottom:1px solid var(--color-border)}
-.about-steps li{position:relative;display:flex;flex-direction:column;gap:12px;min-width:0}
-.about-step-number{display:grid;place-items:center;width:32px;height:32px;border:1px solid var(--color-accent);border-radius:50%;color:var(--color-accent);font-family:var(--font-mono);font-size:14px}
-.about-step-label{font-size:14px;font-weight:700;line-height:1.6;color:var(--color-text);overflow-wrap:break-word}
-.about-step-arrow{position:absolute;right:-26px;top:8px;color:var(--color-accent);font-size:12px;font-family:var(--font-mono);letter-spacing:-2px}
 .about-actions{display:flex;flex-wrap:wrap;gap:14px;margin-top:26px;align-items:stretch}
 .about-actions .button{min-width:160px;min-height:54px}
 .about-actions small{display:block;margin-top:3px;font-size:10px;font-weight:400}
 .about-actions [hidden]{display:none!important}
 .about-actions .button:disabled{cursor:not-allowed}
-@media(max-width:1050px){#about-me .about-grid{grid-template-columns:190px minmax(0,1fr);gap:32px}#about-me .about-copy{padding-left:28px}}
-@media(max-width:780px){#about-me .about-grid{grid-template-columns:1fr;gap:30px}#about-me .about-copy{border:0;padding:0}.about-profile{display:flex;gap:32px;align-items:center}#about-me .social-stack{margin:0}.about-profile .portrait-wrap{flex:none}}
-@media(max-width:560px){.about-profile{flex-direction:column;align-items:flex-start;gap:24px}.about-steps{grid-template-columns:1fr;gap:32px}.about-steps li{display:grid;grid-template-columns:32px minmax(0,1fr);align-items:center;gap:14px}.about-step-arrow{top:auto;right:auto;left:7px;bottom:-24px;transform:rotate(90deg)}.about-actions .button{flex:1;min-width:140px}}
+@media(max-width:1050px){#about-me .about-grid{grid-template-columns:190px minmax(0,1fr) 170px;gap:24px}#about-me .about-copy{padding-left:24px}#about-me .social-stack{padding-left:18px}}
+@media(max-width:780px){#about-me .about-grid{grid-template-columns:1fr;gap:30px}#about-me .portrait-wrap,#about-me .about-copy,#about-me .social-stack{grid-column:1}#about-me .about-copy{border:0;padding:0}#about-me .social-stack{flex-direction:row;flex-wrap:wrap;border:0;padding:0;gap:20px}}
+@media(max-width:560px){.about-actions .button{flex:1;min-width:140px}}
