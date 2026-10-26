@@ -49,27 +49,32 @@
   });
 
   // Project action helpers: keep labels and missing-link behavior consistent.
-  function projectAction(label, value, secondary = false) {
+  function projectAction(label, value, note = '') {
     const href = webLink(value);
-    const classes = `button${secondary ? ' button--outline' : ''}`;
+    const classes = 'button';
+    const caption = `${escape(label)}${note ? `<small>${escape(note)}</small>` : ''}`;
     if (href) {
-      return `<a class="${classes}" href="${escape(href)}"${external}><span class="project-action__label">${escape(label)}</span>${icon('arrow-up-right')}</a>`;
+      return `<a class="${classes}" href="${escape(href)}"${external}><span class="project-action__label">${caption}</span>${icon('arrow-up-right')}</a>`;
     }
-    return `<button type="button" class="${classes} project-action--pending" disabled aria-label="${escape(label)} — coming soon"><span class="project-action__label">${escape(label)}<small>Coming soon</small></span></button>`;
+    return `<button type="button" class="${classes} project-action--pending" disabled><span class="project-action__label">${caption}<small>Coming soon</small></span></button>`;
   }
   function projectActions(project, index) {
     return projectAction('View live report', project.url)
-      + projectAction('View SQL', project.codeUrl, true)
+      + projectAction('View SQL', project.codeUrl)
       + (index === 0
-        ? projectAction('Watch me talk on the PBI report', project.reportVideoUrl, true)
-          + projectAction('Watch me talk on the SQL code', project.sqlVideoUrl, true)
+        ? projectAction('Watch me talk on the PBI report', project.reportVideoUrl, 'Video in Polish')
+          + projectAction('Watch me talk on the SQL code', project.sqlVideoUrl, 'Video in Polish')
         : '');
   }
   // End project action helpers.
 
   // Keep a short introduction visible; longer descriptions use native disclosure.
-  function projectDescription(project) {
+  function projectDescription(project, expanded = false) {
     const text = String(project.description || '').trim();
+    if (expanded) {
+      const paragraphs = [text, project.descriptionDetails || ''].filter(Boolean).join('\n\n');
+      return `<div class="project-description project-description--full">${paragraphs.split(/\n\s*\n/).filter(Boolean).map(paragraph => `<p>${escape(paragraph)}</p>`).join('')}</div>`;
+    }
     let intro = text, rest = '';
     if (text.length > 220) {
       const space = text.lastIndexOf(' ', 220);
@@ -95,7 +100,7 @@
         ${gallery.length ? `<div class="gallery-block"><div class="gallery-thumbnails">${gallery.map((image, imageIndex) => `<button type="button" data-project="${index}" data-image="${imageIndex + 1}" aria-label="Open: ${escape(image.alt)}"><img src="${escape(fileLink(image.thumb || image.src))}" width="480" height="270" alt="${escape(image.alt)}" loading="lazy"><span class="gallery-thumb-caption">${escape(image.title || image.alt)}</span></button>`).join('')}</div></div>` : ''}
         ${index === 0 ? actions : ''}
       </div>
-      <div class="project-content">${project.demo ? '<p class="demo-note">Demo project</p>' : ''}<h3>${escape(project.title)}</h3>${projectDescription(project)}${index === 0 ? tags : ''}</div>
+      <div class="project-content">${project.demo ? '<p class="demo-note">Demo project</p>' : ''}<h3>${escape(project.title)}</h3>${projectDescription(project, index === 0)}${index === 0 ? tags : ''}</div>
       ${index === 0 ? '' : `<div class="project-footer">${tags}${actions}</div>`}
     </article>`;
   }).join('');

@@ -41,7 +41,7 @@ window.PORTFOLIO = {
     {
       "title": "NYC Accidents 2020",
       "demo": true,
-      "description": "Exploring New York City traffic accidents in 2020: when and where collisions occur, who is affected, and which factors contribute to injuries.",
+      "description": "Where do New York City collisions concentrate, and how do their consequences differ? I explored 74,881 reported collisions from January 1 to August 29, 2020, combining MySQL, spatial analysis and Power BI.",
       "tools": [
         "SQL",
         "Power BI"
@@ -75,12 +75,12 @@ window.PORTFOLIO = {
       "coverTitle": "Executive Overview",
       "coverWidth": 1363,
       "coverHeight": 767,
-      "descriptionDetails": "The report examines accident patterns across months, weekdays and times of day, including a timeline of COVID-19 restrictions. Geographic views compare boroughs and roads, while the injury analysis explores road-user groups, vehicle types and contributing factors.\n\nUse the live report to explore the available date, borough and vehicle-type filters. The gallery highlights the time analysis, location analysis and injury dashboard."
+      "descriptionDetails": "Explore six report pages to compare boroughs, streets, times of day and vehicle types. Follow the sharp drop in collision counts in spring 2020, then examine how injury and fatal collision patterns differ across pedestrians, cyclists and motorists.\n\nBehind the visuals, SQL standardizes inconsistent categories, uses geographic boundaries to assign missing boroughs where coordinates allow, and builds reporting and vehicle bridge views. Distinct collision counts keep repeated vehicle records from inflating the analysis.\n\nOpen the live report to investigate a borough or time period, or explore the SQL to trace the path from raw records to report-ready data. The two video walkthroughs explain the report and code in Polish."
     },
     {
       "title": "KajoDataSpace Transactions",
       "demo": true,
-      "description": "Analyzing subscription transactions from 2023 to 2026, with a focus on revenue, pricing changes, customer growth and cohort retention.",
+      "description": "What sits behind subscription revenue growth: more customers, higher payments or repeat purchases? Explore 4,227 transactions from 1,057 customers across 2023–2026, from pricing changes to customer retention.",
       "tools": [
         "SQL",
         "Power BI"
@@ -112,12 +112,12 @@ window.PORTFOLIO = {
       "coverTitle": "Executive Overview",
       "coverWidth": 1280,
       "coverHeight": 720,
-      "descriptionDetails": "The report compares revenue by subscription type and the share of transactions at regular and discounted prices. Customer views place new-customer counts and average transaction value alongside the timing of price increases.\n\nThe cohort retention matrix follows monthly subscription cohorts over time. The gallery presents revenue and discounts, customer growth and cohort retention."
+      "descriptionDetails": "The report connects revenue trends with subscription plans, new-customer activity and monthly cohort retention. Compare the periods around price increases and explore how purchase frequency and payment values change over time.\n\nBehind the dashboards, SQL prepares transaction data, distinguishes first and subsequent purchases, summarizes customer histories and supplies activity records for retention analysis. Open the report to explore the patterns, then follow the SQL to see how the underlying measures are built."
     },
     {
       "title": "Maven Toys — Sales & Inventory",
       "demo": true,
-      "description": "Exploring sales and inventory across a toy retail business in Mexico: revenue drivers, product profitability and stock levels by category and location.",
+      "description": "Do the best-selling toys also generate the most profit? Explore 829,262 sales records across 50 Mexican stores to compare product demand, financial contribution and inventory.",
       "tools": [
         "SQL",
         "Power BI"
@@ -149,7 +149,7 @@ window.PORTFOLIO = {
       "coverTitle": "Sales and Inventory Overview",
       "coverWidth": 1352,
       "coverHeight": 767,
-      "descriptionDetails": "The report compares revenue and profit across product categories and store locations. Monthly trends and product rankings provide additional detail, while inventory views show stock levels and days of inventory (DOI).\n\nThe gallery focuses on revenue, profit and inventory levels. Open the live report to explore its category and location controls."
+      "descriptionDetails": "Art & Crafts leads in units sold, while Toys leads in revenue and profit. Electronics has the lowest category sales volume but the second-highest profit. Explore these differences through category and location filters, then compare stock levels and inventory value.\n\nThe SQL joins sales, products, stores and inventory, builds reporting views, and validates key totals. Its stock-coverage calculations provide a starting point for investigating availability. Open the live report to compare the business perspectives, or inspect the SQL to follow the calculations back to the source data."
     }
   ],
   "experience": [
