@@ -323,8 +323,8 @@ The diagram below groups views by subject for readability. Each name within a gr
 
 ```mermaid
 flowchart TD
-    C["vw_dim_category — PRODUCT_CATEGORY"]
-    L["vw_dim_location — STORE_LOCATION"]
+    C["vw_dim_category"]
+    L["vw_dim_location"]
     K["Summaries: vw_kpi, vw_landing"]
     S["Sales: vw_volume, vw_revenue, vw_profit"]
     I["Inventory: vw_level, vw_value"]
