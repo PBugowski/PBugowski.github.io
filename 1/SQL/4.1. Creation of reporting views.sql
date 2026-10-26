@@ -40,6 +40,9 @@
 -- types and over time.
 -- -----------------------------------------------------------------------------------------------------------------
 
+-- Selects the NYC_ACCIDENTS database as the active database.
+USE NYC_ACCIDENTS;
+
 -- Adds a binary flag identifying crashes involving injuries but no fatalities.
 ALTER TABLE accidents
 ADD COLUMN ACC_W_INJURED INT;
