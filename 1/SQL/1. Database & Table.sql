@@ -12,13 +12,13 @@
 -- nature of the stored data.
 -- -----------------------------------------------------------------------------------------------------------------
 
-CREATE DATABASE WEBINAR_NYC_ACCIDENTS 								-- Creates the WEBINAR_NYC_ACCIDENTS database.
-CHARACTER SET utf8mb4 												-- Sets UTF-8 character encoding for the database.
+CREATE DATABASE NYC_ACCIDENTS 								  -- Creates the NYC_ACCIDENTS database.
+CHARACTER SET utf8mb4 												  -- Sets UTF-8 character encoding for the database.
 COLLATE utf8mb4_unicode_ci; 										-- Sets Unicode collation for text comparison and sorting.
 
-USE WEBINAR_NYC_ACCIDENTS;											-- Selects the WEBINAR_NYC_ACCIDENTS database as the active database.
+USE WEBINAR_NYC_ACCIDENTS;											-- Selects the NYC_ACCIDENTS database as the active database.
 
-CREATE TABLE accidents( 											-- Creates the accidents table.
+CREATE TABLE accidents( 											  -- Creates the accidents table.
 CRASH_DATE DATE,
 CRASH_TIME TIME,
 BOROUGH VARCHAR(255),
