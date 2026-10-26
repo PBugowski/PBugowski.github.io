@@ -391,10 +391,9 @@ A practical workflow is to review the KPIs, select a month and borough, compare 
 ### Environment Setup
 
 1. Download the repository files and retain the unchanged CSV as the source.
-2. In `SQL/2. Import of data.sql`, replace the author's local path, `C:/Users/pbugo/Desktop/Webinar/NYC.csv`, with your own full path to `Raw Data/NYC.csv`.
-3. Check that local file loading is supported by both the server and the client. The script contains `SET GLOBAL local_infile = 1`, which requires appropriate permissions. If the setting is already enabled, the administrator can adjust this step to the environment.
-4. In environments where table names are case-sensitive, change the `ACCIDENTS` references in the two `UNION ALL` views to match the table name `accidents`.
-5. Run the scripts in a new database dedicated to this project, in the order shown below.
+2. Check the path in `SQL/2_Import_of_Data.sql`. The client must resolve `'Raw Data/NYC.csv'` relative to its working directory; use the full file path if necessary.
+3. Check that local file loading is supported by both the server and the client. The script contains `SET GLOBAL local_infile = 1`, which requires appropriate permissions.
+4. Run the scripts in a new database dedicated to this project, in the order shown below.
 
 ### Execution Order
 
