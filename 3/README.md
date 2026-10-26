@@ -479,11 +479,7 @@ The scripts reproduce the data required for the report, but do not automatically
 
 ## Data Quality Checks and Validation Queries
 
-The complete set of checks is included in `SQL/4_Data_Validation.sql`. The examples below provide a quick way to verify the main reproduction steps.
-
-Validation included comparison of all ten views with the original definitions, followed by execution of the calculation logic in MySQL 8.0.46. All 370 numeric checks passed, including 180 monthly values and 100 category–location values. All six report pages were reviewed, including average margins and product rankings. Imported rows were also reconciled against all five source CSV files.
-
-The MySQL test used an offline initialization session. In the test copy, files were loaded directly by the server instead of transferred through `LOAD DATA LOCAL INFILE`, and view definers were specified explicitly for that session. Calculation expressions, joins, grouping and rounding were unchanged. The standard client-side file transfer still depends on the local environment. Report comparisons covered the default filter state; cards abbreviated to thousands or millions were checked at their displayed precision.
+The following queries provide checks after the relevant stages have been completed. Reference values come from profiling the included CSV and reproducing the SQL rules and aggregations. Calculation validation did not constitute a complete execution of the import and pipeline on a native MySQL server.
 
 ### Record Counts, Identifiers and Date Coverage
 
