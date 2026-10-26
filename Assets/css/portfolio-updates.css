@@ -180,3 +180,8 @@
 @media(max-width:1050px){#about-me .about-grid{grid-template-columns:190px minmax(0,1fr) 170px;gap:24px}#about-me .about-copy{padding-left:24px}#about-me .social-stack{padding-left:18px}}
 @media(max-width:780px){#about-me .about-grid{grid-template-columns:1fr;gap:30px}#about-me .portrait-wrap,#about-me .about-copy,#about-me .social-stack{grid-column:1}#about-me .about-copy{border:0;padding:0}#about-me .social-stack{flex-direction:row;flex-wrap:wrap;border:0;padding:0;gap:20px}}
 @media(max-width:560px){.about-actions .button{flex:1;min-width:140px}}
+
+/* A slightly larger, brighter hero introduction remains legible over the artwork. */
+.hero .hero-description{font-size:19px;line-height:1.75;color:#e8eaeb;text-shadow:0 2px 6px rgba(0,0,0,.9)}
+@media(max-width:780px){.hero .hero-description{font-size:17px}}
+@media(max-width:560px){.hero .hero-description{font-size:16px}}

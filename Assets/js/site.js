@@ -21,7 +21,7 @@
   const socialTitle = $('meta[property="og:title"]');
   if (socialTitle) socialTitle.setAttribute('content', document.title);
   document.querySelectorAll('[data-role]').forEach(element => { element.textContent = data.role; });
-  $('#about-title').textContent = data.aboutTitle || 'About me';
+  $('#about-title').innerHTML = escape(data.aboutTitle || 'About me').replace('From process engineering to data analysis', 'From process engineering<br>to data analysis');
   const aboutParagraphs = String(data.about || '').split(/\n\s*\n/).filter(Boolean);
   const aboutSteps = Array.isArray(data.aboutSteps) ? data.aboutSteps : [];
   const approach = aboutSteps.length ? `<ol class="about-steps" aria-label="My approach to analysis">${aboutSteps.map((step, index) => `<li><span class="about-step-number" aria-hidden="true">${index + 1}</span><span class="about-step-label">${escape(step)}</span>${index < aboutSteps.length - 1 ? '<span class="about-step-arrow" aria-hidden="true">&gt;&gt;&gt;</span>' : ''}</li>`).join('')}</ol>` : '';
