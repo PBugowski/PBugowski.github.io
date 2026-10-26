@@ -410,8 +410,7 @@ A practical workflow is to review the KPIs, select a period, compare purchase co
 1. Download the repository files, preserving the original CSV and its row order.
 2. Check the path in `SQL/2_Import_of_Data.sql`. The client must resolve `'Raw Data/transactions.csv'` relative to its working directory; use the full file path if necessary.
 3. Confirm that local file loading is supported by both the server and the client. `SET GLOBAL local_infile = 1` requires appropriate server permissions.
-4. Prepare a new database for the project and import the data once into an empty table.
-5. Execute the remaining scripts in the order below and compare the results with the reference values.
+4. Run the scripts in a new database dedicated to this project, in the order shown below.
 
 ### Execution Order
 
