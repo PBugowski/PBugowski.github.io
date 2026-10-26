@@ -16,7 +16,7 @@ CREATE DATABASE NYC_ACCIDENTS 								  -- Creates the NYC_ACCIDENTS database.
 CHARACTER SET utf8mb4 												  -- Sets UTF-8 character encoding for the database.
 COLLATE utf8mb4_unicode_ci; 										-- Sets Unicode collation for text comparison and sorting.
 
-USe NYC_ACCIDENTS;						        					-- Selects the NYC_ACCIDENTS database as the active database.
+USE NYC_ACCIDENTS;						        					-- Selects the NYC_ACCIDENTS database as the active database.
 
 CREATE TABLE accidents( 											  -- Creates the accidents table.
 CRASH_DATE DATE,
