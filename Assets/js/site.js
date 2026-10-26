@@ -108,7 +108,27 @@
     details.addEventListener('toggle', () => { details.querySelector('summary').textContent = details.open ? 'Read less' : 'Read more'; });
   });
 
-  $('#skills-grid').innerHTML = (data.skills || []).map(skill => `<article class="skill-card">${icon(skill.icon)}<h3>${escape(skill.name)}</h3><p>${escape(skill.description)}</p></article>`).join('');
+  // Toolkit groups use the existing technology icons and matching line icons.
+  const toolkitIcons = {
+    prepare: '<path d="M4 4h16l-6 7v7l-4 2v-9z"/>',
+    validate: '<path d="M12 3 4 6v6c0 5 8 9 8 9s8-4 8-9V6z"/><path d="m8 12 3 3 5-6"/>',
+    analyze: '<path d="M4 3v17h17M8 15v-4m5 4V7m5 8V4"/>',
+    communicate: '<path d="M4 4h16v12h-6l-4 4v-4H4zM8 11V9m4 2V7m4 4V6"/>',
+    document: '<path d="M6 3h8l4 4v14H6zM14 3v5h4M9 12h6m-6 4h6"/>'
+  };
+  function toolkitIcon(name) {
+    return Object.hasOwn(toolkitIcons, name)
+      ? `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${toolkitIcons[name]}</svg>`
+      : icon(name);
+  }
+  const toolkitGroups = [
+    {id:'tools', title:'Tools I work with'},
+    {id:'workflow', title:'How I work with data'}
+  ];
+  $('#skills-grid').innerHTML = toolkitGroups.map(group => {
+    const cards = (data.skills || []).filter(skill => skill.group === group.id);
+    return `<section class="toolkit-group" aria-labelledby="toolkit-${group.id}-title"><h3 class="toolkit-group-title" id="toolkit-${group.id}-title">${group.title}</h3><div class="toolkit-row toolkit-row--${group.id}">${cards.map(skill => `<article class="skill-card">${toolkitIcon(skill.icon)}<h4>${escape(skill.name)}</h4><ul class="skill-list">${(skill.items || []).map(item => `<li>${escape(item)}</li>`).join('')}</ul></article>`).join('')}</div></section>`;
+  }).join('');
   $('#experience-list').innerHTML = (data.experience || []).map(job => `<li><h4>${escape(job.title)}</h4><p class="career-meta">${escape(job.organization)}<br>${escape(job.period)}</p>${job.description ? `<p class="career-description">${escape(job.description)}</p>` : ""}</li>`).join('') || '<li><p class="career-description">Details coming soon.</p></li>';
   function qualifications(items, target, symbol) {
     const render = item => {

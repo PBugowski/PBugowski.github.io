@@ -142,3 +142,22 @@
 .project-card--featured .project-description--full{display:flex;flex-direction:column;justify-content:space-between;flex:1;gap:18px}
 .project-card--featured .project-description--full>p{margin:0}
 @media(max-width:780px){.project-card--featured .project-description--full{flex:0;justify-content:flex-start;gap:16px}}
+
+/* Analytics toolkit: three tools, then five analytical competencies. */
+#skills-grid{display:block}
+.toolkit-group+.toolkit-group{margin-top:36px}
+.toolkit-group-title{margin:0 0 18px;color:var(--color-text);font-size:18px;line-height:1.4;letter-spacing:0}
+.toolkit-row{display:grid;gap:18px;align-items:stretch}
+.toolkit-row--tools{grid-template-columns:repeat(3,minmax(0,1fr))}
+.toolkit-row--workflow{grid-template-columns:repeat(5,minmax(0,1fr))}
+.toolkit-row .skill-card{min-width:0;padding:24px;display:grid;grid-template-rows:32px auto 1fr;gap:16px;align-content:start}
+.toolkit-row .skill-card>.icon{width:32px;height:32px;margin:0;color:var(--color-accent)}
+.toolkit-row .skill-card h4{margin:0;color:var(--color-text);font-size:20px;line-height:1.35;letter-spacing:-.02em;overflow-wrap:break-word}
+.toolkit-row--workflow .skill-card{padding:20px}
+.toolkit-row--workflow .skill-card h4{min-height:72px;font-size:18px}
+.skill-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:12px}
+.skill-list li{position:relative;margin:0;padding-left:14px;color:#bdc2c5;font-size:14px;line-height:1.6;overflow-wrap:break-word}
+.skill-list li::before{content:'';position:absolute;left:0;top:.62em;width:4px;height:4px;background:var(--color-accent);border-radius:50%}
+@media(max-width:1100px){.toolkit-row--workflow{grid-template-columns:repeat(2,minmax(0,1fr))}.toolkit-row--workflow .skill-card h4{min-height:0}}
+@media(max-width:780px){.toolkit-row--tools{grid-template-columns:repeat(2,minmax(0,1fr))}.toolkit-row .skill-card{padding:20px}.toolkit-group+.toolkit-group{margin-top:28px}}
+@media(max-width:560px){.toolkit-row--tools,.toolkit-row--workflow{grid-template-columns:1fr}.toolkit-row{gap:14px}.toolkit-row .skill-card h4{font-size:20px}.toolkit-group-title{font-size:17px}}

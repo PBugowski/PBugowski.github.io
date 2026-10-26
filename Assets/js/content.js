@@ -19,22 +19,122 @@ window.PORTFOLIO = {
     {
       "name": "SQL",
       "icon": "sql",
-      "description": "Querying, joining and modeling data"
-    },
-    {
-      "name": "Python",
-      "icon": "python",
-      "description": "Analysis, data processing and automation"
+      "group": "tools",
+      "items": [
+        "Analytical queries & aggregations",
+        "Joins & subqueries",
+        "CTEs & recursive queries",
+        "Window functions",
+        "SQL views & reporting layers",
+        "Query optimization & indexing",
+        "Database design & normalization",
+        "Spatial queries & analysis"
+      ]
     },
     {
       "name": "Power BI",
       "icon": "power-bi",
-      "description": "Dashboards, visualization and reporting"
+      "group": "tools",
+      "items": [
+        "Interactive dashboards & reports",
+        "Data modeling & relationships",
+        "Filters, slicers & cross-filtering",
+        "Time-based analysis",
+        "Geographic visualizations",
+        "Cohort & retention analysis",
+        "Report navigation & drill-through",
+        "Dashboard layout & visual design"
+      ]
     },
     {
       "name": "Excel",
       "icon": "excel",
-      "description": "Analysis, pivot tables and Power Query"
+      "group": "tools",
+      "items": [
+        "Advanced formulas & calculations",
+        "PivotTables & PivotCharts",
+        "Lookup & reference functions",
+        "Conditional aggregations",
+        "Data cleaning & validation",
+        "Conditional formatting",
+        "Charts & reporting",
+        "What-if analysis & Goal Seek"
+      ]
+    },
+    {
+      "name": "Data Preparation",
+      "icon": "prepare",
+      "group": "workflow",
+      "items": [
+        "Multi-source data integration",
+        "Data type & format standardization",
+        "Missing-value handling",
+        "Deduplication & record matching",
+        "Data reshaping & transformation",
+        "Feature engineering & derived variables",
+        "Granularity alignment across datasets",
+        "Reusable data preparation workflows"
+      ]
+    },
+    {
+      "name": "Data Quality & Validation",
+      "icon": "validate",
+      "group": "workflow",
+      "items": [
+        "Data profiling & anomaly detection",
+        "Referential integrity checks",
+        "Business-rule validation",
+        "Cross-source reconciliation",
+        "Join cardinality & duplication checks",
+        "Aggregation & KPI validation",
+        "Temporal consistency checks",
+        "Repeatable data quality checks"
+      ]
+    },
+    {
+      "name": "Data Analysis",
+      "icon": "analyze",
+      "group": "workflow",
+      "items": [
+        "Exploratory data analysis",
+        "Trend & period-over-period analysis",
+        "Cohort & retention analysis",
+        "Customer segmentation & behavior analysis",
+        "Revenue, margin & profitability analysis",
+        "Inventory & stock coverage analysis",
+        "Contribution & variance analysis",
+        "Spatial & geographic analysis"
+      ]
+    },
+    {
+      "name": "Data Visualization & Communication",
+      "icon": "communicate",
+      "group": "workflow",
+      "items": [
+        "Chart selection & visual encoding",
+        "Information hierarchy & dashboard composition",
+        "Interactive exploration & drill-through",
+        "KPI context & metric interpretation",
+        "Data storytelling & analytical narratives",
+        "Audience-focused communication",
+        "Communicating uncertainty & limitations",
+        "Report presentations & walkthroughs"
+      ]
+    },
+    {
+      "name": "Project Documentation",
+      "icon": "document",
+      "group": "workflow",
+      "items": [
+        "Business objectives & analytical questions",
+        "Data source & scope documentation",
+        "Data dictionaries & metric definitions",
+        "Data model & relationship documentation",
+        "Transformation logic & data lineage",
+        "Assumptions, limitations & methodology",
+        "Validation procedures & reconciliation notes",
+        "Reproducible setup & execution instructions"
+      ]
     }
   ],
   "projects": [
