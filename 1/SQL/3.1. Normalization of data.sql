@@ -29,6 +29,8 @@
 -- further SQL analysis and Power BI reporting.
 -- -----------------------------------------------------------------------------------------------------------------
 
+USE NYC_ACCIDENTS;																									-- Selects the NYC_ACCIDENTS database as the active database.
+
 UPDATE accidents
 SET
     BOROUGH = COALESCE(BOROUGH, 'NO BOROUGH'),
