@@ -1,34 +1,45 @@
--- 4.3. Creation of Vehicle Bridge Views for Power BI Filtering
+-- 4.3. Creation of Vehicle Bridge Views
 -- -----------------------------------------------------------------------------------------------------------------
--- Creates a set of bridge views that transform the five vehicle type columns
--- from the accidents table into a common VEHICLE_TYPE column.
+-- Creates eight views that associate collision identifiers with vehicle
+-- types from the five VEHICLE_TYPE_CODE fields in accidents.
+-- Each view returns two columns: COLLISION_ID and VEHICLE_TYPE.
 --
--- Each bridge view contains the COLLISION_ID and the corresponding vehicle
--- type. UNION ALL combines the values from VEHICLE_TYPE_CODE_1 through
--- VEHICLE_TYPE_CODE_5 into a single structure.
+-- Separate view names are provided for the following analytical datasets:
+--   - P1_VW, P2_VW and P3_VW,
+--   - P4P5P6_FACTOR_VW and P4P5P6_HEAT_VW,
+--   - P4P5P6_MAP_VW and P4P5P6_STREET_VW,
+--   - P4P5P6_VEHICLE_VW.
 --
--- Records classified as 'NO TYPE' are excluded because they do not represent
--- a specific vehicle type and are not required for vehicle type filtering.
+-- All eight definitions read accidents directly and return the same logical
+-- mapping. Their names distinguish the intended point of use; the scripts
+-- do not join the corresponding analytical views or create constraints.
+-- There is no separate bridge for P4P5P6_RATE_VW in this set.
 --
--- Separate bridge views are created for P1, P2, P3, and the individual
--- analytical components of the P4, P5 and P6 dashboards.
+-- NO TYPE entries are excluded from each source field. Other categories,
+-- including OTHER, remain. An accident can contribute up to five rows.
+-- If the same type appears in several slots, the collision/type pair is
+-- repeated rather than deduplicated. Counting bridge rows therefore counts
+-- vehicle-slot associations, not distinct accidents.
 --
--- The bridge views allow the vehicle type to be used as a filter in Power BI
--- while maintaining the relationship between a vehicle type and the original
--- accident identified by COLLISION_ID.
+-- Use COLLISION_ID when relating the mapping to accident-level records.
+-- A direct join can multiply those records, so collision counts must account
+-- for repeated matches. Repeated slot values do not become additional
+-- collisions. These views read current table contents without storing copies.
 --
--- The resulting bridge views provide a consistent vehicle type structure
--- that can be connected to the corresponding Power BI reporting views.
--- This enables a vehicle type selection to filter accident records across
--- the relevant visualizations and dashboards.
+-- Run this script after vehicle normalization in the intended database.
+-- No source records are updated by these view definitions.
 -- -----------------------------------------------------------------------------------------------------------------
 
--- Selects the NYC_ACCIDENTS database as the active database.
-USE NYC_ACCIDENTS;
 
--- Creates a bridge view connecting DIM_VEHICLE_VW with the P1_VW.
+-- Active database choice
+-- -----------------------------------------------------------------------------------------------------------------
+USE NYC_ACCIDENTS;                                                          		 -- Selects the active database for subsequent statements.
+
+
+-- Vehicle Mapping for P1_VW
+-- -----------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE VIEW BRIDGE_VEHICLE_P1_VW AS
-SELECT COLLISION_ID, VEHICLE_TYPE_CODE_1 AS VEHICLE_TYPE
+SELECT COLLISION_ID, VEHICLE_TYPE_CODE_1 AS VEHICLE_TYPE                             -- COLLISION_ID links each vehicle association back to the original accident record.
 FROM accidents
 WHERE LOWER(VEHICLE_TYPE_CODE_1) <> 'no type'
 UNION ALL
@@ -48,7 +59,9 @@ SELECT COLLISION_ID, VEHICLE_TYPE_CODE_5
 FROM accidents
 WHERE LOWER(VEHICLE_TYPE_CODE_5) <> 'no type';
 
--- Creates a bridge view connecting DIM_VEHICLE_VW with the P2_VW.
+
+-- Vehicle Mapping for P2_VW
+-- -----------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE VIEW BRIDGE_VEHICLE_P2_VW AS
 SELECT COLLISION_ID, VEHICLE_TYPE_CODE_1 AS VEHICLE_TYPE
 FROM accidents
@@ -70,7 +83,9 @@ SELECT COLLISION_ID, VEHICLE_TYPE_CODE_5
 FROM accidents
 WHERE LOWER(VEHICLE_TYPE_CODE_5) <> 'no type';
 
--- Creates a bridge view connecting DIM_VEHICLE_VW with the P3_VW.
+
+-- Vehicle Mapping for P3_VW
+-- -----------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE VIEW BRIDGE_VEHICLE_P3_VW AS
 SELECT COLLISION_ID, VEHICLE_TYPE_CODE_1 AS VEHICLE_TYPE
 FROM accidents
@@ -92,7 +107,9 @@ SELECT COLLISION_ID, VEHICLE_TYPE_CODE_5
 FROM accidents
 WHERE LOWER(VEHICLE_TYPE_CODE_5) <> 'no type';
 
--- Creates a bridge view connecting DIM_VEHICLE_VW with the P4P5P6_FACTOR_VW.
+
+-- Vehicle Mapping for P4P5P6_FACTOR_VW
+-- -----------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE VIEW BRIDGE_VEHICLE_P4P5P6_FACTOR_VW AS
 SELECT COLLISION_ID, VEHICLE_TYPE_CODE_1 AS VEHICLE_TYPE
 FROM accidents
@@ -114,7 +131,9 @@ SELECT COLLISION_ID, VEHICLE_TYPE_CODE_5
 FROM accidents
 WHERE LOWER(VEHICLE_TYPE_CODE_5) <> 'no type';
 
--- Creates a bridge view connecting DIM_VEHICLE_VW with the P4P5P6_HEAT_VW.
+
+-- Vehicle Mapping for P4P5P6_HEAT_VW
+-- -----------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE VIEW BRIDGE_VEHICLE_P4P5P6_HEAT_VW AS
 SELECT COLLISION_ID, VEHICLE_TYPE_CODE_1 AS VEHICLE_TYPE
 FROM accidents
@@ -136,7 +155,9 @@ SELECT COLLISION_ID, VEHICLE_TYPE_CODE_5
 FROM accidents
 WHERE LOWER(VEHICLE_TYPE_CODE_5) <> 'no type';
 
--- Creates a bridge view connecting DIM_VEHICLE_VW with the P4P5P6_MAP_VW.
+
+-- Vehicle Mapping for P4P5P6_MAP_VW
+-- -----------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE VIEW BRIDGE_VEHICLE_P4P5P6_MAP_VW AS
 SELECT COLLISION_ID, VEHICLE_TYPE_CODE_1 AS VEHICLE_TYPE
 FROM accidents
@@ -158,7 +179,9 @@ SELECT COLLISION_ID, VEHICLE_TYPE_CODE_5
 FROM accidents
 WHERE LOWER(VEHICLE_TYPE_CODE_5) <> 'no type';
 
--- Creates a bridge view connecting DIM_VEHICLE_VW with the P4P5P6_STREET_VW.
+
+-- Vehicle Mapping for P4P5P6_STREET_VW
+-- -----------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE VIEW BRIDGE_VEHICLE_P4P5P6_STREET_VW AS
 SELECT COLLISION_ID, VEHICLE_TYPE_CODE_1 AS VEHICLE_TYPE
 FROM accidents
@@ -180,7 +203,9 @@ SELECT COLLISION_ID, VEHICLE_TYPE_CODE_5
 FROM accidents
 WHERE LOWER(VEHICLE_TYPE_CODE_5) <> 'no type';
 
--- Creates a bridge view connecting DIM_VEHICLE_VW with the P4P5P6_VEHICLE_VW.
+
+-- Vehicle Mapping for P4P5P6_VEHICLE_VW
+-- -----------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE VIEW BRIDGE_VEHICLE_P4P5P6_VEHICLE_VW AS
 SELECT COLLISION_ID, VEHICLE_TYPE_CODE_1 AS VEHICLE_TYPE
 FROM accidents

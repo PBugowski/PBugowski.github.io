@@ -1,37 +1,45 @@
--- 4.2. Creation of Dimension Views for Power BI Data Modeling
+-- 4.2. Creation of Vehicle, Borough and Date Dimensions
 -- -----------------------------------------------------------------------------------------------------------------
--- Creates dimension views for vehicle types, boroughs, and dates to support
--- filtering, relationships, and time-based analysis in Power BI.
+-- Creates three dimension views and adds CRASH_DATETIME to accidents.
+-- The dimensions provide the following lookup values:
+--   - DIM_VEHICLE_VW: unique vehicle types across all five source fields,
+--   - DIM_BOROUGH_VW: unique non-null borough names,
+--   - DIM_DATE_VW: consecutive dates and their calendar attributes.
 --
--- DIM_VEHICLE_VW contains unique vehicle types from all five vehicle columns,
--- excluding records classified as 'NO TYPE'. The view is used as a vehicle
--- dimension for filtering and vehicle-related analysis.
+-- The vehicle dimension excludes NO TYPE but retains other categories,
+-- including OTHER. The borough dimension does not exclude the NO BOROUGH
+-- placeholder. Both dimensions reflect values present in accidents rather
+-- than a separate list of allowed categories.
 --
--- DIM_BOROUGH_VW contains unique non-null borough names and provides a
--- separate dimension for borough-level filtering and analysis.
+-- CRASH_DATETIME combines the stored crash date and time. The recursive
+-- date range starts at the earliest non-null combined timestamp and adds
+-- one day at a time through the latest such date. Days without accidents
+-- between these endpoints are included. Missing combined timestamps do
+-- not establish the range endpoints.
 --
--- DIM_DATE_VW generates a continuous date range from the earliest to the
--- latest recorded CRASH_DATETIME. It provides date attributes including
--- year, quarter, month, day, and year-month, which support time-based
--- analysis and date filtering in Power BI.
+-- The final date view exposes DATE, YEAR, QUARTER, MONTH, DAY and YEAR_MONTH.
+-- If no non-null combined timestamp exists, the anchor aggregate produces
+-- a NULL date rather than a populated calendar. Longer date spans must fit
+-- within the MySQL session's recursive execution limit.
 --
--- The dimension views provide a structured supporting layer for the Power BI
--- data model and allow consistent filtering and analysis across the reporting
--- views.
+-- Run this script after normalization. Adding CRASH_DATETIME is an initial
+-- setup operation; it cannot be repeated while the column already exists.
+-- Queries requiring a particular row order should specify ORDER BY.
 -- -----------------------------------------------------------------------------------------------------------------
 
--- Selects the NYC_ACCIDENTS database as the active database.
-USE NYC_ACCIDENTS;
 
+-- Active database choice
 -- -----------------------------------------------------------------------------------------------------------------
--- DIM_VEHICLE_VW
+USE NYC_ACCIDENTS;                                                          		 -- Selects the active database for subsequent statements.
+
+
+-- Vehicle Type Dimension
 -- -----------------------------------------------------------------------------------------------------------------
--- Creates a dimension view containing unique vehicle types used in the accidents.
 CREATE OR REPLACE VIEW DIM_VEHICLE_VW AS
-SELECT DISTINCT VEHICLE_TYPE_CODE_1 AS VEHICLE_TYPE
+SELECT DISTINCT VEHICLE_TYPE_CODE_1 AS VEHICLE_TYPE                                  -- DISTINCT keeps one row for each different selected value.
 FROM accidents
-WHERE LOWER(VEHICLE_TYPE_CODE_1) <> 'no type'
-UNION
+WHERE LOWER(VEHICLE_TYPE_CODE_1) <> 'no type'                                        -- Excludes the unspecified-type category from the vehicle lookup.
+UNION                                                                                -- Combines the vehicle lists and removes duplicates across the combined result.
 SELECT DISTINCT VEHICLE_TYPE_CODE_2
 FROM accidents
 WHERE LOWER(VEHICLE_TYPE_CODE_2) <> 'no type'
@@ -48,49 +56,49 @@ SELECT DISTINCT VEHICLE_TYPE_CODE_5
 FROM accidents
 WHERE LOWER(VEHICLE_TYPE_CODE_5) <> 'no type';
 
+
+-- Borough Dimension
 -- -----------------------------------------------------------------------------------------------------------------
--- DIM_BOROUGH_VW
--- -----------------------------------------------------------------------------------------------------------------
--- Creates a dimension view containing unique borough names.
 CREATE OR REPLACE VIEW DIM_BOROUGH_VW AS
 SELECT DISTINCT
     BOROUGH
 FROM accidents
 WHERE BOROUGH IS NOT NULL;
 
+
+-- Combined Crash Timestamp
 -- -----------------------------------------------------------------------------------------------------------------
--- DIM_DATE_VW
--- -----------------------------------------------------------------------------------------------------------------
--- Adds a combined date and time column for each accident.
 ALTER TABLE accidents
 ADD COLUMN CRASH_DATETIME DATETIME;
 
--- Combines the crash date and crash time into a single DATETIME value.
-UPDATE accidents
-SET CRASH_DATETIME = TIMESTAMP(CRASH_DATE, CRASH_TIME);
 
--- Creates a date dimension containing all dates between the first and last accident.
+UPDATE accidents
+SET CRASH_DATETIME = TIMESTAMP(CRASH_DATE, CRASH_TIME);                              -- TIMESTAMP combines the stored date and time into one datetime value.
+
+
+-- Continuous Date Dimension
+-- -----------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE VIEW DIM_DATE_VW AS
-WITH RECURSIVE DATE_RANGE AS ( 							-- Generates a continuous sequence of dates using a recursive common table expression.
+WITH RECURSIVE DATE_RANGE AS (                                                       -- Defines a named result that generates further rows by referring to its previous date.
     SELECT
-        DATE(MIN(CRASH_DATETIME)) AS 'DATE'     		-- Selects the first date based on the earliest recorded accident.
+        DATE(MIN(CRASH_DATETIME)) AS 'DATE'                                          -- MIN selects the earliest timestamp; DATE removes its time component for the starting row.
     FROM accidents
     WHERE CRASH_DATETIME IS NOT NULL
     UNION ALL
     SELECT
-        DATE + INTERVAL 1 DAY 							-- Adds one day to the previously generated date.
+        DATE + INTERVAL 1 DAY                                                        -- Advances the previously generated date by one calendar day.
     FROM DATE_RANGE
     WHERE DATE < (
-        SELECT DATE(MAX(CRASH_DATETIME)) 				-- Continues generating dates until the date of the latest accident.
+        SELECT DATE(MAX(CRASH_DATETIME))                                             -- MAX supplies the latest timestamp used as the end of the date range.
         FROM accidents
         WHERE CRASH_DATETIME IS NOT NULL
     )
 )
-SELECT 													-- Selects the date attributes used for date-based analysis in Power BI.
+SELECT
     DATE,
     YEAR(DATE) AS 'YEAR',
-    QUARTER(DATE) AS 'QUARTER',
+    QUARTER(DATE) AS 'QUARTER',                                                      -- QUARTER returns the calendar quarter from 1 to 4.
     MONTH(DATE) AS 'MONTH',
-    DAY(DATE) AS 'DAY',
-    DATE_FORMAT(DATE, '%Y-%m') AS 'YEAR_MONTH'
+    DAY(DATE) AS 'DAY',                                                              -- DAY returns the day of the month.
+    DATE_FORMAT(DATE, '%Y-%m') AS 'YEAR_MONTH'                                       -- DATE_FORMAT produces a year-month label that distinguishes the same month across years.
 FROM DATE_RANGE;
