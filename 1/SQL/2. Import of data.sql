@@ -13,11 +13,11 @@
 -- the accidents table.
 -- -----------------------------------------------------------------------------------------------------------------
 
-USE WEBINAR_NYC_ACCIDENTS;																-- Selects the NYC_ACCIDENTS database as the active database.
+USE NYC_ACCIDENTS;																		-- Selects the NYC_ACCIDENTS database as the active database.
 
 SET GLOBAL local_infile = 1; 															-- Enables loading local files into MySQL.
 
-LOAD DATA LOCAL INFILE 'C:/Users/pbugo/Desktop/Webinar/NYC.csv' 						-- Specifies the local CSV file containing the NYC accident data.
+LOAD DATA LOCAL INFILE 'Raw Data/NYC.csv' 												-- Specifies the local CSV file containing the NYC accident data.
 INTO TABLE accidents 																	-- Specifies the accidents table as the destination for the imported data.
 FIELDS TERMINATED BY ',' 																-- Specifies that columns in the CSV file are separated by commas.
 OPTIONALLY ENCLOSED BY '"' 																-- Specifies that text fields may optionally be enclosed in double quotation marks.
