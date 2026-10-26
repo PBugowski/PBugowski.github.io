@@ -426,7 +426,7 @@ These steps allow a report to be built on the same data layer. They do not autom
 
 ## Data Quality Checks and Validation Queries
 
-The following queries provide checks after the relevant stages have been completed. Reference values come from profiling the included CSV and reproducing the flag definitions. The complete pipeline was not executed on a MySQL server as part of preparing this documentation.
+The following queries provide checks after the relevant stages have been completed. Reference values come from profiling the included CSV and reproducing the SQL rules and aggregations. Calculation validation did not constitute a complete execution of the import and pipeline on a native MySQL server.
 
 ### Record Count, Uniqueness, and Date Range
 
