@@ -62,8 +62,8 @@
     return projectAction('View live report', project.url)
       + projectAction('View SQL', project.codeUrl)
       + (index === 0
-        ? projectAction('Watch me talk on the PBI report', project.reportVideoUrl, 'Video in Polish')
-          + projectAction('Watch me talk on the SQL code', project.sqlVideoUrl, 'Video in Polish')
+        ? projectAction('PBI report walkthrough', project.reportVideoUrl, 'Video in Polish')
+          + projectAction('SQL code walkthrough', project.sqlVideoUrl, 'Video in Polish')
         : '');
   }
   // End project action helpers.
