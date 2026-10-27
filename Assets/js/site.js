@@ -132,7 +132,7 @@
   ];
   $('#skills-grid').innerHTML = toolkitGroups.map(group => {
     const cards = (data.skills || []).filter(skill => skill.group === group.id);
-    return `<section class="toolkit-group" aria-labelledby="toolkit-${group.id}-title"><h3 class="toolkit-group-title" id="toolkit-${group.id}-title">${group.title}</h3><div class="toolkit-row toolkit-row--${group.id}">${cards.map(skill => `<article class="skill-card">${toolkitIcon(skill.icon)}<h4>${escape(skill.name)}</h4><ul class="skill-list">${(skill.items || []).map(item => `<li>${escape(item)}</li>`).join('')}</ul><p class="skill-more-note">... and more!</p></article>`).join('')}</div></section>`;
+    return `<section class="toolkit-group" aria-labelledby="toolkit-${group.id}-title"><h3 class="toolkit-group-title" id="toolkit-${group.id}-title">${group.title}</h3><div class="toolkit-row toolkit-row--${group.id}">${cards.map(skill => `<article class="skill-card">${toolkitIcon(skill.icon)}<h4>${escape(skill.name)}</h4><ul class="skill-list">${(skill.items || []).map(item => `<li>${escape(item)}</li>`).join('')}</ul></article>`).join('')}</div><p class="toolkit-more toolkit-more--${group.id}">...and much more!</p></section>`;
   }).join('');
   function experienceBullets(items, className = '') {
     return Array.isArray(items) && items.length
@@ -142,14 +142,9 @@
   $('#experience-list').innerHTML = (data.experience || []).map(job => {
     const achievements = experienceBullets(job.achievements, 'experience-achievements');
     const responsibilities = experienceBullets(job.responsibilities);
-    const details = responsibilities || achievements ? `<details class="experience-more"><summary><span class="experience-toggle">Read more</span><span class="experience-toggle-description">about my responsibilities and achievements</span></summary>${responsibilities}${achievements ? `<div class="experience-highlights"><h5>Selected achievements</h5>${achievements}</div>` : ''}</details>` : '';
+    const details = responsibilities || achievements ? `<details class="experience-more"><summary><span class="experience-toggle">Read about</span><span class="experience-toggle-description">my responsibilities and achievements</span></summary>${responsibilities}${achievements ? `<div class="experience-highlights"><h5>Selected achievements</h5>${achievements}</div>` : ''}</details>` : '';
     return `<li><h4>${escape(job.title)}</h4><p class="career-meta">${escape(job.organization)}<br>${escape(job.period)}</p>${job.description ? `<p class="career-description">${escape(job.description)}</p>` : ''}${details}</li>`;
   }).join('') || '<li><p class="career-description">Details coming soon.</p></li>';
-  document.querySelectorAll('.experience-more').forEach(details => {
-    details.addEventListener('toggle', () => {
-      details.querySelector('.experience-toggle').textContent = details.open ? 'Read less' : 'Read more';
-    });
-  });
   function qualifications(items, target, symbol) {
     const render = item => {
       const url = webLink(item.url);

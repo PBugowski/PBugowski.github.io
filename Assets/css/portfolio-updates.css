@@ -196,9 +196,8 @@
 #experience-list .experience-highlights h5{margin:0;color:var(--color-accent);font-size:14px;font-weight:700;line-height:1.5;letter-spacing:0}
 #experience-list .experience-achievements{margin-top:14px;padding-bottom:0}
 
-/* Compact skill cards retain four highlights and a quiet continuation note. */
-.toolkit-row .skill-card{grid-template-rows:32px auto 1fr auto}
-.toolkit-row .skill-card .skill-more-note{margin:0;padding:10px 0 0;color:var(--color-accent);font-size:13px;font-weight:700;line-height:1.5}
+/* Compact skill cards retain four highlights. */
+.toolkit-row .skill-card{grid-template-rows:32px auto 1fr}
 .experience-more{margin-top:14px}
 .experience-more>summary{display:block;list-style:none;width:fit-content;min-height:44px;padding:10px 0;cursor:pointer;color:var(--color-accent);font-size:13px;font-weight:700;line-height:1.5}
 .experience-more>summary::-webkit-details-marker{display:none}
@@ -210,3 +209,10 @@
 .navigation #cv-pending{opacity:1;cursor:not-allowed}
 .navigation #cv-pending:hover{background:var(--color-accent);transform:none}
 @media(max-width:1050px){.menu-toggle{display:flex}.navigation{display:none;position:absolute;top:100%;left:0;right:0;padding:20px;flex-direction:column;align-items:stretch;gap:4px;border-bottom:1px solid #363b3d;background:#101213}.navigation.is-open{display:flex}.navigation>a:not(.button){padding:14px!important;font-size:13px}.navigation .button{margin-top:10px}}
+
+/* A full-width continuation card beneath each toolkit group. */
+.toolkit-more{display:flex;align-items:center;justify-content:center;margin:18px 0 0;padding:20px 24px;min-height:64px;border:1px solid #303334;border-radius:8px;background:#131516;color:var(--color-accent);font-size:20px;font-weight:700;line-height:1.35;letter-spacing:-.02em;text-align:center}
+.toolkit-more--workflow{font-size:18px}
+.navigation #cv-pending{padding-block:7px}
+.navigation #cv-pending small{display:block;margin-top:2px;font-size:10px;font-weight:400;line-height:1.2;color:inherit}
+@media(max-width:560px){.toolkit-more{margin-top:14px;padding:18px 20px}.toolkit-more--workflow{font-size:20px}}
