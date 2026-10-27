@@ -14,7 +14,7 @@ window.PORTFOLIO = {
   "email": "pbugowski96@gmail.com",
   "linkedin": "https://www.linkedin.com/in/pawelbugowski/",
   "github": "https://github.com/PBugowski",
-  "cv": "",
+  "cv": "Assets/documents/Pawel_Bugowski_CV.pdf",
   "skills": [
     {
       "name": "SQL",
