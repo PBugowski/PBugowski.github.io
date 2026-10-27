@@ -115,7 +115,7 @@ window.PORTFOLIO = {
         "Power BI"
       ],
       "url": "https://app.powerbi.com/view?r=eyJrIjoiOWIzYWE4NGYtZmI1OS00MWU1LThmYzktZDI4M2UwYmE3YmI0IiwidCI6ImE0ZmE1ZWNhLTdhM2YtNDRhYS04ZTI4LTc2MjBhMzk0NjEwZiJ9",
-      "codeUrl": "https://github.com/PBugowski/PBugowski.github.io/tree/main/Demo_projects/New%20York%20City%20Traffic%20Collisions%20in%202020/SQL",
+      "codeUrl": "https://github.com/PBugowski/PBugowski.github.io/tree/main/Demo_projects/New%20York%20City%20Traffic%20Collisions%20in%202020",
       "cover": "Demo_projects/New York City Traffic Collisions in 2020/Assets/cover.webp",
       "coverAlt": "NYC Accidents: Executive Overview",
       "gallery": [
@@ -154,7 +154,7 @@ window.PORTFOLIO = {
         "Power BI"
       ],
       "url": "https://app.powerbi.com/view?r=eyJrIjoiNGZjYmEwMDgtZGJhMS00ZGZjLWEyOWUtZDc3MmE0MmU0MzQ1IiwidCI6ImE0ZmE1ZWNhLTdhM2YtNDRhYS04ZTI4LTc2MjBhMzk0NjEwZiJ9",
-      "codeUrl": "https://github.com/PBugowski/PBugowski.github.io/tree/main/Demo_projects/KajoDataSpace%20-%20Transactions%20and%20Customer%20Activity%20in%202023-2026/SQL",
+      "codeUrl": "https://github.com/PBugowski/PBugowski.github.io/tree/main/Demo_projects/KajoDataSpace%20-%20Transactions%20and%20Customer%20Activity%20in%202023-2026",
       "cover": "Demo_projects/KajoDataSpace - Transactions and Customer Activity in 2023-2026/Assets/cover.webp",
       "coverAlt": "KajoDataSpace Transactions: Executive Overview",
       "gallery": [
@@ -191,7 +191,7 @@ window.PORTFOLIO = {
         "Power BI"
       ],
       "url": "https://app.powerbi.com/view?r=eyJrIjoiNjZmM2I0Y2QtNmYzMC00ODE4LWJiOTQtZDQzODA5MmIzN2Q0IiwidCI6ImE0ZmE1ZWNhLTdhM2YtNDRhYS04ZTI4LTc2MjBhMzk0NjEwZiJ9",
-      "codeUrl": "https://github.com/PBugowski/PBugowski.github.io/tree/main/Demo_projects/Maven%20Toys%20-%20Sales%20and%20Inventory%20in%20Mexican%20Toy%20Stores/SQL",
+      "codeUrl": "https://github.com/PBugowski/PBugowski.github.io/tree/main/Demo_projects/Maven%20Toys%20-%20Sales%20and%20Inventory%20in%20Mexican%20Toy%20Stores",
       "cover": "Demo_projects/Maven Toys - Sales and Inventory in Mexican Toy Stores/Assets/cover.webp",
       "coverAlt": "Maven Toys: Sales and Inventory Overview",
       "gallery": [

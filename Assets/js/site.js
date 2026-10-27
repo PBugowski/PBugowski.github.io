@@ -65,7 +65,7 @@
   }
   function projectActions(project, index) {
     return projectAction('View live report', project.url)
-      + projectAction('View SQL', project.codeUrl)
+      + projectAction('View details and SQL', project.codeUrl)
       + (index === 0
         ? projectAction('PBI report walkthrough', project.reportVideoUrl, 'Video in Polish')
           + projectAction('SQL code walkthrough', project.sqlVideoUrl, 'Video in Polish')
