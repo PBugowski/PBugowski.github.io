@@ -195,3 +195,18 @@
 #experience-list .experience-highlights{margin-top:6px;padding-top:20px;border-top:1px solid var(--color-border)}
 #experience-list .experience-highlights h5{margin:0;color:var(--color-accent);font-size:14px;font-weight:700;line-height:1.5;letter-spacing:0}
 #experience-list .experience-achievements{margin-top:14px;padding-bottom:0}
+
+/* Compact skill cards retain four highlights and a quiet continuation note. */
+.toolkit-row .skill-card{grid-template-rows:32px auto 1fr auto}
+.toolkit-row .skill-card .skill-more-note{margin:0;padding:10px 0 0;color:var(--color-accent);font-size:13px;font-weight:700;line-height:1.5}
+.experience-more{margin-top:14px}
+.experience-more>summary{display:block;list-style:none;width:fit-content;min-height:44px;padding:10px 0;cursor:pointer;color:var(--color-accent);font-size:13px;font-weight:700;line-height:1.5}
+.experience-more>summary::-webkit-details-marker{display:none}
+.experience-toggle,.experience-toggle-description{display:block}
+.experience-toggle::before{content:'▸';display:inline-block;margin-right:7px}
+.experience-more[open] .experience-toggle::before{content:'▾'}
+.experience-toggle-description{margin-top:3px;font-size:12px;font-weight:400}
+.navigation [hidden]{display:none!important}
+.navigation #cv-pending{opacity:1;cursor:not-allowed}
+.navigation #cv-pending:hover{background:var(--color-accent);transform:none}
+@media(max-width:1050px){.menu-toggle{display:flex}.navigation{display:none;position:absolute;top:100%;left:0;right:0;padding:20px;flex-direction:column;align-items:stretch;gap:4px;border-bottom:1px solid #363b3d;background:#101213}.navigation.is-open{display:flex}.navigation>a:not(.button){padding:14px!important;font-size:13px}.navigation .button{margin-top:10px}}

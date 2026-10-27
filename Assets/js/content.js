@@ -21,14 +21,10 @@ window.PORTFOLIO = {
       "icon": "sql",
       "group": "tools",
       "items": [
-        "Analytical queries & aggregations",
         "Joins & subqueries",
         "CTEs & recursive queries",
         "Window functions",
-        "SQL views & reporting layers",
-        "Query optimization & indexing",
-        "Database design & normalization",
-        "Spatial queries & analysis"
+        "SQL views & reporting layers"
       ]
     },
     {
@@ -39,11 +35,7 @@ window.PORTFOLIO = {
         "Interactive dashboards & reports",
         "Data modeling & relationships",
         "Filters, slicers & cross-filtering",
-        "Time-based analysis",
-        "Geographic visualizations",
-        "Cohort & retention analysis",
-        "Report navigation & drill-through",
-        "Dashboard layout & visual design"
+        "Report navigation & drill-through"
       ]
     },
     {
@@ -54,11 +46,7 @@ window.PORTFOLIO = {
         "Advanced formulas & calculations",
         "PivotTables & PivotCharts",
         "Lookup & reference functions",
-        "Conditional aggregations",
-        "Data cleaning & validation",
-        "Conditional formatting",
-        "Charts & reporting",
-        "What-if analysis & Goal Seek"
+        "Conditional aggregations"
       ]
     },
     {
@@ -66,12 +54,8 @@ window.PORTFOLIO = {
       "icon": "prepare",
       "group": "workflow",
       "items": [
-        "Multi-source data integration",
         "Data type & format standardization",
         "Missing-value handling",
-        "Deduplication & record matching",
-        "Data reshaping & transformation",
-        "Feature engineering & derived variables",
         "Granularity alignment across datasets",
         "Reusable data preparation workflows"
       ]
@@ -83,12 +67,8 @@ window.PORTFOLIO = {
       "items": [
         "Data profiling & anomaly detection",
         "Referential integrity checks",
-        "Business-rule validation",
-        "Cross-source reconciliation",
         "Join cardinality & duplication checks",
-        "Aggregation & KPI validation",
-        "Temporal consistency checks",
-        "Repeatable data quality checks"
+        "Aggregation & KPI validation"
       ]
     },
     {
@@ -96,13 +76,9 @@ window.PORTFOLIO = {
       "icon": "analyze",
       "group": "workflow",
       "items": [
-        "Exploratory data analysis",
         "Trend & period-over-period analysis",
         "Cohort & retention analysis",
         "Customer segmentation & behavior analysis",
-        "Revenue, margin & profitability analysis",
-        "Inventory & stock coverage analysis",
-        "Contribution & variance analysis",
         "Spatial & geographic analysis"
       ]
     },
@@ -111,13 +87,9 @@ window.PORTFOLIO = {
       "icon": "communicate",
       "group": "workflow",
       "items": [
-        "Chart selection & visual encoding",
         "Information hierarchy & dashboard composition",
         "Interactive exploration & drill-through",
-        "KPI context & metric interpretation",
         "Data storytelling & analytical narratives",
-        "Audience-focused communication",
-        "Communicating uncertainty & limitations",
         "Report presentations & walkthroughs"
       ]
     },
@@ -126,14 +98,10 @@ window.PORTFOLIO = {
       "icon": "document",
       "group": "workflow",
       "items": [
-        "Business objectives & analytical questions",
-        "Data source & scope documentation",
         "Data dictionaries & metric definitions",
         "Data model & relationship documentation",
-        "Transformation logic & data lineage",
         "Assumptions, limitations & methodology",
-        "Validation procedures & reconciliation notes",
-        "Reproducible setup & execution instructions"
+        "Validation procedures & reconciliation notes"
       ]
     }
   ],
