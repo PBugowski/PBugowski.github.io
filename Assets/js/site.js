@@ -134,7 +134,15 @@
     const cards = (data.skills || []).filter(skill => skill.group === group.id);
     return `<section class="toolkit-group" aria-labelledby="toolkit-${group.id}-title"><h3 class="toolkit-group-title" id="toolkit-${group.id}-title">${group.title}</h3><div class="toolkit-row toolkit-row--${group.id}">${cards.map(skill => `<article class="skill-card">${toolkitIcon(skill.icon)}<h4>${escape(skill.name)}</h4><ul class="skill-list">${(skill.items || []).map(item => `<li>${escape(item)}</li>`).join('')}</ul></article>`).join('')}</div></section>`;
   }).join('');
-  $('#experience-list').innerHTML = (data.experience || []).map(job => `<li><h4>${escape(job.title)}</h4><p class="career-meta">${escape(job.organization)}<br>${escape(job.period)}</p>${job.description ? `<p class="career-description">${escape(job.description)}</p>` : ""}</li>`).join('') || '<li><p class="career-description">Details coming soon.</p></li>';
+  function experienceBullets(items, className = '') {
+    return Array.isArray(items) && items.length
+      ? `<ul class="experience-bullets ${className}">${items.map(item => `<li>${escape(item)}</li>`).join('')}</ul>`
+      : '';
+  }
+  $('#experience-list').innerHTML = (data.experience || []).map(job => {
+    const achievements = experienceBullets(job.achievements, 'experience-achievements');
+    return `<li><h4>${escape(job.title)}</h4><p class="career-meta">${escape(job.organization)}<br>${escape(job.period)}</p>${job.description ? `<p class="career-description">${escape(job.description)}</p>` : ''}${experienceBullets(job.responsibilities)}${achievements ? `<div class="experience-highlights"><h5>Selected achievements</h5>${achievements}</div>` : ''}</li>`;
+  }).join('') || '<li><p class="career-description">Details coming soon.</p></li>';
   function qualifications(items, target, symbol) {
     const render = item => {
       const url = webLink(item.url);

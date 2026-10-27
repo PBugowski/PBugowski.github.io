@@ -185,3 +185,13 @@
 .hero .hero-description{font-size:19px;line-height:1.75;color:#e8eaeb;text-shadow:0 2px 6px rgba(0,0,0,.9)}
 @media(max-width:780px){.hero .hero-description{font-size:17px}}
 @media(max-width:560px){.hero .hero-description{font-size:16px}}
+
+/* Work experience: responsibilities and achievements inside each timeline entry. */
+#experience-list .career-description{font-size:13px;line-height:1.8;color:#b9bec2}
+#experience-list .experience-bullets{list-style:disc;margin:18px 0 0;padding:0 0 17px 17px;display:flex;flex-direction:column;gap:13px}
+#experience-list .experience-bullets>li{position:static;margin:0;padding:0;font-size:13px;line-height:1.75;color:#b9bec2;overflow-wrap:anywhere}
+#experience-list .experience-bullets>li::before{content:none}
+#experience-list .experience-bullets>li::marker{color:var(--color-accent)}
+#experience-list .experience-highlights{margin-top:6px;padding-top:20px;border-top:1px solid var(--color-border)}
+#experience-list .experience-highlights h5{margin:0;color:var(--color-accent);font-size:14px;font-weight:700;line-height:1.5;letter-spacing:0}
+#experience-list .experience-achievements{margin-top:14px;padding-bottom:0}

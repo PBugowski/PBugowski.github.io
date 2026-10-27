@@ -256,8 +256,20 @@ window.PORTFOLIO = {
     {
       "title": "Process Engineer",
       "organization": "PRODMAX SP. Z O.O.",
-      "period": "2020 - Present",
-      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+      "period": "November 2020 – Present",
+      "description": "I combine process analysis, production coordination and data quality oversight to support operational decisions and improve how work is planned, executed and recorded.",
+      "responsibilities": [
+        "Analyze production workflows to identify bottlenecks, investigate inefficiencies and develop practical process improvements.",
+        "Validate production data recorded in the ERP system, investigate inconsistencies and support accurate, reliable information for operational use.",
+        "Prepare cost estimates and build pricing calculators, translating production requirements into structured, repeatable calculations.",
+        "Create and monitor production orders, assess execution progress and coordinate responses to constraints affecting order completion.",
+        "Serve as the first point of contact for production issues, investigating problems and working across departments to identify causes and implement solutions.",
+        "Develop technological processes and supporting documentation, making production requirements, operating procedures and responsibilities clear and consistent."
+      ],
+      "achievements": [
+        "Designed and launched a new distribution department, establishing its operating processes, developing procedures and training materials, and training employees.",
+        "Led technological modernization initiatives in two production departments, improving the accuracy and consistency of production data recorded in internal systems."
+      ]
     }
   ],
   "education": [
