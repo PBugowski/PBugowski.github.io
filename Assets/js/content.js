@@ -264,7 +264,7 @@ window.PORTFOLIO = {
     {
       "title": "Data Analytics Community & Development Program",
       "organization": "KajoDataSpace",
-      "period": "November 2026",
+      "period": "2026",
       "url": "",
       "gallery": [
         {
