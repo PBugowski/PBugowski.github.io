@@ -1,0 +1,272 @@
+/* Load after site.css. Focused updates that preserve the existing design. */
+
+/* Section labels: slightly larger and more readable at every screen size. */
+:is(#about-me, #portfolio, #skills, #experience) .eyebrow {
+  font-size: 12px;
+  line-height: 1.6;
+  letter-spacing: .12em;
+  color: #bdc2c5;
+}
+
+/* Demo projects label, including its outline. */
+#demo-label {
+  font-size: 11px;
+  line-height: 1.5;
+  padding: 8px 14px;
+  letter-spacing: .07em;
+  color: #d6dadc;
+  border-color: #555b5f;
+}
+
+/* Keep the footer identity readable on both desktop and mobile. */
+.site-footer .footer-wrap > span {
+  font-size: 12px;
+  line-height: 1.6;
+}
+.site-footer .footer-role {
+  font-size: 12px;
+  color: #adb5ba;
+}
+
+/* The name and logo in the navigation are plain, non-interactive content. */
+.site-header .brand {
+  cursor: default;
+}
+
+/* Two equal columns keep the featured project's longer video labels tidy. */
+.project-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  align-items: stretch;
+}
+.project-actions .button {
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  padding: 12px;
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+  white-space: normal;
+}
+.project-action__label {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.project-action__label small {
+  display: block;
+  margin-top: 4px;
+  font-size: 10px;
+  font-weight: 400;
+  color: inherit;
+}
+.project-actions .button:disabled {
+  opacity: .8;
+  cursor: not-allowed;
+  transform: none;
+}
+.project-actions .project-action--pending {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #0b0b0b;
+}
+.project-actions .project-action--pending:hover {
+  background: var(--color-accent);
+}
+
+@media (max-width: 560px) {
+  .project-actions { gap: 8px; }
+  .project-actions .button { padding: 11px 9px; font-size: 11px; }
+  .site-footer .footer-wrap { flex-wrap: wrap; }
+}
+
+/* Real report captures: preserve every chart and label. */
+.project-image-button img,.gallery-thumbnails img{aspect-ratio:16/9;object-fit:contain;background:#090a0a}
+.project-card--featured{grid-template-columns:minmax(0,1.65fr) minmax(0,1fr);align-items:start}
+.project-card--featured .gallery-block{grid-column:1;grid-row:2}
+.project-card--featured .project-content{grid-column:2;grid-row:1 / span 2;align-self:center}
+.gallery-label{font-size:12px;margin-bottom:10px}
+.gallery-thumb-caption{display:block;padding:9px 7px;color:#c3c8cb;font-size:11px;line-height:1.5;text-align:left}
+.gallery-thumbnails button{display:flex;flex-direction:column;justify-content:flex-start}
+.gallery-thumbnails button:hover .gallery-thumb-caption{color:#ffd600}
+.gallery-caption{text-align:center;color:#c3c8cb;font-size:13px;margin:14px 0 0}
+.gallery-dialog{width:min(1440px,calc(100% - 32px))}
+.dialog-image-wrap img{max-height:68dvh}
+.brand{font-size:14px}
+:is(#about-me,#portfolio,#skills,#experience) .eyebrow{font-size:13px}
+.site-footer .footer-wrap>span,.site-footer .footer-role{font-size:14px}
+.about-copy p,.project-content p{font-size:14px}
+.skill-card p,.career-description,.career-meta,.qualification p{font-size:12px}
+.qualification h4{font-size:14px}
+.demo-note{font-size:10px!important}
+@media(max-width:780px){.project-card--featured{display:block}.project-card--featured .project-content{padding:24px 5px 5px}.brand{font-size:12px}}
+@media(max-width:560px){.gallery-thumb-caption{font-size:10px;padding:7px 5px}.project-content p{font-size:13px}.project-actions .button{font-size:12px}.site-footer .footer-wrap>span,.site-footer .footer-role{font-size:13px}}
+
+
+/* Secondary project footers stay grouped; the featured card uses two independent columns. */
+.project-grid{align-items:stretch}
+.project-card{display:flex;flex-direction:column;padding:20px}
+.project-media{min-width:0}
+.project-card .project-content{padding:22px 0 0;min-width:0}
+.project-footer{margin-top:auto;padding-top:24px;min-width:0;flex-shrink:0}
+.project-card .project-footer .tool-tags{margin:0 0 12px}
+.project-card .project-footer .project-actions{margin:0;padding:0}
+.project-card--featured{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(0,1fr);grid-template-rows:auto;gap:0 28px;align-items:stretch}
+.project-card--featured .project-media{grid-column:1;grid-row:1;display:flex;flex-direction:column;min-width:0}
+.project-card--featured .project-content{grid-column:2;grid-row:1;align-self:stretch;padding:0;display:flex;flex-direction:column}
+.project-card--featured .project-content .tool-tags{margin:auto 0 0;padding-top:24px;justify-content:flex-end}
+.project-card--featured .project-actions{grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:1fr;align-items:stretch;margin: auto 0 0;padding:24px 0 0;width:100%;flex-shrink:0}
+.project-card--featured .project-actions .button{min-height:72px;align-self:stretch;justify-content:center}
+.project-more{margin:0}
+.project-more summary{display:list-item;width:fit-content;min-height:44px;padding:10px 0;color:var(--color-accent);font-size:13px;font-weight:700;cursor:pointer}
+.project-more[open] summary{margin-bottom:8px}
+.project-description>p{margin-bottom:0;overflow-wrap:anywhere}
+.project-long-description p{white-space:pre-line;overflow-wrap:anywhere;margin-bottom:12px}
+.project-long-description p:last-child{margin-bottom:0}
+.qualification-content{flex:1;min-width:0}
+.qualification--certificate .qualification-content{container-type:inline-size}
+.qualification--certificate h4{margin-bottom:10px}
+.certificate-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center}
+.certificate-row .career-meta{margin:0;overflow-wrap:anywhere}
+.certificate-view-button{width:156px;min-height:32.16px;padding:6px 12px;font-size:12px;gap:8px;line-height:1.4}
+.certificate-view-button .icon{width:16px;height:16px}
+@container (max-width:235px){.certificate-row{grid-template-columns:1fr}.certificate-view-button{width:100%}}
+.gallery-dialog--certificate{width:min(1100px,calc(100% - 32px))}
+.gallery-dialog--certificate .dialog-image-wrap img{height:auto;max-height:68dvh;object-fit:contain;background:#101314}
+.gallery-dialog--certificate .dialog-footer{display:none}
+@media(max-width:780px){.project-card--featured .project-actions{grid-template-columns:repeat(2,minmax(0,1fr))}.project-card--featured{display:flex}.project-card--featured .project-content{padding:22px 0 0}.project-card{padding:20px}}
+@media(max-width:560px){.project-card{padding:20px}.gallery-dialog--certificate .dialog-toolbar h2{font-size:14px}}
+
+/* Full featured description; secondary Read more controls retain their text style. */
+.project-card--featured .project-description--full{display:flex;flex-direction:column;justify-content:flex-start;flex:0 0 auto;gap:18px}
+.project-card--featured .project-description--full>p{margin:0}
+@media(max-width:780px){.project-card--featured .project-description--full{flex:0;justify-content:flex-start;gap:16px}}
+
+/* Analytics toolkit: three tools, then five analytical competencies. */
+#skills-grid{display:block}
+.toolkit-group+.toolkit-group{margin-top:36px}
+.toolkit-group-title{margin:0 0 18px;color:var(--color-text);font-size:18px;line-height:1.4;letter-spacing:0}
+.toolkit-row{display:grid;gap:18px;align-items:stretch}
+.toolkit-row--tools{grid-template-columns:repeat(3,minmax(0,1fr))}
+.toolkit-row--workflow{grid-template-columns:repeat(5,minmax(0,1fr))}
+.toolkit-row .skill-card{min-width:0;padding:24px;display:grid;grid-template-rows:32px auto 1fr;gap:16px;align-content:start}
+.toolkit-row .skill-card>.icon{width:32px;height:32px;margin:0;color:var(--color-accent)}
+.toolkit-row .skill-card h4{margin:0;color:var(--color-text);font-size:20px;line-height:1.35;letter-spacing:-.02em;overflow-wrap:break-word}
+.toolkit-row--workflow .skill-card{padding:20px}
+.toolkit-row--workflow .skill-card h4{min-height:72px;font-size:18px}
+.skill-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:12px}
+.skill-list li{position:relative;margin:0;padding-left:14px;color:#bdc2c5;font-size:14px;line-height:1.6;overflow-wrap:break-word}
+.skill-list li::before{content:'';position:absolute;left:0;top:.62em;width:4px;height:4px;background:var(--color-accent);border-radius:50%}
+@media(max-width:1100px){.toolkit-row--workflow{grid-template-columns:repeat(2,minmax(0,1fr))}.toolkit-row--workflow .skill-card h4{min-height:0}}
+@media(max-width:780px){.toolkit-row--tools{grid-template-columns:repeat(2,minmax(0,1fr))}.toolkit-row .skill-card{padding:20px}.toolkit-group+.toolkit-group{margin-top:28px}}
+@media(max-width:560px){.toolkit-row--tools,.toolkit-row--workflow{grid-template-columns:1fr}.toolkit-row{gap:14px}.toolkit-row .skill-card h4{font-size:20px}.toolkit-group-title{font-size:17px}}
+
+/* About me: portrait, biography and contact links in three columns. */
+#about-me .about-grid{grid-template-columns:242px minmax(0,1fr) 200px;gap:32px;align-items:center}
+#about-me .portrait-wrap{grid-column:1}
+#about-me .about-copy{grid-column:2;padding-left:28px;min-width:0}
+#about-me .social-stack{grid-column:3;display:flex;flex-direction:column;gap:20px;border-left:1px solid #343637;padding:0 0 0 24px;margin:0;min-width:0}
+#about-me .social-link{min-width:0}
+#about-me .social-link small{overflow-wrap:anywhere}
+#about-me .about-copy h2{font-size:clamp(26px,2.8vw,34px);line-height:1.2;margin-bottom:24px}
+#about-text p{font-size:14px;line-height:1.85;margin:0 0 20px;color:#b9bec2}
+#about-text p:last-child{margin-bottom:0}
+.about-actions{display:flex;flex-wrap:wrap;gap:14px;margin-top:26px;align-items:stretch}
+.about-actions .button{min-width:160px;min-height:54px}
+.about-actions small{display:block;margin-top:3px;font-size:10px;font-weight:400}
+.about-actions [hidden]{display:none!important}
+.about-actions .button:disabled{cursor:not-allowed}
+@media(max-width:1050px){#about-me .about-grid{grid-template-columns:190px minmax(0,1fr) 170px;gap:24px}#about-me .about-copy{padding-left:24px}#about-me .social-stack{padding-left:18px}}
+@media(max-width:780px){#about-me .about-grid{grid-template-columns:1fr;gap:30px}#about-me .portrait-wrap,#about-me .about-copy,#about-me .social-stack{grid-column:1}#about-me .about-copy{border:0;padding:0}#about-me .social-stack{flex-direction:row;flex-wrap:wrap;border:0;padding:0;gap:20px}}
+@media(max-width:560px){.about-actions .button{flex:1;min-width:140px}}
+
+/* A slightly larger, brighter hero introduction remains legible over the artwork. */
+.hero .hero-description{font-size:19px;line-height:1.75;color:#e8eaeb;text-shadow:0 2px 6px rgba(0,0,0,.9)}
+@media(max-width:780px){.hero .hero-description{font-size:17px}}
+@media(max-width:560px){.hero .hero-description{font-size:16px}}
+
+/* Work experience: responsibilities and achievements inside each timeline entry. */
+#experience-list .career-description{font-size:13px;line-height:1.8;color:#b9bec2}
+#experience-list .experience-bullets{list-style:disc;margin:18px 0 0;padding:0 0 17px 17px;display:flex;flex-direction:column;gap:13px}
+#experience-list .experience-bullets>li{position:static;margin:0;padding:0;font-size:13px;line-height:1.75;color:#b9bec2;overflow-wrap:anywhere}
+#experience-list .experience-bullets>li::before{content:none}
+#experience-list .experience-bullets>li::marker{color:var(--color-accent)}
+#experience-list .experience-highlights{margin-top:6px;padding-top:20px;border-top:1px solid var(--color-border)}
+#experience-list .experience-highlights h5{margin:0;color:var(--color-accent);font-size:14px;font-weight:700;line-height:1.5;letter-spacing:0}
+#experience-list .experience-achievements{margin-top:14px;padding-bottom:0}
+
+/* Compact skill cards retain four highlights. */
+.toolkit-row .skill-card{grid-template-rows:32px auto 1fr}
+.experience-more{margin-top:14px}
+.experience-more>summary{display:block;list-style:none;width:fit-content;min-height:44px;padding:10px 0;cursor:pointer;color:var(--color-accent);font-size:13px;font-weight:700;line-height:1.5}
+.experience-more>summary::-webkit-details-marker{display:none}
+.experience-toggle,.experience-toggle-description{display:block}
+.experience-toggle::before{content:'▸';display:inline-block;margin-right:7px}
+.experience-more[open] .experience-toggle::before{content:'▾'}
+.experience-toggle-description{margin-top:3px;font-size:12px;font-weight:400}
+.navigation [hidden]{display:none!important}
+.navigation #cv-pending{opacity:1;cursor:not-allowed}
+.navigation #cv-pending:hover{background:var(--color-accent);transform:none}
+@media(max-width:1050px){.menu-toggle{display:flex}.navigation{display:none;position:absolute;top:100%;left:0;right:0;padding:20px;flex-direction:column;align-items:stretch;gap:4px;border-bottom:1px solid #363b3d;background:#101213}.navigation.is-open{display:flex}.navigation>a:not(.button){padding:14px!important;font-size:13px}.navigation .button{margin-top:10px}}
+
+/* A full-width continuation card beneath each toolkit group. */
+.toolkit-more{display:flex;align-items:center;justify-content:center;margin:18px 0 0;padding:20px 24px;min-height:64px;border:1px solid #303334;border-radius:8px;background:#131516;color:var(--color-accent);font-size:20px;font-weight:700;line-height:1.35;letter-spacing:-.02em;text-align:center}
+.toolkit-more--workflow{font-size:18px}
+.navigation #cv-pending{padding-block:7px}
+.navigation #cv-pending small{display:block;margin-top:2px;font-size:10px;font-weight:400;line-height:1.2;color:inherit}
+@media(max-width:560px){.toolkit-more{margin-top:14px;padding:18px 20px}.toolkit-more--workflow{font-size:20px}}
+
+
+/* Three-line introduction and an embedded webinar beneath the featured gallery. */
+.hero-title-line{display:block}
+.hero-title-line--white{color:#fff}
+.project-card--featured .project-actions{margin:0;grid-auto-rows:auto}
+.project-card--featured .project-actions .button{min-height:54px}
+.project-webinar{margin:24px 0 0;min-width:0}
+.project-video-frame{position:relative;width:100%;height:0;padding-top:56.25%;overflow:hidden;border:1px solid #34383a;border-radius:8px;background:#080909}
+.project-video-frame iframe{position:absolute;inset:0;display:block;width:100%;height:100%;border:0}
+@media(max-width:560px){
+  #hero-title{font-size:clamp(27px,8vw,44px)}
+  .project-webinar{margin-top:20px}
+}
+
+
+/* Webinar context follows the project description in the right-hand column. */
+.project-webinar-copy{margin-top:32px;min-width:0}
+.project-webinar-copy .project-webinar-description{margin:0}
+.project-webinar-copy .project-webinar-timestamps-label{margin:18px 0 10px;font-weight:700;color:var(--color-text)}
+.project-webinar-chapters{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.project-webinar-chapters li{display:grid;grid-template-columns:max-content minmax(0,1fr);column-gap:12px;align-items:baseline;font-size:13px;line-height:1.6;color:#bdc2c5}
+.project-webinar-time{color:var(--color-accent);font-variant-numeric:tabular-nums;font-size:12px;white-space:nowrap}
+@media(max-width:780px){.project-webinar-copy{margin-top:28px}}
+
+
+/* Shared rows align the webinar copy with the video without stretching paragraphs. */
+.project-card--featured{grid-template-rows:auto auto;row-gap:24px}
+.project-card--featured>.project-webinar{grid-column:1;grid-row:2;margin:0;width:100%;min-width:0;align-self:stretch;flex-shrink:0}
+.project-card--featured>.project-webinar-content{grid-column:2;grid-row:2;padding:0}
+.project-card--featured .project-webinar-copy{margin-top:0}
+@media(max-width:780px){
+  .project-card--featured{gap:0}
+  .project-card--featured>.project-webinar{margin-top:24px}
+  .project-card--featured>.project-webinar-content{margin-top:24px}
+}
+
+
+/* Direct contact links replace the email form; About me links remain compact. */
+.contact-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.contact-copy{min-width:0}
+.contact-links{display:grid;gap:12px;min-width:0;border-left:1px solid #0b0b0b40;padding-left:40px}
+.contact-section .contact-links .social-link{min-height:88px;padding:14px 12px;gap:22px;font-size:21px;font-weight:700;border-radius:8px;transition:background 160ms ease}
+.contact-section .contact-links .social-link>.icon{width:40px;height:40px;color:#0b0b0b}
+.contact-section .contact-links .social-link>span{min-width:0}
+.contact-section .contact-links .social-link small{display:block;margin-top:4px;font-size:14px;font-weight:400;line-height:1.6;color:#3e3600;overflow-wrap:anywhere}
+.contact-section .contact-links .social-link:hover{background:#0b0b0b0c;color:#0b0b0b}
+@media(max-width:1050px){.contact-links{padding-left:24px}}
+@media(max-width:780px){
+  .contact-grid{grid-template-columns:minmax(0,1fr);gap:24px}
+  .contact-links{border-left:0;border-top:1px solid #0b0b0b40;padding:20px 0 0;gap:8px}
+  .contact-section .contact-links .social-link{min-height:82px;padding:12px 0;font-size:20px;gap:20px}
+  .contact-section .contact-links .social-link>.icon{width:36px;height:36px}
+}
